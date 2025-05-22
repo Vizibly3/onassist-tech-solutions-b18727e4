@@ -13,7 +13,20 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    addToCart(service);
+    // Convert config Service type to CartContext Service type
+    const cartService = {
+      id: service.id,
+      title: service.title,
+      description: service.description,
+      price: service.price,
+      duration: service.duration,
+      image_url: service.image, // Map image to image_url
+      category_id: '', // Provide default empty string for category_id
+      popular: service.popular ?? false, // Use nullish coalescing for optional properties
+      active: true // Default to active
+    };
+    
+    addToCart(cartService);
   };
 
   return (
