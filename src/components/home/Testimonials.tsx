@@ -23,7 +23,7 @@ const testimonials = [
     id: 3,
     name: 'Jennifer Smith',
     location: 'Austin, TX',
-    quote: 'My computer was running so slowly, but after the OnAssist technician worked on it, it's like having a brand new machine. Worth every penny!',
+    quote: 'My computer was running so slowly, but after the OnAssist technician worked on it, it is like having a brand new machine. Worth every penny!',
     image: '/placeholder.svg',
     rating: 5,
   },
