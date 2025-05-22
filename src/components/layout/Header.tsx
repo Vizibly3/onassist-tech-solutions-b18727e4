@@ -8,14 +8,26 @@ import {
   User,
   ShoppingCart,
   ChevronDown, 
-  Phone
+  Phone,
+  LogOut,
 } from "lucide-react";
 import { siteConfig } from '@/config/site';
 import { serviceCategories } from '@/config/services';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Will be replaced with actual auth state
+  const { user, signOut, isAdmin } = useAuth();
+  const { totalItems } = useCart();
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
@@ -71,25 +83,62 @@ const Header = () => {
           
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 text-onassist-primary">
+            <a href={`tel:${siteConfig.contactPhone.replace(/[^\d+]/g, '')}`} className="flex items-center gap-2 text-onassist-primary">
               <Phone className="h-4 w-4" />
               <span className="font-medium">{siteConfig.contactPhone}</span>
-            </div>
+            </a>
             
             <Link to="/cart">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-onassist-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
               </Button>
             </Link>
             
-            {isLoggedIn ? (
-              <Link to="/account">
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-              </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/orders" className="cursor-pointer">
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Admin</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/dashboard" className="cursor-pointer">
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-red-500">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Link to="/login">
+              <Link to="/auth/login">
                 <Button>Login</Button>
               </Link>
             )}
@@ -167,27 +216,51 @@ const Header = () => {
                   onClick={() => setIsOpen(false)}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  <span>Cart</span>
+                  <span>Cart {totalItems > 0 && `(${totalItems})`}</span>
                 </Link>
                 
-                {isLoggedIn ? (
-                  <Link 
-                    to="/account"
-                    className="flex items-center gap-2 px-2 py-1"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <User className="h-5 w-5" />
-                    <span>My Account</span>
-                  </Link>
+                {user ? (
+                  <>
+                    <Link 
+                      to="/profile"
+                      className="flex items-center gap-2 px-2 py-1"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <User className="h-5 w-5" />
+                      <span>My Account</span>
+                    </Link>
+                    {isAdmin && (
+                      <Link 
+                        to="/admin/dashboard"
+                        className="flex items-center gap-2 px-2 py-1"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <span>Admin Dashboard</span>
+                      </Link>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      className="w-full flex items-center gap-2"
+                      onClick={() => {
+                        signOut();
+                        setIsOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </Button>
+                  </>
                 ) : (
-                  <Link to="/login" onClick={() => setIsOpen(false)}>
+                  <Link to="/auth/login" onClick={() => setIsOpen(false)}>
                     <Button className="w-full">Login</Button>
                   </Link>
                 )}
                 
                 <div className="flex items-center gap-2 text-onassist-primary px-2 py-1">
                   <Phone className="h-4 w-4" />
-                  <span className="font-medium">{siteConfig.contactPhone}</span>
+                  <a href={`tel:${siteConfig.contactPhone.replace(/[^\d+]/g, '')}`} className="font-medium">
+                    {siteConfig.contactPhone}
+                  </a>
                 </div>
               </div>
             </nav>

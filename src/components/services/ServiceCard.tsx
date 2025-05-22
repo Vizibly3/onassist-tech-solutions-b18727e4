@@ -2,19 +2,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { Service } from '@/config/services';
+import { useCart } from '@/contexts/CartContext';
 
 interface ServiceCardProps {
   service: Service;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
+  const { addToCart } = useCart();
+
   const handleAddToCart = () => {
-    toast.success(`${service.title} added to cart!`, {
-      description: "Go to cart to complete your booking.",
-    });
-    // Here we would dispatch to cart state/context
+    addToCart(service);
   };
 
   return (
