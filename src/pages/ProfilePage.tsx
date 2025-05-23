@@ -7,27 +7,49 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { Loader2 } from 'lucide-react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
-interface Profile {
-  id: string;
-  first_name: string;
-  last_name: string;
-  phone_number: string;
-  address: string;
-  city: string;
-  state: string;
-  zip_code: string;
-}
+const profileFormSchema = z.object({
+  first_name: z.string().min(1, { message: "First name is required" }),
+  last_name: z.string().min(1, { message: "Last name is required" }),
+  phone_number: z.string()
+    .regex(/^(\+\d{1,4}\s?)?\d{5,15}$/, { 
+      message: "Please enter a valid phone number (e.g., +1 1234567890)" 
+    })
+    .optional()
+    .or(z.literal('')),
+  address: z.string().optional().or(z.literal('')),
+  city: z.string().optional().or(z.literal('')),
+  state: z.string().optional().or(z.literal('')),
+  zip_code: z.string().optional().or(z.literal(''))
+});
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const ProfilePage = () => {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      phone_number: '',
+      address: '',
+      city: '',
+      state: '',
+      zip_code: ''
+    },
+  });
 
   useEffect(() => {
     if (user) {
@@ -47,31 +69,29 @@ const ProfilePage = () => {
         throw error;
       }
 
-      setProfile(data || {
-        id: user?.id || '',
-        first_name: '',
-        last_name: '',
-        phone_number: '',
-        address: '',
-        city: '',
-        state: '',
-        zip_code: ''
-      });
+      if (data) {
+        form.reset({
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          phone_number: data.phone_number || '',
+          address: data.address || '',
+          city: data.city || '',
+          state: data.state || '',
+          zip_code: data.zip_code || ''
+        });
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load profile',
-        variant: 'destructive'
+      toast.error('Error', { 
+        description: 'Failed to load profile. Please try again.' 
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile || !user) return;
+  const onSubmit = async (values: ProfileFormValues) => {
+    if (!user) return;
 
     setIsSaving(true);
     try {
@@ -79,29 +99,22 @@ const ProfilePage = () => {
         .from('profiles')
         .upsert({
           id: user.id,
-          ...profile
+          ...values
         });
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Profile updated successfully'
+      toast.success('Success', { 
+        description: 'Profile updated successfully' 
       });
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update profile',
-        variant: 'destructive'
+      toast.error('Error', { 
+        description: 'Failed to update profile. Please try again.' 
       });
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleInputChange = (field: keyof Profile, value: string) => {
-    setProfile(prev => prev ? { ...prev, [field]: value } : null);
   };
 
   if (!user) {
@@ -141,83 +154,123 @@ const ProfilePage = () => {
               <CardTitle>Personal Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="first_name">First Name</Label>
-                    <Input
-                      id="first_name"
-                      value={profile?.first_name || ''}
-                      onChange={(e) => handleInputChange('first_name', e.target.value)}
-                      placeholder="Enter your first name"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="first_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your first name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="last_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your last name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="last_name">Last Name</Label>
-                    <Input
-                      id="last_name"
-                      value={profile?.last_name || ''}
-                      onChange={(e) => handleInputChange('last_name', e.target.value)}
-                      placeholder="Enter your last name"
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="phone_number">Phone Number</Label>
-                  <Input
-                    id="phone_number"
-                    value={profile?.phone_number || ''}
-                    onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                    placeholder="Enter your phone number"
+                  <FormField
+                    control={form.control}
+                    name="phone_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g., +1 1234567890" 
+                            {...field} 
+                            type="tel"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Include your country code (e.g., +1, +91)
+                        </p>
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    value={profile?.address || ''}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    placeholder="Enter your address"
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your address" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={profile?.city || ''}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      placeholder="Enter your city"
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your city" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your state" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="zip_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>ZIP Code</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your ZIP code" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      value={profile?.state || ''}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
-                      placeholder="Enter your state"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="zip_code">ZIP Code</Label>
-                    <Input
-                      id="zip_code"
-                      value={profile?.zip_code || ''}
-                      onChange={(e) => handleInputChange('zip_code', e.target.value)}
-                      placeholder="Enter your ZIP code"
-                    />
-                  </div>
-                </div>
 
-                <Button type="submit" disabled={isSaving} className="w-full">
-                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Profile
-                </Button>
-              </form>
+                  <Button type="submit" disabled={isSaving} className="w-full">
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Profile
+                  </Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
         </div>

@@ -1,7 +1,8 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthContext";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { Service } from "@/hooks/useServices";
 
@@ -53,12 +54,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       
       setIsLoading(true);
       try {
-        let query = supabase
-          .from("cart_items")
-          .select(`
-            *,
-            service:services(*)
-          `);
+        // First, get the cart items
+        let query = supabase.from("cart_items").select("*");
 
         if (user) {
           query = query.eq("user_id", user.id);
@@ -66,14 +63,38 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           query = query.eq("guest_id", guestId);
         }
 
-        const { data, error } = await query;
+        const { data: cartItems, error: cartError } = await query;
 
-        if (error) {
-          console.error("Error fetching cart items:", error);
+        if (cartError) {
+          console.error("Error fetching cart items:", cartError);
+          setIsLoading(false);
           return;
         }
 
-        setCart(data || []);
+        // For each cart item, fetch the corresponding service details
+        const cartWithServices = await Promise.all(
+          cartItems.map(async (item) => {
+            const { data: serviceData, error: serviceError } = await supabase
+              .from("services")
+              .select("*")
+              .eq("id", item.service_id)
+              .single();
+
+            if (serviceError) {
+              console.error("Error fetching service:", serviceError);
+              return null;
+            }
+
+            return {
+              ...item,
+              service: serviceData
+            };
+          })
+        );
+
+        // Filter out nulls (in case of errors) and set the cart
+        const validCartItems = cartWithServices.filter(Boolean) as CartItem[];
+        setCart(validCartItems);
       } catch (error) {
         console.error("Error in fetchCartItems:", error);
       } finally {
@@ -144,9 +165,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (existingItem) {
         // Update quantity if already in cart
         await updateQuantity(existingItem.id, existingItem.quantity + 1);
-        toast({
-          title: "Updated cart",
-          description: `Increased quantity of ${service.title}`,
+        toast.success("Updated cart", {
+          description: `Increased quantity of ${service.title}`
         });
         return;
       }
@@ -161,28 +181,39 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const { data, error } = await supabase
         .from("cart_items")
         .insert(newItem)
-        .select(`
-          *,
-          service:services(*)
-        `)
+        .select()
         .single();
 
       if (error) {
         throw error;
       }
 
-      setCart(prevCart => [...prevCart, data]);
+      // Fetch the service details
+      const { data: serviceData, error: serviceError } = await supabase
+        .from("services")
+        .select("*")
+        .eq("id", service.id)
+        .single();
+
+      if (serviceError) {
+        throw serviceError;
+      }
+
+      // Add the new item to the cart state
+      const newCartItem = {
+        ...data,
+        service: serviceData
+      };
+
+      setCart(prevCart => [...prevCart, newCartItem]);
       
-      toast({
-        title: "Added to cart",
-        description: `${service.title} has been added to your cart`,
+      toast.success("Added to cart", {
+        description: `${service.title} has been added to your cart`
       });
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "Failed to add item to cart"
       });
     }
   };
@@ -201,16 +232,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       setCart(prevCart => prevCart.filter(item => item.id !== itemId));
       
-      toast({
-        title: "Removed from cart",
-        description: "Item has been removed from your cart",
+      toast.success("Removed from cart", {
+        description: "Item has been removed from your cart"
       });
     } catch (error) {
       console.error("Error removing from cart:", error);
-      toast({
-        title: "Error",
-        description: "Failed to remove item from cart",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "Failed to remove item from cart"
       });
     }
   };
@@ -236,12 +264,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           item.id === itemId ? { ...item, quantity } : item
         )
       );
+      
+      toast.success("Quantity updated", {
+        description: "Cart item quantity has been updated"
+      });
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update item quantity",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "Failed to update item quantity"
       });
     }
   };
@@ -264,16 +294,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setCart([]);
-      toast({
-        title: "Cart cleared",
-        description: "All items have been removed from your cart",
+      toast.success("Cart cleared", {
+        description: "All items have been removed from your cart"
       });
     } catch (error) {
       console.error("Error clearing cart:", error);
-      toast({
-        title: "Error",
-        description: "Failed to clear cart",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "Failed to clear cart"
       });
     }
   };

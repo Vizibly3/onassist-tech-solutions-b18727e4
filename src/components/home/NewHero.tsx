@@ -71,7 +71,7 @@ const NewHero = () => {
                 asChild 
                 variant="outline" 
                 size="lg"
-                className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold backdrop-blur-sm"
+                className="border-2 border-white/30 bg-transparent text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold backdrop-blur-sm"
               >
                 <Link to="/contact">
                   Get Free Quote
