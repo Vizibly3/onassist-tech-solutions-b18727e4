@@ -18,9 +18,17 @@ const CategoryPage = () => {
   const category = categories?.find(cat => cat.id === categoryId);
   const isLoading = categoriesLoading || servicesLoading;
   
+  // Create a safe title that's always a string
+  const pageTitle = category?.title ? `${category.title} Services` : 'Services';
+  const pageDescription = category?.description || 'Browse our professional tech support services';
+  
   if (!isLoading && !category) {
     return (
       <Layout>
+        <Helmet>
+          <title>Category not found | {siteConfig.name}</title>
+          <meta name="description" content="The service category you're looking for doesn't exist." />
+        </Helmet>
         <div className="min-h-[50vh] flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Category not found</h1>
@@ -37,8 +45,8 @@ const CategoryPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>{category?.title} Services | {siteConfig.name}</title>
-        <meta name="description" content={category?.description} />
+        <title>{pageTitle} | {siteConfig.name}</title>
+        <meta name="description" content={pageDescription} />
       </Helmet>
       
       <div className="bg-gradient-to-r from-onassist-primary to-onassist-dark text-white py-16">
@@ -64,9 +72,9 @@ const CategoryPage = () => {
             </div>
           ) : (
             <>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">{category?.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">{category?.title || 'Services'}</h1>
               <p className="text-xl max-w-3xl opacity-90">
-                {category?.description}
+                {category?.description || 'Browse our professional tech support services'}
               </p>
             </>
           )}
