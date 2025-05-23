@@ -2,11 +2,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ServiceCategory } from '@/config/services';
+import { ServiceCategory, Service } from '@/hooks/useServices';
 import ServiceCard from './ServiceCard';
 
 interface CategorySectionProps {
-  category: ServiceCategory;
+  category: ServiceCategory & { services: Service[] };
   showAll?: boolean;
 }
 

@@ -2,18 +2,23 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { getCategoryById } from '@/config/services';
+import { useServiceCategories, useServicesByCategory } from '@/hooks/useServices';
 import CategorySection from '@/components/services/CategorySection';
 import { Button } from '@/components/ui/button';
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { ChevronLeft } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const CategoryPage = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
-  const category = getCategoryById(categoryId || '');
+  const { data: categories, isLoading: categoriesLoading } = useServiceCategories();
+  const { data: services, isLoading: servicesLoading } = useServicesByCategory(categoryId || '');
   
-  if (!category) {
+  const category = categories?.find(cat => cat.id === categoryId);
+  const isLoading = categoriesLoading || servicesLoading;
+  
+  if (!isLoading && !category) {
     return (
       <Layout>
         <div className="min-h-[50vh] flex items-center justify-center">
@@ -32,8 +37,8 @@ const CategoryPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>{category.title} Services | {siteConfig.name}</title>
-        <meta name="description" content={category.description} />
+        <title>{category?.title} Services | {siteConfig.name}</title>
+        <meta name="description" content={category?.description} />
       </Helmet>
       
       <div className="bg-gradient-to-r from-onassist-primary to-onassist-dark text-white py-16">
@@ -52,14 +57,33 @@ const CategoryPage = () => {
             </Button>
           </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.title}</h1>
-          <p className="text-xl max-w-3xl opacity-90">
-            {category.description}
-          </p>
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-64 bg-white/20" />
+              <Skeleton className="h-6 w-96 bg-white/20" />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">{category?.title}</h1>
+              <p className="text-xl max-w-3xl opacity-90">
+                {category?.description}
+              </p>
+            </>
+          )}
         </div>
       </div>
       
-      <CategorySection category={category} showAll />
+      {isLoading ? (
+        <div className="container mx-auto px-4 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-96 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      ) : category && services ? (
+        <CategorySection category={{ ...category, services }} showAll />
+      ) : null}
     </Layout>
   );
 };

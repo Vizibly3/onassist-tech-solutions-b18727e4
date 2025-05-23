@@ -1,9 +1,8 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Service } from '@/config/services';
 import { useCart } from '@/contexts/CartContext';
+import { Service } from '@/hooks/useServices';
 
 interface ServiceCardProps {
   service: Service;
@@ -13,20 +12,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    // Convert config Service type to CartContext Service type
-    const cartService = {
-      id: service.id,
-      title: service.title,
-      description: service.description,
-      price: service.price,
-      duration: service.duration,
-      image_url: service.image, // Map image to image_url
-      category_id: '', // Provide default empty string for category_id
-      popular: service.popular ?? false, // Use nullish coalescing for optional properties
-      active: true // Default to active
-    };
-    
-    addToCart(cartService);
+    addToCart(service);
   };
 
   return (
@@ -34,7 +20,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
       {/* Image */}
       <div className="aspect-video relative overflow-hidden bg-gray-100">
         <img 
-          src={service.image} 
+          src={service.image_url} 
           alt={service.title} 
           className="w-full h-full object-cover"
         />
