@@ -1,6 +1,6 @@
 
 import React from 'react';
-import Header from './Header';
+import DynamicHeader from './DynamicHeader';
 import Footer from './Footer';
 import { Toaster } from "@/components/ui/sonner";
 
@@ -11,8 +11,8 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
+      <DynamicHeader />
+      <main className="flex-grow pt-16">
         {children}
       </main>
       <Footer />

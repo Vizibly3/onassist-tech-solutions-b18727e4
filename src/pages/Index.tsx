@@ -1,8 +1,11 @@
 
 import React from 'react';
-import Layout from '@/components/layout/Layout';
-import Hero from '@/components/home/Hero';
+import DynamicHeader from '@/components/layout/DynamicHeader';
+import Footer from '@/components/layout/Footer';
+import NewHero from '@/components/home/NewHero';
 import FeatureServices from '@/components/home/FeatureServices';
+import MeetOurTechnicians from '@/components/home/MeetOurTechnicians';
+import WhyChooseUs from '@/components/home/WhyChooseUs';
 import HowItWorks from '@/components/home/HowItWorks';
 import Testimonials from '@/components/home/Testimonials';
 import CTASection from '@/components/home/CTASection';
@@ -11,21 +14,28 @@ import { siteConfig } from '@/config/site';
 
 const Index = () => {
   return (
-    <Layout>
+    <>
       <Helmet>
         <title>{siteConfig.name} | Professional Tech Support Services</title>
-        <meta name="description" content={siteConfig.description} />
-        <meta property="og:title" content={`${siteConfig.name} | Professional Tech Support Services`} />
-        <meta property="og:description" content={siteConfig.description} />
-        <meta property="og:type" content="website" />
+        <meta name="description" content="Professional tech support services for smart homes, computers, networks, and more. Fast, reliable solutions from certified technicians." />
       </Helmet>
       
-      <Hero />
-      <FeatureServices />
-      <HowItWorks />
-      <Testimonials />
-      <CTASection />
-    </Layout>
+      <div className="min-h-screen">
+        <DynamicHeader />
+        
+        <main className="pt-16">
+          <NewHero />
+          <FeatureServices />
+          <WhyChooseUs />
+          <MeetOurTechnicians />
+          <HowItWorks />
+          <Testimonials />
+          <CTASection />
+        </main>
+        
+        <Footer />
+      </div>
+    </>
   );
 };
 
