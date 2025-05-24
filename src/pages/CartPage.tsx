@@ -6,7 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
 
 const CartPage = () => {
@@ -16,20 +16,17 @@ const CartPage = () => {
 
   const handleCheckout = () => {
     if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please login to continue with checkout",
-        variant: "default",
-      });
+      toast.error('Please login to continue with checkout');
       navigate('/auth/login');
       return;
     }
     
-    // For now, just show a toast message (payment integration will come later)
-    toast({
-      title: "Proceeding to checkout",
-      description: "This feature will be implemented soon!",
-    });
+    if (cart.length === 0) {
+      toast.error('Your cart is empty');
+      return;
+    }
+    
+    navigate('/checkout');
   };
 
   return (

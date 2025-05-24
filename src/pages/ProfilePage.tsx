@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +20,7 @@ const profileFormSchema = z.object({
   last_name: z.string().min(1, { message: "Last name is required" }),
   phone_number: z.string()
     .regex(/^(\+\d{1,4}\s?)?\d{5,15}$/, { 
-      message: "Please enter a valid phone number (e.g., +1 1234567890)" 
+      message: "Please enter a valid phone number (e.g., +91 99999 99999)" 
     })
     .optional()
     .or(z.literal('')),
@@ -53,38 +52,81 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      fetchProfile();
+      fetchOrCreateProfile();
     }
   }, [user]);
 
-  const fetchProfile = async () => {
+  const fetchOrCreateProfile = async () => {
+    if (!user) return;
+    
     try {
-      const { data, error } = await supabase
+      console.log('Fetching profile for user:', user.id);
+      
+      // First try to get existing profile
+      const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      if (fetchError && fetchError.code === 'PGRST116') {
+        // Profile doesn't exist, create one
+        console.log('Profile not found, creating new profile...');
+        
+        const newProfile = {
+          id: user.id,
+          first_name: user.user_metadata?.first_name || '',
+          last_name: user.user_metadata?.last_name || '',
+          phone_number: '',
+          address: '',
+          city: '',
+          state: '',
+          zip_code: ''
+        };
 
-      if (data) {
+        const { data: createdProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert(newProfile)
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          throw createError;
+        }
+
+        console.log('Profile created successfully:', createdProfile);
+        
         form.reset({
-          first_name: data.first_name || '',
-          last_name: data.last_name || '',
-          phone_number: data.phone_number || '',
-          address: data.address || '',
-          city: data.city || '',
-          state: data.state || '',
-          zip_code: data.zip_code || ''
+          first_name: createdProfile.first_name || '',
+          last_name: createdProfile.last_name || '',
+          phone_number: createdProfile.phone_number || '',
+          address: createdProfile.address || '',
+          city: createdProfile.city || '',
+          state: createdProfile.state || '',
+          zip_code: createdProfile.zip_code || ''
+        });
+        
+      } else if (fetchError) {
+        console.error('Error fetching profile:', fetchError);
+        throw fetchError;
+      } else {
+        // Profile exists, populate form
+        console.log('Profile found:', existingProfile);
+        
+        form.reset({
+          first_name: existingProfile.first_name || '',
+          last_name: existingProfile.last_name || '',
+          phone_number: existingProfile.phone_number || '',
+          address: existingProfile.address || '',
+          city: existingProfile.city || '',
+          state: existingProfile.state || '',
+          zip_code: existingProfile.zip_code || ''
         });
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      toast.error('Error', { 
-        description: 'Failed to load profile. Please try again.' 
-      });
+      console.error('Error in fetchOrCreateProfile:', error);
+      toast.error('Failed to load profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -95,23 +137,26 @@ const ProfilePage = () => {
 
     setIsSaving(true);
     try {
+      console.log('Saving profile with values:', values);
+      
       const { error } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
-          ...values
+          ...values,
+          updated_at: new Date().toISOString()
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating profile:', error);
+        throw error;
+      }
 
-      toast.success('Success', { 
-        description: 'Profile updated successfully' 
-      });
+      console.log('Profile updated successfully');
+      toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Error', { 
-        description: 'Failed to update profile. Please try again.' 
-      });
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -162,7 +207,7 @@ const ProfilePage = () => {
                       name="first_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>First Name</FormLabel>
+                          <FormLabel>First Name *</FormLabel>
                           <FormControl>
                             <Input placeholder="Enter your first name" {...field} />
                           </FormControl>
@@ -176,7 +221,7 @@ const ProfilePage = () => {
                       name="last_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Last Name</FormLabel>
+                          <FormLabel>Last Name *</FormLabel>
                           <FormControl>
                             <Input placeholder="Enter your last name" {...field} />
                           </FormControl>
@@ -194,14 +239,14 @@ const ProfilePage = () => {
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="e.g., +1 1234567890" 
+                            placeholder="e.g., +91 99999 99999" 
                             {...field} 
                             type="tel"
                           />
                         </FormControl>
                         <FormMessage />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Include your country code (e.g., +1, +91)
+                          Include your country code (e.g., +91, +1, +44)
                         </p>
                       </FormItem>
                     )}
@@ -214,7 +259,7 @@ const ProfilePage = () => {
                       <FormItem>
                         <FormLabel>Address</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter your address" {...field} />
+                          <Input placeholder="Enter your street address" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

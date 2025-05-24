@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -28,7 +30,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Register = () => {
   const navigate = useNavigate();
-  const { signUp, user } = useAuth();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -54,17 +56,63 @@ const Register = () => {
     setIsSubmitting(true);
     setAuthError(null);
     
-    const { error } = await signUp(
-      data.email, 
-      data.password, 
-      { firstName: data.firstName, lastName: data.lastName }
-    );
-    
-    if (error) {
-      setAuthError(error.message || 'Failed to create account');
-      setIsSubmitting(false);
-    } else {
+    try {
+      console.log('Starting registration process...');
+      
+      // Sign up user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+          },
+        },
+      });
+
+      if (signUpError) {
+        console.error('Sign up error:', signUpError);
+        setAuthError(signUpError.message);
+        return;
+      }
+
+      console.log('User signed up successfully:', authData.user?.id);
+
+      // If user is created, manually create profile (as backup to trigger)
+      if (authData.user) {
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authData.user.id,
+              first_name: data.firstName,
+              last_name: data.lastName,
+              phone_number: '',
+              address: '',
+              city: '',
+              state: '',
+              zip_code: ''
+            });
+
+          if (profileError && profileError.code !== '23505') { // 23505 is duplicate key error
+            console.error('Profile creation error:', profileError);
+          } else {
+            console.log('Profile created successfully');
+          }
+        } catch (profileErr) {
+          console.log('Profile creation handled by trigger or already exists');
+        }
+      }
+
+      toast.success('Account created successfully! Please check your email to confirm your account.');
       navigate('/auth/login');
+      
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      setAuthError(error.message || 'Failed to create account');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,7 +140,7 @@ const Register = () => {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                      <FormLabel>First Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="First name" {...field} />
                       </FormControl>
@@ -106,7 +154,7 @@ const Register = () => {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name</FormLabel>
+                      <FormLabel>Last Name *</FormLabel>
                       <FormControl>
                         <Input placeholder="Last name" {...field} />
                       </FormControl>
@@ -121,7 +169,7 @@ const Register = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email *</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Enter your email" 
@@ -139,7 +187,7 @@ const Register = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Password *</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Create a password" 
@@ -157,7 +205,7 @@ const Register = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>Confirm Password *</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Confirm your password" 
