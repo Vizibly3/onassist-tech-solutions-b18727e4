@@ -20,7 +20,10 @@ const checkoutFormSchema = z.object({
   first_name: z.string().min(1, { message: "First name is required" }),
   last_name: z.string().min(1, { message: "Last name is required" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  phone_number: z.string().min(1, { message: "Phone number is required" }),
+  phone_number: z.string()
+    .regex(/^(\+\d{1,4}\s?)?\d{5,15}$/, { 
+      message: "Please enter a valid phone number (e.g., +91 99999 99999)" 
+    }),
   address: z.string().min(1, { message: "Address is required" }),
   city: z.string().min(1, { message: "City is required" }),
   state: z.string().min(1, { message: "State is required" }),
@@ -70,6 +73,8 @@ const CheckoutPage = () => {
     if (!user) return;
 
     try {
+      console.log('Fetching profile for checkout:', user.id);
+      
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -78,9 +83,11 @@ const CheckoutPage = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
+        toast.error('Unable to load your profile information');
       }
 
       if (profile) {
+        console.log('Profile found for checkout:', profile);
         form.reset({
           first_name: profile.first_name || '',
           last_name: profile.last_name || '',
@@ -92,11 +99,12 @@ const CheckoutPage = () => {
           zip_code: profile.zip_code || ''
         });
       } else {
-        // Use user email if profile doesn't exist
+        console.log('No profile found, using user email only');
         form.setValue('email', user.email || '');
       }
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
+      toast.error('Unable to load profile information');
     } finally {
       setIsLoading(false);
     }
@@ -107,23 +115,36 @@ const CheckoutPage = () => {
 
     setIsProcessing(true);
     try {
-      // Create order
+      console.log('Creating order with values:', values);
+      
+      // Create order with all required fields
+      const orderData = {
+        user_id: user.id,
+        total_amount: totalPrice,
+        status: 'pending',
+        payment_status: 'pending',
+        first_name: values.first_name,
+        last_name: values.last_name,
+        email: values.email,
+        phone_number: values.phone_number,
+        address: values.address,
+        city: values.city,
+        state: values.state,
+        zip_code: values.zip_code
+      };
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: user.id,
-          total_amount: totalPrice,
-          status: 'pending',
-          payment_status: 'pending',
-          ...values
-        })
+        .insert(orderData)
         .select()
         .single();
 
       if (orderError) {
         console.error('Error creating order:', orderError);
-        throw new Error('Failed to create order');
+        throw new Error('Failed to create order. Please try again.');
       }
+
+      console.log('Order created successfully:', order);
 
       // Create order items
       const orderItems = cart.map(item => ({
@@ -140,11 +161,13 @@ const CheckoutPage = () => {
 
       if (itemsError) {
         console.error('Error creating order items:', itemsError);
-        throw new Error('Failed to create order items');
+        throw new Error('Failed to save order details. Please contact support.');
       }
 
+      console.log('Order items created successfully');
+
       // Update profile with new address info if needed
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
@@ -157,15 +180,20 @@ const CheckoutPage = () => {
           zip_code: values.zip_code
         });
 
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        // Don't throw error here as order was successful
+      }
+
       // Clear cart
       clearCart();
 
-      toast.success('Order placed successfully!');
+      toast.success('🎉 Order placed successfully! We will contact you soon.');
       navigate('/my-orders');
 
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.message || 'Failed to process order');
+      toast.error(error.message || 'Failed to process your order. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -284,9 +312,16 @@ const CheckoutPage = () => {
                         <FormItem>
                           <FormLabel>Phone Number *</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., +91 99999 99999" {...field} />
+                            <Input 
+                              placeholder="e.g., +91 99999 99999" 
+                              {...field} 
+                              type="tel"
+                            />
                           </FormControl>
                           <FormMessage />
+                          <p className="text-xs text-muted-foreground">
+                            Include your country code (e.g., +91, +1, +44)
+                          </p>
                         </FormItem>
                       )}
                     />

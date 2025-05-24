@@ -19,6 +19,10 @@ import MyOrdersPage from "./pages/MyOrdersPage";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsPage from "./pages/TermsPage";
+import ReturnsPage from "./pages/ReturnsPage";
+import FAQPage from "./pages/FAQPage";
 
 // Contexts
 import { AuthProvider } from "./contexts/AuthContext";
@@ -47,6 +51,10 @@ const App = () => (
                 <Route path="/my-orders" element={<MyOrdersPage />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/returns" element={<ReturnsPage />} />
+                <Route path="/faq" element={<FAQPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

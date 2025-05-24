@@ -21,7 +21,7 @@ type AuthContextType = {
   profile: Profile | null;
   isAdmin: boolean;
   isLoading: boolean;
-  signUp: (email: string, password: string, data?: { firstName?: string; lastName?: string }) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, data?: { firstName?: string; lastName?: string; phoneNumber?: string }) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<Profile>) => Promise<{ error: any }>;
@@ -78,6 +78,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Create user profile manually
+  const createUserProfile = async (userId: string, userData?: { firstName?: string; lastName?: string; phoneNumber?: string }) => {
+    try {
+      console.log('Creating profile for user:', userId, userData);
+      
+      const profileData = {
+        id: userId,
+        first_name: userData?.firstName || '',
+        last_name: userData?.lastName || '',
+        phone_number: userData?.phoneNumber || '',
+        address: '',
+        city: '',
+        state: '',
+        zip_code: ''
+      };
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert(profileData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating profile:', error);
+        return null;
+      }
+
+      console.log('Profile created successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Error in createUserProfile:', error);
+      return null;
+    }
+  };
+
   // Refresh profile data
   const refreshProfile = async () => {
     if (!user) return;
@@ -121,28 +156,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (
     email: string,
     password: string,
-    data?: { firstName?: string; lastName?: string }
+    data?: { firstName?: string; lastName?: string; phoneNumber?: string }
   ) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log('Signing up user with data:', data);
+      
+      const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             first_name: data?.firstName || "",
             last_name: data?.lastName || "",
+            phone_number: data?.phoneNumber || "",
           },
         },
       });
 
-      if (!error) {
+      if (!error && authData.user) {
+        console.log('User signed up successfully, creating profile...');
+        
+        // Create profile manually since trigger might not be working
+        const profile = await createUserProfile(authData.user.id, data);
+        
+        if (profile) {
+          setProfile(profile);
+        }
+
         toast({
-          title: "Account created",
-          description: "Please check your email to confirm your account",
+          title: "Account created successfully!",
+          description: "Welcome to OnAssist. You can now start using our services.",
         });
-      } else {
+      } else if (error) {
+        console.error('Signup error:', error);
         toast({
-          title: "Error",
+          title: "Registration failed",
           description: error.message,
           variant: "destructive",
         });
@@ -164,9 +212,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) {
+        console.error('Login error:', error);
         toast({
-          title: "Error signing in",
-          description: error.message,
+          title: "Login failed",
+          description: error.message === 'Invalid login credentials' 
+            ? "Incorrect email or password. Please try again." 
+            : error.message,
           variant: "destructive",
         });
       } else {
@@ -203,6 +254,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
 
@@ -210,7 +262,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // use setTimeout to prevent deadlocks
         if (session?.user) {
           setTimeout(async () => {
-            const profile = await fetchProfile(session.user.id);
+            let profile = await fetchProfile(session.user.id);
+            
+            // If no profile exists, create one
+            if (!profile) {
+              console.log('No profile found, creating one...');
+              profile = await createUserProfile(session.user.id, {
+                firstName: session.user.user_metadata?.first_name,
+                lastName: session.user.user_metadata?.last_name,
+                phoneNumber: session.user.user_metadata?.phone_number
+              });
+            }
+            
             setProfile(profile);
             
             const admin = await checkAdminRole(session.user.id);
@@ -228,13 +291,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
         // Use setTimeout for the same reason as above
         setTimeout(async () => {
-          const profile = await fetchProfile(session.user.id);
+          let profile = await fetchProfile(session.user.id);
+          
+          // If no profile exists, create one
+          if (!profile) {
+            console.log('No profile found during init, creating one...');
+            profile = await createUserProfile(session.user.id, {
+              firstName: session.user.user_metadata?.first_name,
+              lastName: session.user.user_metadata?.last_name,
+              phoneNumber: session.user.user_metadata?.phone_number
+            });
+          }
+          
           setProfile(profile);
           
           const admin = await checkAdminRole(session.user.id);

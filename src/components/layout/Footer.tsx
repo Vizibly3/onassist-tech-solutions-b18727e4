@@ -70,30 +70,6 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/careers"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/blog"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/testimonials"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Testimonials
-                </Link>
-              </li>
-              <li>
-                <Link 
                   to="/contact"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
@@ -113,24 +89,8 @@ const Footer = () => {
           
           {/* Support */}
           <div className="space-y-4">
-            <h3 className="text-xl font-medium">Support</h3>
+            <h3 className="text-xl font-medium">Legal</h3>
             <ul className="space-y-2">
-              <li>
-                <Link 
-                  to="/help"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/pricing"
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Pricing
-                </Link>
-              </li>
               <li>
                 <Link 
                   to="/terms"
@@ -145,6 +105,14 @@ const Footer = () => {
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/returns"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Returns & Refunds
                 </Link>
               </li>
             </ul>
