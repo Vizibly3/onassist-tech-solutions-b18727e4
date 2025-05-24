@@ -24,6 +24,11 @@ import TermsPage from "./pages/TermsPage";
 import ReturnsPage from "./pages/ReturnsPage";
 import FAQPage from "./pages/FAQPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminServices from "./pages/admin/AdminServices";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 
 // Contexts
 import { AuthProvider } from "./contexts/AuthContext";
@@ -57,6 +62,11 @@ const App = () => (
                 <Route path="/returns" element={<ReturnsPage />} />
                 <Route path="/faq" element={<FAQPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/categories" element={<AdminCategories />} />
+                <Route path="/admin/services" element={<AdminServices />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -16,8 +16,8 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full left-0 w-full bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
-      <div className="container mx-auto px-4 py-6">
+    <div className="absolute top-full left-0 w-80 bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
+      <div className="p-4">
         {error ? (
           <div className="text-center p-6">
             <p className="text-red-500 mb-2">Failed to load services</p>
@@ -30,7 +30,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
           </div>
         ) : (
           <>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="flex items-center justify-between p-3">
@@ -44,18 +44,11 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
                     key={category.id}
                     to={`/services/${category.id}`}
                     onClick={onClose}
-                    className="group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-sm"
+                    className="group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-sm w-full"
                   >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 group-hover:text-onassist-primary transition-colors">
-                        {category.title}
-                      </h3>
-                      {category.description && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          {category.description}
-                        </p>
-                      )}
-                    </div>
+                    <span className="font-medium text-gray-900 group-hover:text-onassist-primary transition-colors truncate pr-2">
+                      {category.title}
+                    </span>
                     <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-onassist-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </Link>
                 ))
