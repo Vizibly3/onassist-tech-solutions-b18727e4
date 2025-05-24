@@ -23,6 +23,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import ReturnsPage from "./pages/ReturnsPage";
 import FAQPage from "./pages/FAQPage";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 // Contexts
 import { AuthProvider } from "./contexts/AuthContext";
@@ -55,6 +56,7 @@ const App = () => (
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnsPage />} />
                 <Route path="/faq" element={<FAQPage />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

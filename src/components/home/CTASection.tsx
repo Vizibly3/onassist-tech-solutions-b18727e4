@@ -1,108 +1,115 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
+import { Phone, Clock, Shield, Star, ArrowRight, Users } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 
 const CTASection = () => {
   return (
-    <section className="py-20 bg-gradient-to-r from-gray-900 to-onassist-dark text-white relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0">
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-onassist-accent/10 rounded-full"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-onassist-primary/20 rounded-full"></div>
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="h-full w-full bg-grid-white/[0.2]"></div>
-        </div>
+    <section className="relative py-20 bg-gradient-to-br from-onassist-primary via-onassist-dark to-purple-900 overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-pulse"></div>
+        <div className="absolute top-32 right-20 w-16 h-16 bg-white rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute bottom-20 left-20 w-12 h-12 bg-white rounded-full animate-pulse delay-500"></div>
+        <div className="absolute bottom-32 right-32 w-24 h-24 bg-white rounded-full animate-pulse delay-1500"></div>
       </div>
       
-      <div className="container mx-auto px-4 relative">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 animate-slide-up">
-            <h2 className="text-3xl md:text-4xl font-bold">Need Tech Support Right Now?</h2>
-            <p className="text-xl text-white/80">
-              Whether you're having computer problems, WiFi issues, or need help setting up your smart home, 
-              our tech experts are ready to help.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                asChild
-                size="lg" 
-                className="bg-onassist-accent hover:bg-onassist-accent/90 text-white font-medium px-8"
-              >
-                <Link to="/services">Book a Service</Link>
-              </Button>
-              <Button 
-                asChild
-                variant="outline" 
-                size="lg"
-                className="border-white/40 text-white hover:bg-white/10 font-medium px-8"
-              >
-                <a href={`tel:${siteConfig.contactPhone.replace(/\D/g, '')}`}>
-                  {siteConfig.contactPhone}
-                </a>
-              </Button>
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            Need Tech Support 
+            <span className="block text-transparent bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text">
+              Right Now?
+            </span>
+          </h2>
+          <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+            Don't let technology frustrations ruin your day. Our certified experts are standing by 
+            to solve your tech problems quickly and efficiently.
+          </p>
+        </div>
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500 rounded-full mb-4">
+              <Clock className="h-6 w-6 text-white" />
             </div>
+            <div className="text-2xl font-bold text-white mb-1">15 Min</div>
+            <div className="text-blue-200 text-sm">Response Time</div>
           </div>
           
-          <div className="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/20 animate-slide-up md:animate-slide-down shadow-lg">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold mb-2">Why Choose OnAssist?</h3>
-              <p className="text-white/80">The tech support service customers love</p>
+          <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-yellow-500 rounded-full mb-4">
+              <Star className="h-6 w-6 text-white" />
             </div>
+            <div className="text-2xl font-bold text-white mb-1">4.9/5</div>
+            <div className="text-blue-200 text-sm">Customer Rating</div>
+          </div>
+          
+          <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-500 rounded-full mb-4">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">100%</div>
+            <div className="text-blue-200 text-sm">Satisfaction</div>
+          </div>
+          
+          <div className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-red-500 rounded-full mb-4">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">10K+</div>
+            <div className="text-blue-200 text-sm">Happy Customers</div>
+          </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="text-center space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a 
+              href={`tel:${siteConfig.contactPhone.replace(/[^\d+]/g, '')}`}
+              className="group"
+            >
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-green-300/30"
+              >
+                <Phone className="mr-3 h-5 w-5 animate-pulse" />
+                Call Now: {siteConfig.contactPhone}
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </a>
             
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-lg">Fast Response Time</h4>
-                  <p className="text-white/70">Our technicians respond quickly to your tech emergencies.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-lg">Fully Background-Checked</h4>
-                  <p className="text-white/70">All our technicians are carefully vetted and trained.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-lg">Satisfaction Guarantee</h4>
-                  <p className="text-white/70">If you're not happy, we'll make it right.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-lg">Upfront Pricing</h4>
-                  <p className="text-white/70">No surprise fees or hidden costs.</p>
-                </div>
-              </div>
-            </div>
+            <span className="text-blue-200 font-medium">OR</span>
+            
+            <Link to="/contact" className="group">
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white hover:text-onassist-primary font-semibold px-8 py-4 rounded-2xl transform hover:scale-105 transition-all duration-300"
+              >
+                Get Free Quote
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </div>
+          
+          <p className="text-blue-200 text-sm max-w-md mx-auto">
+            💡 <strong>Available 24/7</strong> • No hidden fees • Same-day service available
+          </p>
+        </div>
+
+        {/* Trust badges */}
+        <div className="mt-16 pt-8 border-t border-white/20">
+          <p className="text-center text-blue-200 mb-6 font-medium">Trusted by thousands of customers</p>
+          <div className="flex justify-center items-center space-x-8 opacity-60">
+            <div className="text-white font-bold">CompTIA Certified</div>
+            <div className="w-px h-6 bg-white/30"></div>
+            <div className="text-white font-bold">BBB A+ Rating</div>
+            <div className="w-px h-6 bg-white/30"></div>
+            <div className="text-white font-bold">Fully Insured</div>
           </div>
         </div>
       </div>

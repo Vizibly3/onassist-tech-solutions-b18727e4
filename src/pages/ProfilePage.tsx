@@ -19,7 +19,7 @@ const profileFormSchema = z.object({
   first_name: z.string().min(1, { message: "First name is required" }),
   last_name: z.string().min(1, { message: "Last name is required" }),
   phone_number: z.string()
-    .regex(/^(\+\d{1,4}\s?)?\d{5,15}$/, { 
+    .regex(/^\+\d{1,4}\s\d{5,15}$/, { 
       message: "Please enter a valid phone number (e.g., +91 99999 99999)" 
     })
     .optional()
@@ -33,7 +33,7 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -56,6 +56,21 @@ const ProfilePage = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        phone_number: profile.phone_number || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        zip_code: profile.zip_code || ''
+      });
+      setIsLoading(false);
+    }
+  }, [profile, form]);
+
   const fetchOrCreateProfile = async () => {
     if (!user) return;
     
@@ -77,7 +92,7 @@ const ProfilePage = () => {
           id: user.id,
           first_name: user.user_metadata?.first_name || '',
           last_name: user.user_metadata?.last_name || '',
-          phone_number: '',
+          phone_number: user.user_metadata?.phone || user.phone || '',
           address: '',
           city: '',
           state: '',
@@ -86,7 +101,7 @@ const ProfilePage = () => {
 
         const { data: createdProfile, error: createError } = await supabase
           .from('profiles')
-          .insert(newProfile)
+          .upsert(newProfile)
           .select()
           .single();
 
@@ -153,7 +168,10 @@ const ProfilePage = () => {
       }
 
       console.log('Profile updated successfully');
-      toast.success('Profile updated successfully');
+      toast.success('Profile updated successfully!');
+      
+      // Refresh the profile data
+      await refreshProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile. Please try again.');
@@ -246,7 +264,7 @@ const ProfilePage = () => {
                         </FormControl>
                         <FormMessage />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Include your country code (e.g., +91, +1, +44)
+                          Format: +[Country Code] [Phone Number] (e.g., +91 99999 99999)
                         </p>
                       </FormItem>
                     )}

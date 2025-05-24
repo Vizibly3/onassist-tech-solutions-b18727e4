@@ -47,11 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("role", "admin")
         .single();
 
-      if (error) {
-        return false;
-      }
-      
-      return !!data;
+      return !!data && !error;
     } catch (error) {
       return false;
     }
@@ -66,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("id", userId)
         .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error("Error fetching profile:", error);
         return null;
       }
@@ -78,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Create user profile manually
+  // Create user profile manually with retry mechanism
   const createUserProfile = async (userId: string, userData?: { firstName?: string; lastName?: string; phoneNumber?: string }) => {
     try {
       console.log('Creating profile for user:', userId, userData);
@@ -94,6 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         zip_code: ''
       };
 
+      // First try to insert the profile
       const { data, error } = await supabase
         .from('profiles')
         .insert(profileData)
@@ -102,7 +99,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) {
         console.error('Error creating profile:', error);
-        return null;
+        
+        // If insert fails, try upsert
+        const { data: upsertData, error: upsertError } = await supabase
+          .from('profiles')
+          .upsert(profileData)
+          .select()
+          .single();
+
+        if (upsertError) {
+          console.error('Error upserting profile:', upsertError);
+          return null;
+        }
+
+        console.log('Profile upserted successfully:', upsertData);
+        return upsertData;
       }
 
       console.log('Profile created successfully:', data);
@@ -133,12 +144,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update(data)
-        .eq("id", user.id);
+        .upsert({
+          id: user.id,
+          ...data,
+          updated_at: new Date().toISOString()
+        });
 
       if (!error) {
-        // Refresh profile data after update
-        refreshProfile();
+        await refreshProfile();
         toast({
           title: "Profile updated",
           description: "Your profile has been updated successfully",
@@ -168,7 +181,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           data: {
             first_name: data?.firstName || "",
             last_name: data?.lastName || "",
-            phone_number: data?.phoneNumber || "",
+            phone: data?.phoneNumber || "",
           },
         },
       });
@@ -176,7 +189,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!error && authData.user) {
         console.log('User signed up successfully, creating profile...');
         
-        // Create profile manually since trigger might not be working
+        // Wait a bit for the auth user to be fully created
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Create profile manually
         const profile = await createUserProfile(authData.user.id, data);
         
         if (profile) {
@@ -203,10 +219,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Sign in existing user
+  // Sign in existing user with admin check
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -220,11 +236,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             : error.message,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in",
-        });
+        return { error };
+      }
+
+      if (authData.user) {
+        // Check if user is admin and redirect accordingly
+        const isAdmin = await checkAdminRole(authData.user.id);
+        
+        if (isAdmin) {
+          toast({
+            title: "Welcome back, Admin!",
+            description: "Redirecting to admin dashboard...",
+          });
+          // Redirect to admin dashboard
+          window.location.href = "/admin/dashboard";
+        } else {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully logged in",
+          });
+        }
       }
 
       return { error };
@@ -258,8 +289,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
 
-        // For other auth state changes that need to fetch additional data,
-        // use setTimeout to prevent deadlocks
         if (session?.user) {
           setTimeout(async () => {
             let profile = await fetchProfile(session.user.id);
@@ -270,7 +299,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               profile = await createUserProfile(session.user.id, {
                 firstName: session.user.user_metadata?.first_name,
                 lastName: session.user.user_metadata?.last_name,
-                phoneNumber: session.user.user_metadata?.phone_number
+                phoneNumber: session.user.user_metadata?.phone || session.user.phone
               });
             }
             
@@ -280,7 +309,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setIsAdmin(admin);
             
             setIsLoading(false);
-          }, 0);
+          }, 500);
         } else {
           setProfile(null);
           setIsAdmin(false);
@@ -296,17 +325,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        // Use setTimeout for the same reason as above
         setTimeout(async () => {
           let profile = await fetchProfile(session.user.id);
           
-          // If no profile exists, create one
           if (!profile) {
             console.log('No profile found during init, creating one...');
             profile = await createUserProfile(session.user.id, {
               firstName: session.user.user_metadata?.first_name,
               lastName: session.user.user_metadata?.last_name,
-              phoneNumber: session.user.user_metadata?.phone_number
+              phoneNumber: session.user.user_metadata?.phone || session.user.phone
             });
           }
           
@@ -316,7 +343,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAdmin(admin);
           
           setIsLoading(false);
-        }, 0);
+        }, 500);
       } else {
         setProfile(null);
         setIsAdmin(false);
