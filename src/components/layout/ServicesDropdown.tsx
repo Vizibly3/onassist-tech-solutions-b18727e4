@@ -16,7 +16,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full left-0 w-80 bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
+    <div className="absolute top-full left-0 w-64 bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
       <div className="p-4">
         {error ? (
           <div className="text-center p-6">
@@ -34,7 +34,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="flex items-center justify-between p-3">
-                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-5 w-36" />
                     <Skeleton className="h-4 w-4" />
                   </div>
                 ))
@@ -46,7 +46,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
                     onClick={onClose}
                     className="group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-sm w-full"
                   >
-                    <span className="font-medium text-gray-900 group-hover:text-onassist-primary transition-colors truncate pr-2">
+                    <span className="font-medium text-gray-900 group-hover:text-onassist-primary transition-colors truncate pr-2 text-sm">
                       {category.title}
                     </span>
                     <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-onassist-primary group-hover:translate-x-1 transition-all flex-shrink-0" />

@@ -42,7 +42,7 @@ interface Order {
   state: string;
   zip_code: string;
   created_at: string;
-  order_items: Array<{
+  order_items?: Array<{
     id: string;
     service_title: string;
     service_price: number;
@@ -78,21 +78,32 @@ const AdminOrders = () => {
     try {
       setLoading(true);
       
-      const { data: orders, error } = await supabase
+      // Fetch orders first
+      const { data: orders, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          order_items (
-            id,
-            service_title,
-            service_price,
-            quantity
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setOrders(orders || []);
+      if (ordersError) throw ordersError;
+
+      // Fetch order items separately for each order
+      const ordersWithItems = await Promise.all(
+        (orders || []).map(async (order) => {
+          const { data: orderItems, error: itemsError } = await supabase
+            .from('order_items')
+            .select('id, service_title, service_price, quantity')
+            .eq('order_id', order.id);
+
+          if (itemsError) {
+            console.error('Error fetching order items:', itemsError);
+            return { ...order, order_items: [] };
+          }
+
+          return { ...order, order_items: orderItems || [] };
+        })
+      );
+
+      setOrders(ordersWithItems);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -305,7 +316,7 @@ const AdminOrders = () => {
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {selectedOrder.order_items.map((item) => (
+                                      {selectedOrder.order_items?.map((item) => (
                                         <TableRow key={item.id}>
                                           <TableCell>{item.service_title}</TableCell>
                                           <TableCell>${item.service_price}</TableCell>

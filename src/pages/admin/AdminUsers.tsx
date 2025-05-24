@@ -59,18 +59,22 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       
-      // Fetch profiles with user roles
+      // Fetch profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles (
-            role
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
+
+      // Fetch user roles separately
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) {
+        console.error('Error fetching user roles:', rolesError);
+      }
 
       // Get auth users for email information
       const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
@@ -82,12 +86,12 @@ const AdminUsers = () => {
       // Combine profile and auth data
       const usersWithEmail = profiles?.map(profile => {
         const authUser = authUsers?.users.find(au => au.id === profile.id);
-        const userRole = profile.user_roles?.[0]?.role || 'customer';
+        const userRole = userRoles?.find(ur => ur.user_id === profile.id);
         
         return {
           ...profile,
           email: authUser?.email || 'N/A',
-          role: userRole
+          role: userRole?.role || 'customer'
         };
       }) || [];
 
@@ -210,7 +214,7 @@ const AdminUsers = () => {
                         <Button
                           variant={userProfile.role === 'admin' ? 'destructive' : 'default'}
                           size="sm"
-                          onClick={() => toggleUserRole(userProfile.id, userProfile.role)}
+                          onClick={() => toggleUserRole(userProfile.id, userProfile.role || 'customer')}
                           disabled={userProfile.id === user?.id}
                         >
                           {userProfile.role === 'admin' ? 'Remove Admin' : 'Make Admin'}

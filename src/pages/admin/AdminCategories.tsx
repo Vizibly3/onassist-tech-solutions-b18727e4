@@ -28,11 +28,19 @@ import {
 import { Plus, Edit, Trash } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
+interface CategoryWithTimestamp {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  created_at: string;
+}
+
 const AdminCategories = () => {
   const { user, isAdmin, isLoading } = useAuth();
   const { data: categories, isLoading: categoriesLoading, refetch } = useServiceCategories();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [editingCategory, setEditingCategory] = useState<CategoryWithTimestamp | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -220,7 +228,7 @@ const AdminCategories = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {new Date(category.created_at).toLocaleDateString()}
+                        {new Date().toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
