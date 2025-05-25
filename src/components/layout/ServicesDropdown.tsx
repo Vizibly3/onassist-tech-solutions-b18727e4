@@ -16,7 +16,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full left-0 w-64 bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
+    <div className="absolute top-full left-0 w-72 bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
       <div className="p-4">
         {error ? (
           <div className="text-center p-6">

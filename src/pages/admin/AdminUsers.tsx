@@ -59,21 +59,43 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       
-      // Fetch profiles
-      const { data: profiles, error: profilesError } = await supabase
+      // Fetch profiles with user roles using a proper join
+      const { data: profilesWithRoles, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          user_roles!inner(role)
+        `)
         .order('created_at', { ascending: false });
 
-      if (profilesError) throw profilesError;
+      if (error) {
+        console.error('Error fetching profiles with roles:', error);
+        // Fallback: fetch profiles without roles
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      // Fetch user roles separately
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+        if (profilesError) throw profilesError;
 
-      if (rolesError) {
-        console.error('Error fetching user roles:', rolesError);
+        // Get auth users for email information
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          console.error('Error fetching auth users:', authError);
+        }
+
+        const usersWithEmail = profiles?.map(profile => {
+          const authUser = authUsers?.users.find(au => au.id === profile.id);
+          return {
+            ...profile,
+            email: authUser?.email || 'N/A',
+            role: 'customer'
+          };
+        }) || [];
+
+        setUsers(usersWithEmail);
+        return;
       }
 
       // Get auth users for email information
@@ -83,15 +105,16 @@ const AdminUsers = () => {
         console.error('Error fetching auth users:', authError);
       }
 
-      // Combine profile and auth data
-      const usersWithEmail = profiles?.map(profile => {
+      const usersWithEmail = profilesWithRoles?.map(profile => {
         const authUser = authUsers?.users.find(au => au.id === profile.id);
-        const userRole = userRoles?.find(ur => ur.user_id === profile.id);
+        const userRole = Array.isArray(profile.user_roles) && profile.user_roles.length > 0 
+          ? profile.user_roles[0].role 
+          : 'customer';
         
         return {
           ...profile,
           email: authUser?.email || 'N/A',
-          role: userRole?.role || 'customer'
+          role: userRole
         };
       }) || [];
 
