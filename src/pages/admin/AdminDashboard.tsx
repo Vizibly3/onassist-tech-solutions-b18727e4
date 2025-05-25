@@ -29,23 +29,11 @@ const AdminDashboard = () => {
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [activityLoading, setActivityLoading] = useState(true);
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-16 flex justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth/login" replace />;
-  }
-
   useEffect(() => {
-    fetchRecentActivity();
-  }, []);
+    if (user && isAdmin) {
+      fetchRecentActivity();
+    }
+  }, [user, isAdmin]);
 
   const fetchRecentActivity = async () => {
     try {
@@ -135,6 +123,21 @@ const AdminDashboard = () => {
     if (diffInHours < 24) return `${diffInHours}h ago`;
     return `${Math.floor(diffInHours / 24)}d ago`;
   };
+
+  // Always call hooks in the same order
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 flex justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth/login" replace />;
+  }
 
   const dashboardCards = [
     {

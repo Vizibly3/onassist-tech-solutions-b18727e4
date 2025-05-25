@@ -18,6 +18,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Shield, ShieldCheck } from 'lucide-react';
 
+interface UserRole {
+  role: string;
+}
+
 interface UserProfile {
   id: string;
   first_name: string | null;
@@ -30,6 +34,7 @@ interface UserProfile {
   created_at: string;
   email?: string;
   role?: string;
+  user_roles?: UserRole[];
 }
 
 const AdminUsers = () => {
@@ -59,43 +64,21 @@ const AdminUsers = () => {
     try {
       setLoading(true);
       
-      // Fetch profiles with user roles using a proper join
-      const { data: profilesWithRoles, error } = await supabase
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles!inner(role)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching profiles with roles:', error);
-        // Fallback: fetch profiles without roles
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
+      if (profilesError) throw profilesError;
 
-        if (profilesError) throw profilesError;
+      // Fetch user roles separately
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
 
-        // Get auth users for email information
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-        
-        if (authError) {
-          console.error('Error fetching auth users:', authError);
-        }
-
-        const usersWithEmail = profiles?.map(profile => {
-          const authUser = authUsers?.users.find(au => au.id === profile.id);
-          return {
-            ...profile,
-            email: authUser?.email || 'N/A',
-            role: 'customer'
-          };
-        }) || [];
-
-        setUsers(usersWithEmail);
-        return;
+      if (rolesError) {
+        console.error('Error fetching user roles:', rolesError);
       }
 
       // Get auth users for email information
@@ -105,16 +88,14 @@ const AdminUsers = () => {
         console.error('Error fetching auth users:', authError);
       }
 
-      const usersWithEmail = profilesWithRoles?.map(profile => {
+      const usersWithEmail = profiles?.map(profile => {
         const authUser = authUsers?.users.find(au => au.id === profile.id);
-        const userRole = Array.isArray(profile.user_roles) && profile.user_roles.length > 0 
-          ? profile.user_roles[0].role 
-          : 'customer';
+        const userRole = userRoles?.find(ur => ur.user_id === profile.id);
         
         return {
           ...profile,
           email: authUser?.email || 'N/A',
-          role: userRole
+          role: userRole?.role || 'customer'
         };
       }) || [];
 
