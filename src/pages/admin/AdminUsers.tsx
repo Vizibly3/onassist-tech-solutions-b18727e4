@@ -19,7 +19,13 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, ShieldCheck } from 'lucide-react';
 
 interface UserRole {
+  user_id: string;
   role: string;
+}
+
+interface AuthUser {
+  id: string;
+  email?: string;
 }
 
 interface UserProfile {
@@ -34,7 +40,6 @@ interface UserProfile {
   created_at: string;
   email?: string;
   role?: string;
-  user_roles?: UserRole[];
 }
 
 const AdminUsers = () => {
@@ -89,8 +94,8 @@ const AdminUsers = () => {
       }
 
       const usersWithEmail = profiles?.map(profile => {
-        const authUser = authUsers?.users.find(au => au.id === profile.id);
-        const userRole = userRoles?.find(ur => ur.user_id === profile.id);
+        const authUser = authUsers?.users.find((au: AuthUser) => au.id === profile.id);
+        const userRole = userRoles?.find((ur: UserRole) => ur.user_id === profile.id);
         
         return {
           ...profile,
