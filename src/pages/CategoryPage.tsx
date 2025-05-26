@@ -1,97 +1,135 @@
 
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { useServiceCategories, useServicesByCategory } from '@/hooks/useServices';
-import CategorySection from '@/components/services/CategorySection';
-import { Button } from '@/components/ui/button';
+import ServiceCard from '@/components/services/ServiceCard';
+import { Button } from "@/components/ui/button";
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
-import { ChevronLeft } from 'lucide-react';
+import { useServiceCategories, useServicesByCategory } from '@/hooks/useServices';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowLeft } from 'lucide-react';
 
 const CategoryPage = () => {
-  const { categoryId } = useParams<{ categoryId: string }>();
-  const { data: categories, isLoading: categoriesLoading } = useServiceCategories();
-  const { data: services, isLoading: servicesLoading } = useServicesByCategory(categoryId || '');
-  
+  const { categoryId } = useParams();
+  const navigate = useNavigate();
+  const { data: categories } = useServiceCategories();
+  const { data: services, isLoading, error } = useServicesByCategory(categoryId || '');
+
   const category = categories?.find(cat => cat.id === categoryId);
-  const isLoading = categoriesLoading || servicesLoading;
-  
-  // Create a safe title that's always a string
-  const pageTitle = category?.title ? `${category.title} Services` : 'Services';
-  const pageDescription = category?.description || 'Browse our professional tech support services';
-  
-  if (!isLoading && !category) {
+
+  const handleGoBack = () => {
+    navigate('/services');
+  };
+
+  if (error) {
     return (
       <Layout>
-        <Helmet>
-          <title>Category not found | {siteConfig.name}</title>
-          <meta name="description" content="The service category you're looking for doesn't exist." />
-        </Helmet>
-        <div className="min-h-[50vh] flex items-center justify-center">
+        <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Category not found</h1>
-            <p className="text-gray-600 mb-6">The service category you're looking for doesn't exist.</p>
-            <Button asChild>
-              <Link to="/services">View All Services</Link>
+            <h1 className="text-2xl font-bold mb-4">Error loading services</h1>
+            <p className="text-gray-600 mb-6">Please try again later.</p>
+            <Button onClick={handleGoBack} variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Services
             </Button>
           </div>
         </div>
       </Layout>
     );
   }
-  
+
+  if (!category) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Category not found</h1>
+            <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+            <Button onClick={handleGoBack} variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Services
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <Helmet>
-        <title>{pageTitle} | {siteConfig.name}</title>
-        <meta name="description" content={pageDescription} />
+        <title>{category.title} Services | {siteConfig.name}</title>
+        <meta name="description" content={category.description} />
       </Helmet>
       
+      {/* Hero Section */}
       <div className="bg-gradient-to-r from-onassist-primary to-onassist-dark text-white py-16">
         <div className="container mx-auto px-4">
-          <div className="mb-6">
-            <Button 
-              asChild
-              variant="outline" 
-              size="sm"
-              className="border-white/40 text-white hover:bg-white/10"
-            >
-              <Link to="/services" className="flex items-center gap-1">
-                <ChevronLeft className="h-4 w-4" />
-                All Services
-              </Link>
-            </Button>
-          </div>
+          <Button
+            onClick={handleGoBack}
+            variant="ghost"
+            className="text-white hover:bg-white/10 mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to All Services
+          </Button>
           
-          {isLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-12 w-64 bg-white/20" />
-              <Skeleton className="h-6 w-96 bg-white/20" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">{category.title}</h1>
+              <p className="text-xl opacity-90 mb-6">{category.description}</p>
+              <div className="text-lg">
+                {isLoading ? (
+                  <Skeleton className="h-6 w-32" />
+                ) : (
+                  <span>{services?.length || 0} services available</span>
+                )}
+              </div>
             </div>
-          ) : (
-            <>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">{category?.title || 'Services'}</h1>
-              <p className="text-xl max-w-3xl opacity-90">
-                {category?.description || 'Browse our professional tech support services'}
-              </p>
-            </>
-          )}
+            
+            {category.image_url && (
+              <div className="relative">
+                <img 
+                  src={category.image_url} 
+                  alt={category.title}
+                  className="w-full h-80 object-cover rounded-xl shadow-2xl"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
-      {isLoading ? (
-        <div className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-96 rounded-xl" />
-            ))}
-          </div>
+      {/* Services Grid */}
+      <div className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-96 rounded-xl" />
+              ))}
+            </div>
+          ) : services && services.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((service) => (
+                <ServiceCard key={service.id} service={service} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <h3 className="text-2xl font-semibold mb-4">No services available</h3>
+              <p className="text-gray-600 mb-6">
+                We're working on adding services to this category. Please check back soon!
+              </p>
+              <Button onClick={handleGoBack} variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to All Services
+              </Button>
+            </div>
+          )}
         </div>
-      ) : category && services ? (
-        <CategorySection category={{ ...category, services }} showAll />
-      ) : null}
+      </div>
     </Layout>
   );
 };
