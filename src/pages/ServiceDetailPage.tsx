@@ -7,19 +7,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from '@/contexts/CartContext';
-import { useServices } from '@/hooks/useServices';
+import { useServiceBySlug } from '@/hooks/useServices';
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { Clock, Star, Shield, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ServiceDetailPage = () => {
-  const { serviceId } = useParams();
+  const { serviceSlug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { data: services, isLoading, error } = useServices();
-
-  const service = services?.find(s => s.id === serviceId);
+  const { data: service, isLoading, error } = useServiceBySlug(serviceSlug || '');
 
   const handleAddToCart = () => {
     if (service) {

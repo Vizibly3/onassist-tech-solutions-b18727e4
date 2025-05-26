@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useCart } from '@/contexts/CartContext';
 import { Service } from '@/hooks/useServices';
-import { Clock, Info } from 'lucide-react';
+import { Clock, Info, ArrowUpRight } from 'lucide-react';
 
 interface ServiceCardProps {
   service: Service;
@@ -19,21 +19,40 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
   };
 
   const handleLearnMore = () => {
-    navigate(`/service/${service.id}`);
+    navigate(`/service/${service.slug}`);
+  };
+
+  const handleImageClick = () => {
+    navigate(`/service/${service.slug}`);
+  };
+
+  const handleArrowClick = () => {
+    navigate(`/service/${service.slug}`);
   };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-full group">
       {/* Image */}
-      <div className="aspect-video relative overflow-hidden bg-gray-100">
+      <div className="aspect-video relative overflow-hidden bg-gray-100 cursor-pointer" onClick={handleImageClick}>
         <img 
           src={service.image_url} 
           alt={service.title} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         
+        {/* Arrow button in top right */}
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleArrowClick();
+          }}
+          className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-700 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+        >
+          <ArrowUpRight className="h-4 w-4" />
+        </button>
+        
         {service.popular && (
-          <div className="absolute top-4 right-4 bg-onassist-accent text-white text-xs font-bold py-1 px-3 rounded-full shadow-lg">
+          <div className="absolute top-4 left-4 bg-onassist-accent text-white text-xs font-bold py-1 px-3 rounded-full shadow-lg">
             Popular
           </div>
         )}

@@ -6,17 +6,15 @@ import ServiceCard from '@/components/services/ServiceCard';
 import { Button } from "@/components/ui/button";
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
-import { useServiceCategories, useServicesByCategory } from '@/hooks/useServices';
+import { useServicesByCategory, useCategoryBySlug } from '@/hooks/useServices';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 
 const CategoryPage = () => {
-  const { categoryId } = useParams();
+  const { categorySlug } = useParams();
   const navigate = useNavigate();
-  const { data: categories } = useServiceCategories();
-  const { data: services, isLoading, error } = useServicesByCategory(categoryId || '');
-
-  const category = categories?.find(cat => cat.id === categoryId);
+  const { data: category } = useCategoryBySlug(categorySlug || '');
+  const { data: services, isLoading, error } = useServicesByCategory(categorySlug || '');
 
   const handleGoBack = () => {
     navigate('/services');

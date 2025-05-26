@@ -52,8 +52,8 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/services" element={<ServicesPage />} />
-                  <Route path="/services/:categoryId" element={<CategoryPage />} />
-                  <Route path="/service/:serviceId" element={<ServiceDetailPage />} />
+                  <Route path="/services/:categorySlug" element={<CategoryPage />} />
+                  <Route path="/service/:serviceSlug" element={<ServiceDetailPage />} />
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/cart" element={<CartPage />} />

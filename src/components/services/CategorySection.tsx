@@ -27,7 +27,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, showAll = f
               asChild
               variant="outline"
             >
-              <Link to={`/services/${category.id}`}>
+              <Link to={`/services/${category.slug}`}>
                 View All {category.title} Services
               </Link>
             </Button>
