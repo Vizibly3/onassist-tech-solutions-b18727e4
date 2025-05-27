@@ -192,7 +192,9 @@ const ServiceDetailPage = () => {
         <div className={`py-16 bg-gradient-to-r ${gradientClasses[serviceType as keyof typeof gradientClasses]} text-white relative overflow-hidden`}>
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            }}></div>
           </div>
           
           <div className="container mx-auto px-4 relative">
@@ -340,7 +342,7 @@ const ServiceDetailPage = () => {
                       {service.description}
                     </p>
                     
-                    <h3 className="text-xl font-semibold mb-4">What's Included:</h3>
+                    <h3 className="text-xl font-semibold mb-4">What&apos;s Included:</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       {features.map((feature, index) => (
                         <div key={index} className="flex items-start gap-3">
