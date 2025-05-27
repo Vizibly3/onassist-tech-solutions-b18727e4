@@ -42,7 +42,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
                 categories.map((category) => (
                   <Link
                     key={category.id}
-                    to={`/services/${category.id}`}
+                    to={`/services/${category.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
                     onClick={onClose}
                     className="group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-sm w-full"
                   >

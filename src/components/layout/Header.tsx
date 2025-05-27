@@ -30,6 +30,10 @@ const Header = () => {
   const { totalItems } = useCart();
   const { data: serviceCategories } = useServiceCategories();
 
+  const getCategorySlug = (title: string) => {
+    return title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
       <div className="container mx-auto px-4">
@@ -56,7 +60,7 @@ const Header = () => {
                   {serviceCategories?.map((category) => (
                     <li key={category.id} className="hover:bg-gray-50 rounded">
                       <Link 
-                        to={`/services/${category.slug}`} 
+                        to={`/services/${getCategorySlug(category.title)}`}
                         className="block px-3 py-2 text-sm"
                         onClick={() => setIsOpen(false)}
                       >
@@ -171,7 +175,7 @@ const Header = () => {
                   {serviceCategories?.map((category) => (
                     <Link 
                       key={category.id} 
-                      to={`/services/${category.slug}`}
+                      to={`/services/${getCategorySlug(category.title)}`}
                       className="block px-2 py-1 text-sm"
                       onClick={() => setIsOpen(false)}
                     >
