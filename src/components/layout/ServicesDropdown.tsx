@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useServiceCategories } from '@/hooks/useServices';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight } from 'lucide-react';
+import { slugify } from '@/utils/slugify';
 
 interface ServicesDropdownProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ const ServicesDropdown: React.FC<ServicesDropdownProps> = ({ isOpen, onClose }) 
                 categories.map((category) => (
                   <Link
                     key={category.id}
-                    to={`/services/${category.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                    to={`/services/${slugify(category.title)}`}
                     onClick={onClose}
                     className="group flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-sm w-full"
                   >

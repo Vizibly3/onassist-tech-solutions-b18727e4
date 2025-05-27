@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import ServicesPage from "./pages/ServicesPage";
 import CategoryPage from "./pages/CategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
+import LocationServiceDetailPage from "./pages/LocationServiceDetailPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import CartPage from "./pages/CartPage";
@@ -54,6 +55,10 @@ function App() {
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/services/:categorySlug" element={<CategoryPage />} />
                   <Route path="/service/:serviceSlug" element={<ServiceDetailPage />} />
+                  
+                  {/* Location-based service routes */}
+                  <Route path="/:country/:state/:city/service/:serviceSlug" element={<LocationServiceDetailPage />} />
+                  
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/cart" element={<CartPage />} />

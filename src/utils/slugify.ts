@@ -2,14 +2,9 @@
 export const slugify = (text: string): string => {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-};
-
-export const unslugify = (slug: string): string => {
-  return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with dashes
+    .replace(/[^a-z0-9-]/g, '') // Remove special characters except dashes
+    .replace(/-+/g, '-') // Replace multiple consecutive dashes with single dash
+    .replace(/^-+|-+$/g, ''); // Remove leading and trailing dashes
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { siteConfig } from '@/config/site';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useServiceCategories } from '@/hooks/useServices';
+import { slugify } from '@/utils/slugify';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +29,6 @@ const Header = () => {
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
   const { data: serviceCategories } = useServiceCategories();
-
-  const getCategorySlug = (title: string) => {
-    return title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
@@ -60,7 +56,7 @@ const Header = () => {
                   {serviceCategories?.map((category) => (
                     <li key={category.id} className="hover:bg-gray-50 rounded">
                       <Link 
-                        to={`/services/${getCategorySlug(category.title)}`}
+                        to={`/services/${slugify(category.title)}`}
                         className="block px-3 py-2 text-sm"
                         onClick={() => setIsOpen(false)}
                       >
@@ -175,7 +171,7 @@ const Header = () => {
                   {serviceCategories?.map((category) => (
                     <Link 
                       key={category.id} 
-                      to={`/services/${getCategorySlug(category.title)}`}
+                      to={`/services/${slugify(category.title)}`}
                       className="block px-2 py-1 text-sm"
                       onClick={() => setIsOpen(false)}
                     >
@@ -191,6 +187,7 @@ const Header = () => {
                   </Link>
                 </div>
               </div>
+              
               <Link 
                 to="/pricing" 
                 className="px-2 py-1 font-medium"
