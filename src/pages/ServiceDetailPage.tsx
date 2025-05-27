@@ -10,7 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useServiceBySlug } from '@/hooks/useServices';
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
-import { Clock, Star, Shield, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Clock, Star, Shield, CheckCircle, ArrowLeft, Wrench, Monitor, Home, Smartphone } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ServiceDetailPage = () => {
@@ -27,6 +27,81 @@ const ServiceDetailPage = () => {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  // Dynamic service type detection based on title keywords
+  const getServiceType = (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes('home') || lowerTitle.includes('smart') || lowerTitle.includes('automation')) {
+      return 'home';
+    } else if (lowerTitle.includes('computer') || lowerTitle.includes('laptop') || lowerTitle.includes('pc')) {
+      return 'computer';
+    } else if (lowerTitle.includes('phone') || lowerTitle.includes('mobile') || lowerTitle.includes('iphone')) {
+      return 'mobile';
+    } else if (lowerTitle.includes('audio') || lowerTitle.includes('video') || lowerTitle.includes('tv')) {
+      return 'av';
+    }
+    return 'general';
+  };
+
+  const getServiceIcon = (type: string) => {
+    switch (type) {
+      case 'home': return Home;
+      case 'computer': return Monitor;
+      case 'mobile': return Smartphone;
+      case 'av': return Monitor;
+      default: return Wrench;
+    }
+  };
+
+  const getServiceFeatures = (type: string) => {
+    switch (type) {
+      case 'home':
+        return [
+          'Professional installation and setup',
+          'Device integration and connectivity',
+          'Security configuration',
+          'User training and documentation',
+          'Remote monitoring setup',
+          '30-day support included'
+        ];
+      case 'computer':
+        return [
+          'Hardware diagnosis and repair',
+          'Software installation and updates',
+          'Performance optimization',
+          'Data backup and recovery',
+          'Virus removal and protection',
+          '90-day warranty on repairs'
+        ];
+      case 'mobile':
+        return [
+          'Screen repair and replacement',
+          'Software troubleshooting',
+          'Data transfer and backup',
+          'App setup and configuration',
+          'Privacy and security setup',
+          'Quick turnaround time'
+        ];
+      case 'av':
+        return [
+          'Professional installation',
+          'Calibration and optimization',
+          'Cable management',
+          'Remote setup and programming',
+          'User training included',
+          'Extended warranty options'
+        ];
+      default:
+        return [
+          'Professional consultation',
+          'Complete setup and configuration',
+          'Testing and optimization',
+          'Basic training and support',
+          'Quality guarantee',
+          'Follow-up support'
+        ];
+    }
   };
 
   if (isLoading) {
@@ -65,6 +140,10 @@ const ServiceDetailPage = () => {
     );
   }
 
+  const serviceType = getServiceType(service.title);
+  const ServiceIcon = getServiceIcon(serviceType);
+  const features = getServiceFeatures(serviceType);
+
   return (
     <Layout>
       <Helmet>
@@ -73,8 +152,14 @@ const ServiceDetailPage = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-onassist-primary to-onassist-dark text-white py-12">
+        {/* Hero Section - Dynamic gradient based on service type */}
+        <div className={`py-12 ${
+          serviceType === 'home' ? 'bg-gradient-to-r from-green-600 to-emerald-700' :
+          serviceType === 'computer' ? 'bg-gradient-to-r from-blue-600 to-indigo-700' :
+          serviceType === 'mobile' ? 'bg-gradient-to-r from-purple-600 to-pink-700' :
+          serviceType === 'av' ? 'bg-gradient-to-r from-red-600 to-orange-700' :
+          'bg-gradient-to-r from-onassist-primary to-onassist-dark'
+        } text-white`}>
           <div className="container mx-auto px-4">
             <Button
               onClick={handleGoBack}
@@ -88,9 +173,10 @@ const ServiceDetailPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
                 <div className="flex items-center gap-3 mb-4">
+                  <ServiceIcon className="w-8 h-8" />
                   <h1 className="text-4xl md:text-5xl font-bold">{service.title}</h1>
                   {service.popular && (
-                    <Badge className="bg-onassist-accent text-white border-0">
+                    <Badge className="bg-yellow-500 text-yellow-900 border-0">
                       <Star className="w-3 h-3 mr-1 fill-current" />
                       Popular
                     </Badge>
@@ -113,7 +199,7 @@ const ServiceDetailPage = () => {
                 <img 
                   src={service.image_url} 
                   alt={service.title}
-                  className="w-full h-80 object-cover rounded-xl shadow-2xl"
+                  className="w-full h-80 object-cover rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300"
                 />
               </div>
             </div>
@@ -125,9 +211,13 @@ const ServiceDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Service Details */}
             <div className="lg:col-span-2 space-y-8">
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-lg border-0 overflow-hidden">
                 <CardContent className="p-8">
-                  <h2 className="text-2xl font-bold mb-6">Service Overview</h2>
+                  <div className="flex items-center gap-3 mb-6">
+                    <ServiceIcon className="w-6 h-6 text-onassist-primary" />
+                    <h2 className="text-2xl font-bold">Service Overview</h2>
+                  </div>
+                  
                   <div className="prose prose-lg max-w-none">
                     <p className="text-gray-700 leading-relaxed mb-6">
                       {service.description}
@@ -135,44 +225,83 @@ const ServiceDetailPage = () => {
                     
                     <h3 className="text-xl font-semibold mb-4">What's Included:</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                        <span>Professional installation</span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                        <span>Complete setup and configuration</span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                        <span>Testing and optimization</span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                        <span>Basic training and support</span>
-                      </div>
+                      {features.map((feature, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
                     </div>
 
-                    <h3 className="text-xl font-semibold mb-4">Why Choose Our Service:</h3>
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
-                          <Shield className="w-8 h-8 text-onassist-primary mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Certified Experts</h4>
-                          <p className="text-sm text-gray-600">Our technicians are fully certified and experienced</p>
-                        </div>
-                        <div className="text-center">
-                          <Clock className="w-8 h-8 text-onassist-primary mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Quick Service</h4>
-                          <p className="text-sm text-gray-600">Fast and efficient service completion</p>
-                        </div>
-                        <div className="text-center">
-                          <Star className="w-8 h-8 text-onassist-primary mx-auto mb-2" />
-                          <h4 className="font-semibold mb-1">Quality Guarantee</h4>
-                          <p className="text-sm text-gray-600">100% satisfaction guarantee on all services</p>
+                    {/* Dynamic content based on service type */}
+                    {serviceType === 'home' && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-4 text-green-800">Smart Home Expertise</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="text-center">
+                            <Home className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Home Integration</h4>
+                            <p className="text-sm text-gray-600">Seamless device connectivity</p>
+                          </div>
+                          <div className="text-center">
+                            <Shield className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Security Setup</h4>
+                            <p className="text-sm text-gray-600">Advanced security configuration</p>
+                          </div>
+                          <div className="text-center">
+                            <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">24/7 Monitoring</h4>
+                            <p className="text-sm text-gray-600">Continuous system monitoring</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
+
+                    {serviceType === 'computer' && (
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-4 text-blue-800">Computer Repair Specialists</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="text-center">
+                            <Monitor className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Hardware Experts</h4>
+                            <p className="text-sm text-gray-600">Certified repair technicians</p>
+                          </div>
+                          <div className="text-center">
+                            <Shield className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Data Security</h4>
+                            <p className="text-sm text-gray-600">Safe data handling and recovery</p>
+                          </div>
+                          <div className="text-center">
+                            <Star className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Quality Guarantee</h4>
+                            <p className="text-sm text-gray-600">90-day warranty on all repairs</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {(serviceType === 'general' || serviceType === 'av' || serviceType === 'mobile') && (
+                      <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-4 text-purple-800">Professional Service</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="text-center">
+                            <Wrench className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Expert Technicians</h4>
+                            <p className="text-sm text-gray-600">Certified and experienced</p>
+                          </div>
+                          <div className="text-center">
+                            <Clock className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Quick Service</h4>
+                            <p className="text-sm text-gray-600">Fast and efficient completion</p>
+                          </div>
+                          <div className="text-center">
+                            <Star className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                            <h4 className="font-semibold mb-1">Quality Guarantee</h4>
+                            <p className="text-sm text-gray-600">100% satisfaction guaranteed</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

@@ -12,9 +12,9 @@ import {
   LogOut,
 } from "lucide-react";
 import { siteConfig } from '@/config/site';
-import { serviceCategories } from '@/config/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { useServiceCategories } from '@/hooks/useServices';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
+  const { data: serviceCategories } = useServiceCategories();
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
@@ -52,10 +53,10 @@ const Header = () => {
               {/* Services Dropdown */}
               <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg rounded-md p-4 min-w-[200px] animate-fade-in">
                 <ul className="space-y-2">
-                  {serviceCategories.map((category) => (
+                  {serviceCategories?.map((category) => (
                     <li key={category.id} className="hover:bg-gray-50 rounded">
                       <Link 
-                        to={`/services/${category.id}`} 
+                        to={`/services/${category.slug}`} 
                         className="block px-3 py-2 text-sm"
                         onClick={() => setIsOpen(false)}
                       >
@@ -167,10 +168,10 @@ const Header = () => {
                   <ChevronDown className="h-4 w-4" />
                 </div>
                 <div className="pl-4 mt-2 border-l-2 border-gray-100 space-y-2">
-                  {serviceCategories.map((category) => (
+                  {serviceCategories?.map((category) => (
                     <Link 
                       key={category.id} 
-                      to={`/services/${category.id}`}
+                      to={`/services/${category.slug}`}
                       className="block px-2 py-1 text-sm"
                       onClick={() => setIsOpen(false)}
                     >
