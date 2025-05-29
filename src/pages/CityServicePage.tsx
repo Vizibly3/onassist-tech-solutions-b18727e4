@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { useServiceCategories, useCategoriesWithServices } from '@/hooks/useServices';
-import { getLocationBreadcrumb, usStates } from '@/data/locations';
+import { getLocationBreadcrumb } from '@/data/locations';
 import { 
   MapPin, 
   Star, 
@@ -26,7 +26,8 @@ import {
   Shield,
   Zap,
   Building,
-  Heart
+  Heart,
+  Navigation
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { slugify } from '@/utils/slugify';
@@ -39,21 +40,21 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-const StateServicePage = () => {
-  const { country, state } = useParams();
+const CityServicePage = () => {
+  const { country, state, city } = useParams();
   const { data: categories } = useServiceCategories();
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
   // Get location data
-  const locationData = getLocationBreadcrumb(country || '', state || '', '');
+  const locationData = getLocationBreadcrumb(country || '', state || '', city || '');
   
-  if (!locationData.state || !locationData.country) {
+  if (!locationData.city || !locationData.state || !locationData.country) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">State not found</h1>
-            <p className="text-gray-600 mb-6">The state you're looking for doesn't exist.</p>
+            <h1 className="text-2xl font-bold mb-4">City not found</h1>
+            <p className="text-gray-600 mb-6">The city you're looking for doesn't exist.</p>
             <Button asChild variant="outline">
               <Link to="/">Go Home</Link>
             </Button>
@@ -63,55 +64,49 @@ const StateServicePage = () => {
     );
   }
 
+  const cityData = locationData.city;
   const stateData = locationData.state;
   const countryData = locationData.country;
 
   // Get popular services (first 5 categories)
   const popularCategories = categoriesWithServices?.slice(0, 5) || [];
 
-  // Sample testimonials specific to state
-  const stateTestimonials = [
+  // Sample testimonials specific to city
+  const cityTestimonials = [
     {
-      name: `John D.`,
-      location: `${stateData.name}`,
+      name: `Alex R.`,
+      location: `${cityData.name}, ${stateData.abbreviation}`,
       rating: 5,
-      text: `Excellent tech support service in ${stateData.name}. Professional and reliable team that solved my computer issues quickly.`
+      text: `Amazing tech support service in ${cityData.name}. They fixed my laptop the same day and explained everything clearly.`
     },
     {
-      name: `Sarah M.`,
-      location: `${stateData.name}`,
+      name: `Maria L.`,
+      location: `${cityData.name}, ${stateData.abbreviation}`,
       rating: 5,
-      text: `Best IT support I've found in ${stateData.name}. They were able to set up my smart home system perfectly.`
+      text: `Best smart home setup in ${cityData.name}! Professional team that made everything work perfectly together.`
     },
     {
-      name: `Mike R.`,
-      location: `${stateData.name}`,
+      name: `James K.`,
+      location: `${cityData.name}, ${stateData.abbreviation}`,
       rating: 5,
-      text: `Outstanding service throughout ${stateData.name}. Quick response time and very knowledgeable technicians.`
+      text: `Excellent service in ${cityData.name}. Quick response, fair pricing, and very knowledgeable technicians.`
     }
   ];
 
-  // Sample specialists
-  const stateSpecialists = [
+  // Sample specialists for city
+  const citySpecialists = [
     {
-      name: `David ${stateData.abbreviation}`,
-      specialty: 'Computer Repair Specialist',
-      experience: '8+ years',
-      location: `${stateData.name}`,
+      name: `Michael ${cityData.name.charAt(0)}.`,
+      specialty: 'Senior Tech Specialist',
+      experience: '7+ years',
+      location: `${cityData.name}, ${stateData.abbreviation}`,
       image: '/placeholder.svg'
     },
     {
-      name: `Lisa ${stateData.abbreviation}`,
+      name: `Jennifer ${cityData.name.charAt(0)}.`,
       specialty: 'Smart Home Expert',
-      experience: '6+ years',
-      location: `${stateData.name}`,
-      image: '/placeholder.svg'
-    },
-    {
-      name: `Carlos ${stateData.abbreviation}`,
-      specialty: 'Network Specialist',
-      experience: '10+ years',
-      location: `${stateData.name}`,
+      experience: '5+ years',
+      location: `${cityData.name}, ${stateData.abbreviation}`,
       image: '/placeholder.svg'
     }
   ];
@@ -128,9 +123,9 @@ const StateServicePage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>Best Tech Support Services in {stateData.name} | {siteConfig.name}</title>
-        <meta name="description" content={`Professional tech support services throughout ${stateData.name}. Expert technicians serving all cities in ${stateData.abbreviation} with guaranteed satisfaction.`} />
-        <meta name="keywords" content={`tech support ${stateData.name}, computer repair ${stateData.abbreviation}, IT services ${stateData.name}`} />
+        <title>Best Tech Support Services in {cityData.name}, {stateData.abbreviation} | {siteConfig.name}</title>
+        <meta name="description" content={`Professional tech support services in ${cityData.name}, ${stateData.name}. Expert technicians providing computer repair, smart home setup, and IT support with same-day service.`} />
+        <meta name="keywords" content={`tech support ${cityData.name}, computer repair ${cityData.name} ${stateData.abbreviation}, IT services ${cityData.name}`} />
       </Helmet>
 
       {/* Breadcrumb */}
@@ -156,8 +151,16 @@ const StateServicePage = () => {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to={`/${country}/${state}`} className="text-gray-600 hover:text-onassist-primary transition-colors">
+                    {stateData.name}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
                 <BreadcrumbPage className="font-medium text-onassist-primary">
-                  {stateData.name}
+                  {cityData.name}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -166,50 +169,50 @@ const StateServicePage = () => {
       </div>
 
       {/* Hero Section - Modern Design */}
-      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-indigo-800 text-white overflow-hidden">
+      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.4\"%3E%3Cpath d=\"M30 30c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/svg%3E')]"></div>
         </div>
         
         {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
+        <div className="absolute top-20 left-10 w-24 h-24 bg-white/10 rounded-full animate-pulse"></div>
         <div className="absolute top-40 right-20 w-32 h-32 bg-white/5 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white/10 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute bottom-20 left-1/4 w-20 h-20 bg-white/10 rounded-full animate-pulse delay-500"></div>
         
         <div className="relative container mx-auto px-4 py-20">
           <div className="max-w-5xl mx-auto text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 mb-8">
-              <MapPin className="w-5 h-5" />
-              <span className="font-medium">Serving {stateData.name}</span>
+              <Navigation className="w-5 h-5" />
+              <span className="font-medium">Now Serving {cityData.name}</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                Tech Support Services
+                Tech Support in
               </span>
               <br />
-              <span className="text-yellow-300">in {stateData.name}</span>
+              <span className="text-yellow-300">{cityData.name}</span>
             </h1>
             
             <p className="text-xl md:text-2xl opacity-90 mb-10 leading-relaxed max-w-3xl mx-auto">
-              Professional technology support throughout <strong>{stateData.name} ({stateData.abbreviation})</strong>. 
-              Our certified technicians provide reliable solutions across all cities in {stateData.name}.
+              Professional technology support in <strong>{cityData.name}, {stateData.name}</strong>. 
+              Our local technicians provide same-day service for all your tech needs.
             </p>
             
-            {/* Stats */}
+            {/* Local Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">500+</div>
-                <div className="text-sm opacity-80">Happy Customers in {stateData.abbreviation}</div>
+                <div className="text-3xl font-bold mb-2">Local</div>
+                <div className="text-sm opacity-80">Technicians in {cityData.name}</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">24/7</div>
-                <div className="text-sm opacity-80">Support Available</div>
+                <div className="text-3xl font-bold mb-2">Same Day</div>
+                <div className="text-sm opacity-80">Service Available</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">98%</div>
+                <div className="text-3xl font-bold mb-2">100%</div>
                 <div className="text-sm opacity-80">Satisfaction Rate</div>
               </div>
             </div>
@@ -221,28 +224,28 @@ const StateServicePage = () => {
                 Call {siteConfig.contactPhone}
               </Button>
               <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-semibold px-8 py-4 rounded-full backdrop-blur-sm">
-                <MapPin className="w-5 h-5 mr-2" />
-                Find Local Service
+                <Clock className="w-5 h-5 mr-2" />
+                Schedule Service Today
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Local Services Section - Modern Card Design */}
+      {/* Local Services Section */}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-onassist-primary/10 text-onassist-primary rounded-full px-6 py-2 mb-4">
               <Building className="w-5 h-5" />
-              <span className="font-medium">Local Expertise</span>
+              <span className="font-medium">Local Service</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Local Tech Support Services in <span className="text-onassist-primary">{stateData.name}</span>
+              Tech Support Services in <span className="text-onassist-primary">{cityData.name}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We provide comprehensive technology support services to homes and businesses throughout {stateData.name}. 
-              Our local technicians understand the unique needs of {stateData.abbreviation} residents.
+              We provide comprehensive technology support services to homes and businesses in {cityData.name}, {stateData.name}. 
+              Our local technicians are just minutes away from your location.
             </p>
           </div>
 
@@ -254,7 +257,7 @@ const StateServicePage = () => {
                 </div>
                 <h3 className="font-bold text-xl mb-3">Computer Repair</h3>
                 <p className="text-gray-600">
-                  Expert computer and laptop repair services throughout {stateData.name}
+                  Expert computer and laptop repair services in {cityData.name}
                 </p>
               </CardContent>
             </Card>
@@ -266,7 +269,7 @@ const StateServicePage = () => {
                 </div>
                 <h3 className="font-bold text-xl mb-3">Smart Home Setup</h3>
                 <p className="text-gray-600">
-                  Professional smart home installation and automation in {stateData.abbreviation}
+                  Professional smart home installation in {cityData.name}, {stateData.abbreviation}
                 </p>
               </CardContent>
             </Card>
@@ -278,7 +281,7 @@ const StateServicePage = () => {
                 </div>
                 <h3 className="font-bold text-xl mb-3">Network Support</h3>
                 <p className="text-gray-600">
-                  WiFi setup and network troubleshooting for {stateData.name} homes and offices
+                  WiFi setup and network troubleshooting in {cityData.name}
                 </p>
               </CardContent>
             </Card>
@@ -286,24 +289,24 @@ const StateServicePage = () => {
         </div>
       </section>
 
-      {/* What People in State Say - Enhanced Design */}
+      {/* What People in City Say */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 rounded-full px-6 py-2 mb-4">
               <Heart className="w-5 h-5" />
-              <span className="font-medium">Customer Love</span>
+              <span className="font-medium">Happy Customers</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              What <span className="text-onassist-primary">{stateData.name}</span> People Say
+              What <span className="text-onassist-primary">{cityData.name}</span> Customers Say
             </h2>
             <p className="text-xl text-gray-600">
-              Trusted by residents across {stateData.name}
+              Trusted by residents and businesses in {cityData.name}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {stateTestimonials.map((testimonial, index) => (
+            {cityTestimonials.map((testimonial, index) => (
               <Card key={index} className="shadow-xl border-0 bg-gradient-to-br from-gray-50 to-white hover:shadow-2xl transition-all duration-300">
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
@@ -328,19 +331,19 @@ const StateServicePage = () => {
         </div>
       </section>
 
-      {/* Most Popular Services - Enhanced */}
+      {/* Most Popular Services */}
       <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-onassist-primary/10 text-onassist-primary rounded-full px-6 py-2 mb-4">
               <Zap className="w-5 h-5" />
-              <span className="font-medium">Most Popular</span>
+              <span className="font-medium">Most Requested</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Top Services in <span className="text-onassist-primary">{stateData.name}</span>
+              Popular Services in <span className="text-onassist-primary">{cityData.name}</span>
             </h2>
             <p className="text-xl text-gray-600">
-              Top-rated tech support services for {stateData.abbreviation} residents
+              Top tech solutions for {cityData.name}, {stateData.abbreviation} residents
             </p>
           </div>
 
@@ -365,7 +368,7 @@ const StateServicePage = () => {
                       {category.services.slice(0, 3).map((service) => (
                         <Link
                           key={service.id}
-                          to={`/${country}/${state}/service/${service.slug}`}
+                          to={`/${country}/${state}/${city}/service/${service.slug}`}
                           className="block text-gray-700 hover:text-onassist-primary transition-colors p-2 rounded hover:bg-gray-50"
                         >
                           • {service.title}
@@ -374,10 +377,10 @@ const StateServicePage = () => {
                     </div>
                     
                     <Link
-                      to={`/services/${category.slug}`}
+                      to={`/${country}/${state}/${city}/service/${category.slug}`}
                       className="inline-flex items-center gap-2 text-onassist-primary font-semibold group-hover:gap-3 transition-all"
                     >
-                      View All Services
+                      View All {category.title} Services
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </CardContent>
@@ -388,8 +391,8 @@ const StateServicePage = () => {
 
           <div className="text-center mt-12">
             <Button asChild variant="outline" size="lg" className="border-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white font-semibold px-8 py-4 rounded-full">
-              <Link to="/services">
-                View All Service Categories
+              <Link to={`/${country}/${state}/${city}/services`}>
+                View All Services in {cityData.name}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>
@@ -397,24 +400,24 @@ const StateServicePage = () => {
         </div>
       </section>
 
-      {/* Meet State Specialists - Enhanced */}
+      {/* Meet City Specialists */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-6 py-2 mb-4">
               <Award className="w-5 h-5" />
-              <span className="font-medium">Expert Team</span>
+              <span className="font-medium">Local Experts</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Meet Some <span className="text-onassist-primary">{stateData.name}</span> Specialists
+              Meet {cityData.name} Tech Specialists
             </h2>
             <p className="text-xl text-gray-600">
-              Expert technicians serving communities across {stateData.abbreviation}
+              Local experts ready to assist you in {cityData.name}, {stateData.abbreviation}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {stateSpecialists.map((specialist, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {citySpecialists.map((specialist, index) => (
               <Card key={index} className="shadow-xl text-center border-0 bg-gradient-to-b from-white to-gray-50 hover:shadow-2xl transition-all duration-300">
                 <CardContent className="p-8">
                   <div className="relative mb-6">
@@ -436,7 +439,7 @@ const StateServicePage = () => {
                   </div>
                   <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 rounded-full px-4 py-2">
                     <Award className="w-4 h-4" />
-                    <span className="text-sm font-medium">Certified Professional</span>
+                    <span className="text-sm font-medium">Local Tech Expert</span>
                   </div>
                 </CardContent>
               </Card>
@@ -445,76 +448,35 @@ const StateServicePage = () => {
         </div>
       </section>
 
-      {/* Cities in State - Modern Grid */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-6 py-2 mb-4">
-              <MapPin className="w-5 h-5" />
-              <span className="font-medium">Service Areas</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Cities We Serve in <span className="text-onassist-primary">{stateData.name}</span>
-            </h2>
-            <p className="text-xl text-gray-600">
-              Professional tech support services across {stateData.abbreviation}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {stateData.cities.map((city) => (
-              <Card key={city.slug} className="group shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-white hover:-translate-y-1">
-                <CardContent className="p-6">
-                  <Link
-                    to={`/${country}/${state}/${city.slug}`}
-                    className="block text-center"
-                  >
-                    <div className="bg-gradient-to-br from-onassist-primary to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <MapPin className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 group-hover:text-onassist-primary transition-colors mb-2">
-                      {city.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Tech Support Available
-                    </p>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section - Enhanced */}
-      <section className="py-20 bg-gradient-to-br from-onassist-primary via-blue-600 to-indigo-800 text-white relative overflow-hidden">
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.4\"%3E%3Cpath d=\"M30 30c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/svg%3E')]"></div>
         </div>
         
         <div className="relative container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ready to Get Tech Support in <span className="text-yellow-300">{stateData.name}</span>?
+              Need Tech Support in <span className="text-yellow-300">{cityData.name}</span>?
             </h2>
             <p className="text-xl md:text-2xl opacity-90 mb-10 leading-relaxed">
-              Join thousands of satisfied customers across <strong>{stateData.abbreviation}</strong> who trust us with their technology needs.
+              Our local technicians are ready to help you with any technology issue in {cityData.name}, {stateData.abbreviation}.
             </p>
             
             {/* Enhanced Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">Same Day</div>
-                <div className="text-sm opacity-80">Service Available</div>
+                <div className="text-3xl font-bold mb-2">30 Min</div>
+                <div className="text-sm opacity-80">Response Time</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">100%</div>
-                <div className="text-sm opacity-80">Satisfaction Guarantee</div>
+                <div className="text-3xl font-bold mb-2">5-Star</div>
+                <div className="text-sm opacity-80">Service Rating</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">Licensed</div>
-                <div className="text-sm opacity-80">& Insured Technicians</div>
+                <div className="text-3xl font-bold mb-2">Local</div>
+                <div className="text-sm opacity-80">{cityData.name} Experts</div>
               </div>
             </div>
             
@@ -525,7 +487,7 @@ const StateServicePage = () => {
               </Button>
               <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-bold px-10 py-5 rounded-full backdrop-blur-sm text-lg">
                 <Clock className="w-6 h-6 mr-3" />
-                Schedule Service
+                Book Online
               </Button>
             </div>
           </div>
@@ -535,4 +497,4 @@ const StateServicePage = () => {
   );
 };
 
-export default StateServicePage;
+export default CityServicePage;
