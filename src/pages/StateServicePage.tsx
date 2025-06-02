@@ -171,7 +171,9 @@ const StateServicePage = () => {
       <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/svg%3E')]"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z'/%3E%3C/g%3E%3C/svg%3E")`
+          }}></div>
         </div>
         
         <div className="relative container mx-auto px-4 py-20">
@@ -244,24 +246,28 @@ const StateServicePage = () => {
           </div>
 
           <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {stateData.cities.map((city, index) => (
                 <Link
                   key={city.name}
                   to={`/${country}/${state}/${city.slug}`}
-                  className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-200 hover:border-onassist-primary/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                  className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-onassist-primary/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="p-6 text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                       <Building className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="font-bold text-lg mb-2 group-hover:text-onassist-primary transition-colors">
-                      {city.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {stateData.abbreviation}
-                    </p>
-                    <div className="absolute inset-0 bg-gradient-to-br from-onassist-primary/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-1 group-hover:text-onassist-primary transition-colors">
+                        {city.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {stateData.abbreviation}
+                      </p>
+                    </div>
+                    <div className="text-onassist-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <ArrowRight className="w-5 h-5" />
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -430,7 +436,9 @@ const StateServicePage = () => {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/svg%3E')]"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z'/%3E%3C/g%3E%3C/svg%3E")`
+          }}></div>
         </div>
         
         <div className="relative container mx-auto px-4 text-center">
