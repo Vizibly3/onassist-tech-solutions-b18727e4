@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -385,39 +384,68 @@ const CountryPage = () => {
         </div>
       </section>
 
-      {/* Popular Services Nationwide */}
+      {/* Popular Services */}
       <section className="py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 bg-onassist-primary/10 text-onassist-primary rounded-full px-8 py-3 mb-6">
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-8 py-3 mb-6">
               <Zap className="w-6 h-6" />
               <span className="font-medium text-lg">Most Popular</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-bold mb-8">
-              Top Services Across <span className="text-onassist-primary">{countryData.name}</span>
+              Top Services in <span className="text-onassist-primary">{countryData.name}</span>
             </h2>
             <p className="text-2xl text-gray-600">
-              Most requested tech solutions nationwide
+              Most requested tech solutions across the nation
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {allServices.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                linkPath={service.linkPath}
-              />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {categoriesWithServices?.slice(0, 6).map((category) => {
+              const CategoryIcon = getServiceIcon(category.title);
+              return (
+                <Card key={category.id} className="group shadow-2xl hover:shadow-3xl transition-all duration-500 border-0 bg-white hover:-translate-y-3 overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="bg-gradient-to-br from-onassist-primary to-blue-600 p-4 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                        <CategoryIcon className="w-10 h-10 text-white" />
+                      </div>
+                      <h3 className="font-bold text-2xl">{category.title}</h3>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+                      {category.description}
+                    </p>
+                    
+                    <div className="space-y-4 mb-8">
+                      {category.services.slice(0, 3).map((service) => (
+                        <div key={service.id} className="flex items-center gap-3 text-gray-700 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                          <span className="font-medium">{service.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Link
+                      to={`/services/${category.slug}`}
+                      className="inline-flex items-center gap-3 text-onassist-primary font-bold text-lg group-hover:gap-4 transition-all bg-blue-50 hover:bg-blue-100 px-6 py-3 rounded-full"
+                    >
+                      View All Services
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           <div className="text-center mt-16">
-            <Button asChild size="lg" className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-blue-600 hover:to-onassist-primary text-white font-bold px-12 py-6 rounded-full shadow-2xl text-xl">
-              <Link to="/services">
-                View All Services
-                <ArrowRight className="w-6 h-6 ml-3" />
-              </Link>
-            </Button>
+            <Link to="/services">
+              <Button size="lg" className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-blue-600 hover:to-onassist-primary text-white font-bold px-12 py-6 rounded-full shadow-2xl text-xl">
+                <Wrench className="w-6 h-6 mr-3" />
+                View All Service Categories
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
