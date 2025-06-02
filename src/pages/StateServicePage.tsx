@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { useServiceCategories, useCategoriesWithServices } from '@/hooks/useServices';
-import { getLocationBreadcrumb, usStates } from '@/data/locations';
+import { getLocationBreadcrumb } from '@/data/locations';
 import { 
   MapPin, 
   Star, 
@@ -25,10 +26,12 @@ import {
   Shield,
   Zap,
   Building,
-  Heart
+  Heart,
+  Navigation,
+  Search
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { slugify } from '@/utils/slugify';
+import ServiceCard from '@/components/services/ServiceCard';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -65,53 +68,53 @@ const StateServicePage = () => {
   const stateData = locationData.state;
   const countryData = locationData.country;
 
-  // Get popular services (first 5 categories)
-  const popularCategories = categoriesWithServices?.slice(0, 5) || [];
+  // Get popular services (first 6 categories)
+  const popularCategories = categoriesWithServices?.slice(0, 6) || [];
 
   // Sample testimonials specific to state
   const stateTestimonials = [
     {
-      name: `John D.`,
-      location: `${stateData.name}`,
-      rating: 5,
-      text: `Excellent tech support service in ${stateData.name}. Professional and reliable team that solved my computer issues quickly.`
-    },
-    {
       name: `Sarah M.`,
       location: `${stateData.name}`,
       rating: 5,
-      text: `Best IT support I've found in ${stateData.name}. They were able to set up my smart home system perfectly.`
+      text: `Outstanding tech support across ${stateData.name}. Professional, reliable, and always on time.`
     },
     {
-      name: `Mike R.`,
+      name: `David L.`,
       location: `${stateData.name}`,
       rating: 5,
-      text: `Outstanding service throughout ${stateData.name}. Quick response time and very knowledgeable technicians.`
+      text: `Best service in ${stateData.name}! They've helped us multiple times with our business IT needs.`
+    },
+    {
+      name: `Lisa K.`,
+      location: `${stateData.name}`,
+      rating: 5,
+      text: `Incredible smart home setup throughout ${stateData.name}. Highly recommend their services!`
     }
   ];
 
-  // Sample specialists
+  // Sample specialists for state with relevant images
   const stateSpecialists = [
     {
-      name: `David ${stateData.abbreviation}`,
-      specialty: 'Computer Repair Specialist',
+      name: `Alex Rodriguez`,
+      specialty: 'Senior Tech Specialist',
       experience: '8+ years',
       location: `${stateData.name}`,
-      image: '/placeholder.svg'
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
     },
     {
-      name: `Lisa ${stateData.abbreviation}`,
+      name: `Jennifer Chen`,
       specialty: 'Smart Home Expert',
       experience: '6+ years',
       location: `${stateData.name}`,
-      image: '/placeholder.svg'
+      image: 'https://images.unsplash.com/photo-1494790108755-2616b812b6aa?w=150&h=150&fit=crop&crop=face'
     },
     {
-      name: `Carlos ${stateData.abbreviation}`,
+      name: `Michael Johnson`,
       specialty: 'Network Specialist',
-      experience: '10+ years',
+      experience: '7+ years',
       location: `${stateData.name}`,
-      image: '/placeholder.svg'
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
     }
   ];
 
@@ -124,14 +127,11 @@ const StateServicePage = () => {
     return Wrench;
   };
 
-  // Get cities in state
-  const stateCities = usStates.find((state) => state.abbreviation === stateData.abbreviation)?.cities || [];
-
   return (
     <Layout>
       <Helmet>
         <title>Best Tech Support Services in {stateData.name} | {siteConfig.name}</title>
-        <meta name="description" content={`Professional tech support services throughout ${stateData.name}. Expert technicians serving all cities in ${stateData.abbreviation} with guaranteed satisfaction.`} />
+        <meta name="description" content={`Professional tech support services throughout ${stateData.name}. Expert technicians providing computer repair, smart home setup, and IT support in all cities across ${stateData.name}.`} />
         <meta name="keywords" content={`tech support ${stateData.name}, computer repair ${stateData.abbreviation}, IT services ${stateData.name}`} />
       </Helmet>
 
@@ -167,143 +167,238 @@ const StateServicePage = () => {
         </div>
       </div>
 
-      {/* Hero Section - Modern Design */}
-      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-indigo-800 text-white overflow-hidden">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M30 30c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/svg%3E')]"></div>
         </div>
-        
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-32 h-32 bg-white/5 rounded-full animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white/10 rounded-full animate-pulse delay-500"></div>
         
         <div className="relative container mx-auto px-4 py-20">
           <div className="max-w-5xl mx-auto text-center">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 mb-8">
-              <MapPin className="w-5 h-5" />
-              <span className="font-medium">Serving {stateData.name}</span>
+              <Navigation className="w-5 h-5" />
+              <span className="font-medium">Serving All of {stateData.name}</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                Tech Support Services
+                Tech Support in
               </span>
               <br />
-              <span className="text-yellow-300">in {stateData.name}</span>
+              <span className="text-yellow-300">{stateData.name}</span>
             </h1>
             
             <p className="text-xl md:text-2xl opacity-90 mb-10 leading-relaxed max-w-3xl mx-auto">
-              Professional technology support throughout <strong>{stateData.name} ({stateData.abbreviation})</strong>. 
-              Our certified technicians provide reliable solutions across all cities in {stateData.name}.
+              Professional technology support throughout <strong>{stateData.name}</strong>. 
+              Our certified technicians serve all cities in {stateData.name} with guaranteed satisfaction.
             </p>
             
-            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">500+</div>
-                <div className="text-sm opacity-80">Happy Customers in {stateData.abbreviation}</div>
+                <div className="text-3xl font-bold mb-2">Statewide</div>
+                <div className="text-sm opacity-80">Coverage in {stateData.name}</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">24/7</div>
-                <div className="text-sm opacity-80">Support Available</div>
+                <div className="text-3xl font-bold mb-2">Same Day</div>
+                <div className="text-sm opacity-80">Service Available</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">98%</div>
+                <div className="text-3xl font-bold mb-2">100%</div>
                 <div className="text-sm opacity-80">Satisfaction Rate</div>
               </div>
             </div>
             
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-onassist-primary hover:bg-gray-100 font-semibold px-8 py-4 rounded-full shadow-xl">
+              <Button 
+                size="lg" 
+                className="bg-white text-onassist-primary hover:bg-gray-100 font-semibold px-8 py-4 rounded-full shadow-xl"
+                onClick={() => window.open(`tel:${siteConfig.contactPhone}`, '_self')}
+              >
                 <Phone className="w-5 h-5 mr-2" />
                 Call {siteConfig.contactPhone}
               </Button>
               <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-semibold px-8 py-4 rounded-full backdrop-blur-sm">
-                <MapPin className="w-5 h-5 mr-2" />
-                Find Local Service
+                <Search className="w-5 h-5 mr-2" />
+                <span className="text-blue-600">Find Local Service</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Local Services Section - Modern Card Design */}
+      {/* Cities We Serve - Unique Design */}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-onassist-primary/10 text-onassist-primary rounded-full px-6 py-2 mb-4">
-              <Building className="w-5 h-5" />
-              <span className="font-medium">Local Expertise</span>
+              <MapPin className="w-5 h-5" />
+              <span className="font-medium">Local Presence</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Local Tech Support Services in <span className="text-onassist-primary">{stateData.name}</span>
+              Cities We Serve in <span className="text-onassist-primary">{stateData.name}</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We provide comprehensive technology support services to homes and businesses throughout {stateData.name}. 
-              Our local technicians understand the unique needs of {stateData.abbreviation} residents.
+            <p className="text-xl text-gray-600">
+              Professional tech support available in all major cities across {stateData.name}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-blue-50 to-white hover:-translate-y-2">
-              <CardContent className="p-8 text-center">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Monitor className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="font-bold text-xl mb-3">Computer Repair</h3>
-                <p className="text-gray-600">
-                  Expert computer and laptop repair services throughout {stateData.name}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-green-50 to-white hover:-translate-y-2">
-              <CardContent className="p-8 text-center">
-                <div className="bg-gradient-to-br from-green-500 to-green-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Home className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="font-bold text-xl mb-3">Smart Home Setup</h3>
-                <p className="text-gray-600">
-                  Professional smart home installation and automation in {stateData.abbreviation}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-purple-50 to-white hover:-translate-y-2">
-              <CardContent className="p-8 text-center">
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Wifi className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="font-bold text-xl mb-3">Network Support</h3>
-                <p className="text-gray-600">
-                  WiFi setup and network troubleshooting for {stateData.name} homes and offices
-                </p>
-              </CardContent>
-            </Card>
+          <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {stateData.cities.map((city, index) => (
+                <Link
+                  key={city.name}
+                  to={`/${country}/${state}/${city.slug}`}
+                  className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-white border border-gray-200 hover:border-onassist-primary/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                >
+                  <div className="p-6 text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Building className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="font-bold text-lg mb-2 group-hover:text-onassist-primary transition-colors">
+                      {city.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {stateData.abbreviation}
+                    </p>
+                    <div className="absolute inset-0 bg-gradient-to-br from-onassist-primary/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            
+            <div className="text-center mt-12">
+              <p className="text-gray-600 mb-6">
+                Don't see your city? We serve all areas in {stateData.name}!
+              </p>
+              <Button size="lg" className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-blue-600 hover:to-onassist-primary text-white font-semibold px-8 py-4 rounded-full shadow-lg">
+                <Phone className="w-5 h-5 mr-2" />
+                Call for Your Area
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* What People in State Say - Enhanced Design */}
+      {/* Popular Services */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-6 py-2 mb-4">
+              <Zap className="w-5 h-5" />
+              <span className="font-medium">Most Popular</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Top Services in <span className="text-onassist-primary">{stateData.name}</span>
+            </h2>
+            <p className="text-xl text-gray-600">
+              Most requested tech solutions across {stateData.name}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {popularCategories.map((category) => {
+              const CategoryIcon = getServiceIcon(category.title);
+              return (
+                <Card key={category.id} className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-0 bg-white hover:-translate-y-1">
+                  <CardContent className="p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="bg-gradient-to-br from-onassist-primary to-blue-600 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <CategoryIcon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="font-bold text-xl">{category.title}</h3>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-6">
+                      {category.description}
+                    </p>
+                    
+                    <div className="space-y-3 mb-6">
+                      {category.services.slice(0, 3).map((service) => (
+                        <Link
+                          key={service.id}
+                          to={`/${country}/${state}/service/${service.slug}`}
+                          className="block text-gray-700 hover:text-onassist-primary transition-colors p-2 rounded hover:bg-gray-50"
+                        >
+                          • {service.title}
+                        </Link>
+                      ))}
+                    </div>
+                    
+                    <Link
+                      to={`/services/${category.slug}`}
+                      className="inline-flex items-center gap-2 text-onassist-primary font-semibold group-hover:gap-3 transition-all"
+                    >
+                      View All Services
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Meet State Specialists */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-6 py-2 mb-4">
+              <Award className="w-5 h-5" />
+              <span className="font-medium">Expert Team</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Meet {stateData.name} Specialists
+            </h2>
+            <p className="text-xl text-gray-600">
+              Certified experts serving customers across {stateData.name}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {stateSpecialists.map((specialist, index) => (
+              <Card key={index} className="shadow-xl text-center border-0 bg-gradient-to-b from-white to-gray-50 hover:shadow-2xl transition-all duration-300">
+                <CardContent className="p-8">
+                  <div className="relative mb-6">
+                    <img
+                      src={specialist.image}
+                      alt={specialist.name}
+                      className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                    />
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2">
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-xl mb-2">{specialist.name}</h3>
+                  <p className="text-onassist-primary font-semibold mb-2">{specialist.specialty}</p>
+                  <p className="text-gray-600 mb-4">{specialist.experience}</p>
+                  <div className="flex items-center justify-center gap-2 text-gray-500 mb-4">
+                    <MapPin className="w-4 h-4" />
+                    <span>{specialist.location}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 rounded-full px-4 py-2">
+                    <Star className="w-4 h-4 fill-current" />
+                    <span className="text-sm font-medium">5.0 Rating</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 rounded-full px-6 py-2 mb-4">
               <Heart className="w-5 h-5" />
-              <span className="font-medium">Customer Love</span>
+              <span className="font-medium">Customer Stories</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              What <span className="text-onassist-primary">{stateData.name}</span> People Say
+              What <span className="text-onassist-primary">{stateData.name}</span> Says About Us
             </h2>
-            <p className="text-xl text-gray-600">
-              Trusted by residents across {stateData.name}
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -332,214 +427,28 @@ const StateServicePage = () => {
         </div>
       </section>
 
-      {/* Most Popular Services - Enhanced */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-onassist-primary/10 text-onassist-primary rounded-full px-6 py-2 mb-4">
-              <Zap className="w-5 h-5" />
-              <span className="font-medium">Most Popular</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Top Services in <span className="text-onassist-primary">{stateData.name}</span>
-            </h2>
-            <p className="text-xl text-gray-600">
-              Top-rated tech support services for {stateData.abbreviation} residents
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {popularCategories.map((category) => {
-              const CategoryIcon = getServiceIcon(category.title);
-              return (
-                <Card key={category.id} className="group shadow-xl hover:shadow-2xl transition-all duration-500 border-0 bg-white hover:-translate-y-1">
-                  <CardContent className="p-8">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="bg-gradient-to-br from-onassist-primary to-blue-600 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <CategoryIcon className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="font-bold text-xl">{category.title}</h3>
-                    </div>
-                    
-                    <p className="text-gray-600 mb-6 line-clamp-2">
-                      {category.description}
-                    </p>
-                    
-                    <div className="space-y-3 mb-6">
-                      {category.services.slice(0, 3).map((service) => (
-                        <Link
-                          key={service.id}
-                          to={`/${country}/${state}/service/${service.slug}`}
-                          className="block text-gray-700 hover:text-onassist-primary transition-colors p-2 rounded hover:bg-gray-50"
-                        >
-                          • {service.title}
-                        </Link>
-                      ))}
-                    </div>
-                    
-                    <Link
-                      to={`/services/${category.slug}`}
-                      className="inline-flex items-center gap-2 text-onassist-primary font-semibold group-hover:gap-3 transition-all"
-                    >
-                      View All Services
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button asChild variant="outline" size="lg" className="border-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white font-semibold px-8 py-4 rounded-full">
-              <Link to="/services">
-                View All Service Categories
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Meet State Specialists - Enhanced */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-6 py-2 mb-4">
-              <Award className="w-5 h-5" />
-              <span className="font-medium">Expert Team</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Meet Some <span className="text-onassist-primary">{stateData.name}</span> Specialists
-            </h2>
-            <p className="text-xl text-gray-600">
-              Expert technicians serving communities across {stateData.abbreviation}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {stateSpecialists.map((specialist, index) => (
-              <Card key={index} className="shadow-xl text-center border-0 bg-gradient-to-b from-white to-gray-50 hover:shadow-2xl transition-all duration-300">
-                <CardContent className="p-8">
-                  <div className="relative mb-6">
-                    <img
-                      src={specialist.image}
-                      alt={specialist.name}
-                      className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
-                    />
-                    <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2">
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="font-bold text-xl mb-2">{specialist.name}</h3>
-                  <p className="text-onassist-primary font-semibold mb-2">{specialist.specialty}</p>
-                  <p className="text-gray-600 mb-4">{specialist.experience}</p>
-                  <div className="flex items-center justify-center gap-2 text-gray-500 mb-4">
-                    <MapPin className="w-4 h-4" />
-                    <span>{specialist.location}</span>
-                  </div>
-                  <div className="inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 rounded-full px-4 py-2">
-                    <Award className="w-4 h-4" />
-                    <span className="text-sm font-medium">Certified Professional</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Cities Section - Improved Design */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-6 py-2 mb-4">
-              <Building className="w-5 h-5" />
-              <span className="font-medium">Service Areas</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Cities We Serve in <span className="text-onassist-primary">{stateData.name}</span>
-            </h2>
-            <p className="text-xl text-gray-600">
-              Professional tech support available in major cities across {stateData.abbreviation}
-            </p>
-          </div>
-
-          {/* Cities Grid - New Modern Design */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {stateCities.map((city, index) => (
-              <Link
-                key={index}
-                to={`/${country}/${state}/${city.slug}`}
-                className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-onassist-primary hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              >
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                    <Building className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-onassist-primary transition-colors">
-                    {city.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">Tech Support</p>
-                </div>
-                
-                {/* Hover Arrow */}
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <ArrowRight className="w-4 h-4 text-onassist-primary" />
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* View All Cities */}
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">
-              Don't see your city? We serve all locations in {stateData.name}!
-            </p>
-            <Button variant="outline" size="lg" className="border-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white">
-              <Phone className="w-5 h-5 mr-2" />
-              Call for Service Anywhere in {stateData.abbreviation}
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section - Enhanced */}
-      <section className="py-20 bg-gradient-to-br from-onassist-primary via-blue-600 to-indigo-800 text-white relative overflow-hidden">
-        {/* Background Pattern */}
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M30 30c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12 12-5.373 12-12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }}></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.3\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/svg%3E')]"></div>
         </div>
         
         <div className="relative container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Ready to Get Tech Support in <span className="text-yellow-300">{stateData.name}</span>?
+              Ready for Tech Support in <span className="text-yellow-300">{stateData.name}</span>?
             </h2>
             <p className="text-xl md:text-2xl opacity-90 mb-10 leading-relaxed">
-              Join thousands of satisfied customers across <strong>{stateData.abbreviation}</strong> who trust us with their technology needs.
+              Get professional technology support anywhere in {stateData.name}. 
+              Our certified technicians are ready to help you today.
             </p>
             
-            {/* Enhanced Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">Same Day</div>
-                <div className="text-sm opacity-80">Service Available</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">100%</div>
-                <div className="text-sm opacity-80">Satisfaction Guarantee</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">Licensed</div>
-                <div className="text-sm opacity-80">& Insured Technicians</div>
-              </div>
-            </div>
-            
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Button size="lg" className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-10 py-5 rounded-full shadow-2xl text-lg">
+              <Button 
+                size="lg" 
+                className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-10 py-5 rounded-full shadow-2xl text-lg"
+                onClick={() => window.open(`tel:${siteConfig.contactPhone}`, '_self')}
+              >
                 <Phone className="w-6 h-6 mr-3" />
                 Call Now: {siteConfig.contactPhone}
               </Button>
