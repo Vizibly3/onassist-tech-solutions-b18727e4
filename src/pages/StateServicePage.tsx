@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -124,6 +123,9 @@ const StateServicePage = () => {
     if (title.includes('network') || title.includes('wifi')) return Wifi;
     return Wrench;
   };
+
+  // Get cities in state
+  const stateCities = usStates.find((state) => state.abbreviation === stateData.abbreviation)?.cities || [];
 
   return (
     <Layout>
@@ -447,43 +449,57 @@ const StateServicePage = () => {
         </div>
       </section>
 
-      {/* Cities in State - Modern Grid */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-white">
+      {/* Cities Section - Improved Design */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-6 py-2 mb-4">
-              <MapPin className="w-5 h-5" />
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 rounded-full px-6 py-2 mb-4">
+              <Building className="w-5 h-5" />
               <span className="font-medium">Service Areas</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Cities We Serve in <span className="text-onassist-primary">{stateData.name}</span>
             </h2>
             <p className="text-xl text-gray-600">
-              Professional tech support services across {stateData.abbreviation}
+              Professional tech support available in major cities across {stateData.abbreviation}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {stateData.cities.map((city) => (
-              <Card key={city.slug} className="group shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-white hover:-translate-y-1">
-                <CardContent className="p-6">
-                  <Link
-                    to={`/${country}/${state}/${city.slug}`}
-                    className="block text-center"
-                  >
-                    <div className="bg-gradient-to-br from-onassist-primary to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <MapPin className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 group-hover:text-onassist-primary transition-colors mb-2">
-                      {city.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Tech Support Available
-                    </p>
-                  </Link>
-                </CardContent>
-              </Card>
+          {/* Cities Grid - New Modern Design */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {stateCities.map((city, index) => (
+              <Link
+                key={index}
+                to={`/${country}/${state}/${city.slug}`}
+                className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-onassist-primary hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Building className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-onassist-primary transition-colors">
+                    {city.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">Tech Support</p>
+                </div>
+                
+                {/* Hover Arrow */}
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <ArrowRight className="w-4 h-4 text-onassist-primary" />
+                </div>
+              </Link>
             ))}
+          </div>
+
+          {/* View All Cities */}
+          <div className="text-center mt-12">
+            <p className="text-gray-600 mb-4">
+              Don't see your city? We serve all locations in {stateData.name}!
+            </p>
+            <Button variant="outline" size="lg" className="border-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white">
+              <Phone className="w-5 h-5 mr-2" />
+              Call for Service Anywhere in {stateData.abbreviation}
+            </Button>
           </div>
         </div>
       </section>

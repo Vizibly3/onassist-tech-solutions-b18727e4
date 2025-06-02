@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useCart } from '@/contexts/CartContext';
 import { useServiceBySlug } from '@/hooks/useServices';
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
-import { Clock, Star, Shield, CheckCircle, ArrowLeft, Wrench, Monitor, Home, Smartphone, Wifi, Settings, Zap, Users, Award, Phone, MapPin } from 'lucide-react';
+import { Clock, Star, Shield, CheckCircle, ArrowLeft, Wrench, Monitor, Home, Smartphone, Wifi, Zap, Users, Award, Phone, MapPin, Navigation, Building } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getLocationBreadcrumb } from '@/data/locations';
 import {
@@ -21,18 +23,19 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-const LocationServiceDetailPage = () => {
-  const { country, state, city, serviceSlug } = useParams();
+const StateServiceDetailPage = () => {
+  const { country, state, serviceSlug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { data: service, isLoading, error } = useServiceBySlug(serviceSlug || '');
+  const [zipCode, setZipCode] = useState('');
 
   // Get location data
-  const locationData = getLocationBreadcrumb(country || '', state || '', city || '');
+  const locationData = getLocationBreadcrumb(country || '', state || '', '');
 
   const handleAddToCart = () => {
-    if (service) {
-      addToCart(service);
+    if (service && zipCode.trim()) {
+      addToCart({ ...service, location: zipCode });
     }
   };
 
@@ -152,7 +155,7 @@ const LocationServiceDetailPage = () => {
     );
   }
 
-  if (error || !service || !locationData.city || !locationData.state || !locationData.country) {
+  if (error || !service || !locationData.state || !locationData.country) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
@@ -169,41 +172,19 @@ const LocationServiceDetailPage = () => {
     );
   }
 
-  const serviceType = getServiceType(service.title);
-  const ServiceIcon = getServiceIcon(serviceType);
-  const features = getServiceFeatures(serviceType);
-  const layoutVariant = getLayoutVariant(serviceType, service.title);
-
-  const gradientClasses = {
-    home: 'from-green-600 via-emerald-600 to-teal-700',
-    computer: 'from-blue-600 via-indigo-600 to-purple-700',
-    mobile: 'from-purple-600 via-pink-600 to-red-700',
-    av: 'from-red-600 via-orange-600 to-yellow-700',
-    network: 'from-cyan-600 via-blue-600 to-indigo-700',
-    general: 'from-onassist-primary via-blue-600 to-onassist-dark'
-  };
-
-  const bgPatterns = {
-    modern: 'bg-gradient-to-br from-gray-50 via-white to-gray-100',
-    classic: 'bg-gradient-to-r from-blue-50 to-indigo-50',
-    premium: 'bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50',
-    minimal: 'bg-white'
-  };
-
-  // Generate location-specific title and content
-  const locationTitle = `Best ${service.title} in ${locationData.city.name}, ${locationData.state.abbreviation}`;
-  const locationDescription = `Professional ${service.title} services in ${locationData.city.name}, ${locationData.state.name}. Expert technicians serving the ${locationData.city.name} area with guaranteed satisfaction.`;
+  const stateData = locationData.state;
+  const countryData = locationData.country;
 
   return (
     <Layout>
       <Helmet>
-        <title>{locationTitle} | {siteConfig.name}</title>
-        <meta name="description" content={locationDescription} />
-        <meta name="keywords" content={`${service.title}, ${locationData.city.name}, ${locationData.state.name}, ${locationData.state.abbreviation}, tech support`} />
+        <title>Best {service.title} in {stateData.name} | {siteConfig.name}</title>
+        <meta name="description" content={`Professional ${service.title} services throughout ${stateData.name}. Expert technicians serving all cities in ${stateData.name} with guaranteed satisfaction.`} />
+        <meta name="keywords" content={`${service.title}, ${stateData.name}, ${stateData.abbreviation}, tech support`} />
       </Helmet>
 
-      <div className={`min-h-screen ${bgPatterns[layoutVariant as keyof typeof bgPatterns]}`}>
-        {/* Location Breadcrumb */}
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+        {/* Breadcrumb */}
         <div className="bg-gray-50 border-b">
           <div className="container mx-auto px-4 py-4">
             <Breadcrumb>
@@ -220,7 +201,7 @@ const LocationServiceDetailPage = () => {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link to={`/${country}`} className="text-gray-600 hover:text-onassist-primary transition-colors">
-                      {locationData.country.name}
+                      {countryData.name}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -228,15 +209,7 @@ const LocationServiceDetailPage = () => {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link to={`/${country}/${state}`} className="text-gray-600 hover:text-onassist-primary transition-colors">
-                      {locationData.state.name}
-                    </Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link to={`/${country}/${state}/${city}`} className="text-gray-600 hover:text-onassist-primary transition-colors">
-                      {locationData.city.name}
+                      {stateData.name}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -252,8 +225,7 @@ const LocationServiceDetailPage = () => {
         </div>
 
         {/* Hero Section */}
-        <div className={`py-16 bg-gradient-to-r ${gradientClasses[serviceType as keyof typeof gradientClasses]} text-white relative overflow-hidden`}>
-          {/* Background Pattern */}
+        <div className="py-16 bg-gradient-to-r from-onassist-primary via-blue-600 to-purple-700 text-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
@@ -273,8 +245,10 @@ const LocationServiceDetailPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
                 <div className="flex items-center gap-3 mb-4">
-                  <ServiceIcon className="w-8 h-8" />
-                  <h1 className="text-4xl md:text-5xl font-bold">{locationTitle}</h1>
+                  <Monitor className="w-8 h-8" />
+                  <h1 className="text-4xl md:text-5xl font-bold">
+                    {service.title} in {stateData.name}
+                  </h1>
                   {service.popular && (
                     <Badge className="bg-yellow-500 text-yellow-900 border-0">
                       <Star className="w-3 h-3 mr-1 fill-current" />
@@ -282,7 +256,9 @@ const LocationServiceDetailPage = () => {
                     </Badge>
                   )}
                 </div>
-                <p className="text-xl opacity-90 mb-6">{locationDescription}</p>
+                <p className="text-xl opacity-90 mb-6">
+                  Professional {service.title} services throughout {stateData.name}. Expert technicians serving all cities in {stateData.name}.
+                </p>
                 
                 <div className="flex items-center gap-6 text-lg">
                   <div className="flex items-center gap-2">
@@ -298,7 +274,7 @@ const LocationServiceDetailPage = () => {
               <div className="relative">
                 <img 
                   src={service.image_url} 
-                  alt={locationTitle}
+                  alt={service.title}
                   className="w-full h-80 object-cover rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -314,55 +290,43 @@ const LocationServiceDetailPage = () => {
               <Card className="shadow-xl border-0 overflow-hidden bg-white">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className={`p-2 rounded-lg ${serviceType === 'home' ? 'bg-green-100 text-green-600' : serviceType === 'computer' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'}`}>
-                      <ServiceIcon className="w-6 h-6" />
+                    <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                      <Monitor className="w-6 h-6" />
                     </div>
-                    <h2 className="text-2xl font-bold">Service Overview in {locationData.city.name}</h2>
+                    <h2 className="text-2xl font-bold">Service Overview in {stateData.name}</h2>
                   </div>
                   
                   <div className="prose prose-lg max-w-none">
                     <p className="text-gray-700 leading-relaxed mb-6">
-                      We provide professional {service.title} services throughout {locationData.city.name}, {locationData.state.name}. 
-                      Our certified technicians are familiar with the local area and understand the specific needs of {locationData.city.name} residents and businesses.
+                      {service.description}
                     </p>
                     
-                    <h3 className="text-xl font-semibold mb-4">What&apos;s Included in {locationData.city.name}:</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      {features.map((feature, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Location-specific content */}
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 mb-6">
                       <h3 className="text-xl font-semibold mb-4 text-blue-800 flex items-center gap-2">
-                        <MapPin className="w-6 h-6" />
-                        Serving {locationData.city.name}, {locationData.state.abbreviation}
+                        <Building className="w-6 h-6" />
+                        Serving All of {stateData.name}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="text-center">
                           <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                             <MapPin className="w-8 h-8 text-blue-600" />
                           </div>
-                          <h4 className="font-semibold mb-2">Local Expertise</h4>
-                          <p className="text-sm text-gray-600">Deep knowledge of {locationData.city.name} area</p>
+                          <h4 className="font-semibold mb-2">Statewide Coverage</h4>
+                          <p className="text-sm text-gray-600">Available in all {stateData.name} cities</p>
                         </div>
                         <div className="text-center">
                           <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Zap className="w-8 h-8 text-blue-600" />
                           </div>
                           <h4 className="font-semibold mb-2">Fast Response</h4>
-                          <p className="text-sm text-gray-600">Quick service throughout {locationData.state.abbreviation}</p>
+                          <p className="text-sm text-gray-600">Quick service throughout {stateData.abbreviation}</p>
                         </div>
                         <div className="text-center">
                           <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Users className="w-8 h-8 text-blue-600" />
                           </div>
-                          <h4 className="font-semibold mb-2">Community Focused</h4>
-                          <p className="text-sm text-gray-600">Trusted by {locationData.city.name} residents</p>
+                          <h4 className="font-semibold mb-2">Local Experts</h4>
+                          <p className="text-sm text-gray-600">Certified technicians in {stateData.name}</p>
                         </div>
                       </div>
                     </div>
@@ -371,7 +335,7 @@ const LocationServiceDetailPage = () => {
               </Card>
             </div>
 
-            {/* Booking Sidebar */}
+            {/* Booking Sidebar with Zip Code */}
             <div className="space-y-6">
               <Card className="shadow-xl border-0 sticky top-24 bg-white">
                 <CardContent className="p-6">
@@ -387,48 +351,47 @@ const LocationServiceDetailPage = () => {
                   
                   <Separator className="my-6" />
                   
+                  {/* Zip Code Input */}
+                  <div className="space-y-4 mb-6">
+                    <Label htmlFor="zipCode" className="text-sm font-medium flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      Enter Your Zip Code
+                    </Label>
+                    <Input
+                      id="zipCode"
+                      type="text"
+                      placeholder="e.g., 12345"
+                      value={zipCode}
+                      onChange={(e) => setZipCode(e.target.value)}
+                      className="text-center text-lg"
+                    />
+                    <p className="text-xs text-gray-500 text-center">
+                      We need your zip code to connect you with the nearest technician in {stateData.name}
+                    </p>
+                  </div>
+                  
                   <Button 
                     onClick={handleAddToCart}
-                    className="w-full bg-gradient-to-r from-onassist-primary to-onassist-dark hover:from-onassist-dark hover:to-onassist-primary text-lg py-6 mb-4 shadow-lg"
+                    disabled={!zipCode.trim()}
+                    className="w-full bg-gradient-to-r from-onassist-primary to-onassist-dark hover:from-onassist-dark hover:to-onassist-primary text-lg py-6 mb-4 shadow-lg disabled:opacity-50"
                     size="lg"
                   >
-                    Book in {locationData.city.name}
+                    Book Service in {stateData.abbreviation}
                   </Button>
                   
                   <div className="text-center space-y-3">
                     <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                       <Shield className="w-4 h-4 text-green-500" />
-                      <span>Serving {locationData.city.name} area</span>
+                      <span>Serving all {stateData.name}</span>
                     </div>
                     <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                       <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Local {locationData.state.abbreviation} technicians</span>
+                      <span>Local {stateData.abbreviation} technicians</span>
                     </div>
                     <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
                       <Award className="w-4 h-4 text-green-500" />
                       <span>Satisfaction guaranteed</span>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Contact Card */}
-              <Card className="shadow-xl border-0 bg-gradient-to-br from-onassist-primary to-onassist-dark text-white">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Phone className="w-5 h-5" />
-                    Need Help in {locationData.city.name}?
-                  </h3>
-                  <div className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start bg-white/10 border-white/20 text-white hover:bg-white hover:text-onassist-primary">
-                      Contact Local Support
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start bg-white/10 border-white/20 text-white hover:bg-white hover:text-onassist-primary">
-                      Schedule in {locationData.state.abbreviation}
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start bg-white/10 border-white/20 text-white hover:bg-white hover:text-onassist-primary">
-                      Local FAQ
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -440,4 +403,4 @@ const LocationServiceDetailPage = () => {
   );
 };
 
-export default LocationServiceDetailPage;
+export default StateServiceDetailPage;

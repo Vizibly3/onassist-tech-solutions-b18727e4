@@ -12,8 +12,10 @@ import ServicesPage from "./pages/ServicesPage";
 import CategoryPage from "./pages/CategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
 import LocationServiceDetailPage from "./pages/LocationServiceDetailPage";
+import StateServiceDetailPage from "./pages/StateServiceDetailPage";
 import StateServicePage from "./pages/StateServicePage";
 import CityServicePage from "./pages/CityServicePage";
+import CityCategoryPage from "./pages/CityCategoryPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import CartPage from "./pages/CartPage";
@@ -60,7 +62,9 @@ function App() {
                   
                   {/* Location-based service routes */}
                   <Route path="/:country/:state" element={<StateServicePage />} />
+                  <Route path="/:country/:state/service/:serviceSlug" element={<StateServiceDetailPage />} />
                   <Route path="/:country/:state/:city" element={<CityServicePage />} />
+                  <Route path="/:country/:state/:city/services/:categorySlug" element={<CityCategoryPage />} />
                   <Route path="/:country/:state/:city/service/:serviceSlug" element={<LocationServiceDetailPage />} />
                   
                   <Route path="/contact" element={<ContactPage />} />

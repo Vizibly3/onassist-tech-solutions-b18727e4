@@ -379,7 +379,7 @@ const CityServicePage = () => {
                     </div>
                     
                     <Link
-                      to={`/${country}/${state}/${city}/service/${category.slug}`}
+                      to={`/${country}/${state}/${city}/services/${category.slug}`}
                       className="inline-flex items-center gap-2 text-onassist-primary font-semibold group-hover:gap-3 transition-all"
                     >
                       View All {category.title} Services

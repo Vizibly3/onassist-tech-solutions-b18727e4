@@ -1,103 +1,67 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useCart } from '@/contexts/CartContext';
+import { Badge } from "@/components/ui/badge";
+import { Clock, Star, ArrowRight } from 'lucide-react';
 import { Service } from '@/hooks/useServices';
-import { Clock, Info, ArrowUpRight } from 'lucide-react';
 
 interface ServiceCardProps {
   service: Service;
+  linkPath?: string; // Custom link path
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
-  const { addToCart } = useCart();
-  const navigate = useNavigate();
-
-  const handleAddToCart = () => {
-    addToCart(service);
-  };
-
-  const handleLearnMore = () => {
-    navigate(`/service/${service.slug}`);
-  };
-
-  const handleImageClick = () => {
-    navigate(`/service/${service.slug}`);
-  };
-
-  const handleArrowClick = () => {
-    navigate(`/service/${service.slug}`);
-  };
-
+const ServiceCard: React.FC<ServiceCardProps> = ({ service, linkPath }) => {
+  const defaultLinkPath = `/service/${service.slug}`;
+  const finalLinkPath = linkPath || defaultLinkPath;
+  
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-full group">
-      {/* Image */}
-      <div className="aspect-video relative overflow-hidden bg-gray-100 cursor-pointer" onClick={handleImageClick}>
+    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden h-full">
+      <div className="relative overflow-hidden">
         <img 
           src={service.image_url} 
-          alt={service.title} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          alt={service.title}
+          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        
-        {/* Arrow button in top right */}
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            handleArrowClick();
-          }}
-          className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-700 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
-        >
-          <ArrowUpRight className="h-4 w-4" />
-        </button>
-        
         {service.popular && (
-          <div className="absolute top-4 left-4 bg-onassist-accent text-white text-xs font-bold py-1 px-3 rounded-full shadow-lg">
+          <Badge className="absolute top-3 right-3 bg-yellow-500 text-yellow-900 border-0">
+            <Star className="w-3 h-3 mr-1 fill-current" />
             Popular
-          </div>
+          </Badge>
         )}
       </div>
       
-      {/* Content */}
-      <div className="p-6 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-semibold line-clamp-2 group-hover:text-onassist-primary transition-colors">
+      <CardContent className="p-6 flex flex-col h-full">
+        <div className="flex-1">
+          <h3 className="font-bold text-xl mb-3 group-hover:text-onassist-primary transition-colors">
             {service.title}
           </h3>
-          <span className="font-bold text-onassist-primary text-lg ml-2">
-            ${service.price}
-          </span>
+          <p className="text-gray-600 mb-4 line-clamp-3">
+            {service.description}
+          </p>
         </div>
         
-        <p className="text-gray-600 mb-4 flex-grow line-clamp-3">
-          {service.description}
-        </p>
-        
-        <div className="flex items-center text-gray-500 text-sm mb-6">
-          <Clock className="h-4 w-4 mr-2" />
-          <span>{service.duration}</span>
-        </div>
-        
-        {/* Buttons */}
-        <div className="space-y-3">
-          <Button 
-            onClick={handleAddToCart}
-            className="w-full bg-onassist-primary hover:bg-onassist-dark transition-all duration-200"
-          >
-            Book This Service
-          </Button>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2 text-gray-500">
+              <Clock className="w-4 h-4" />
+              <span>{service.duration}</span>
+            </div>
+            <div className="text-2xl font-bold text-onassist-primary">
+              ${service.price}
+            </div>
+          </div>
           
-          <Button 
-            onClick={handleLearnMore}
-            variant="outline"
-            className="w-full border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white transition-all duration-200"
-          >
-            <Info className="w-4 h-4 mr-2" />
-            Learn More / Get Details
+          <Button asChild className="w-full group-hover:shadow-lg transition-shadow">
+            <Link to={finalLinkPath} className="flex items-center gap-2">
+              Learn More
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
