@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -35,7 +36,7 @@ const StateServiceDetailPage = () => {
 
   const handleAddToCart = () => {
     if (service && zipCode.trim()) {
-      addToCart({ ...service, location: zipCode });
+      addToCart(service);
     }
   };
 
