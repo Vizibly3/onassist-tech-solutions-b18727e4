@@ -5,51 +5,53 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
+
+// Pages
 import Index from "./pages/Index";
 import ServicesPage from "./pages/ServicesPage";
 import CategoryPage from "./pages/CategoryPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
-import CountryPage from "./pages/CountryPage";
-import CityCategoryPage from "./pages/CityCategoryPage";
-import CityServicePage from "./pages/CityServicePage";
 import LocationServiceDetailPage from "./pages/LocationServiceDetailPage";
-import StateServicePage from "./pages/StateServicePage";
 import StateServiceDetailPage from "./pages/StateServiceDetailPage";
-import AboutPage from "./pages/AboutPage";
+import StateServicePage from "./pages/StateServicePage";
+import CityServicePage from "./pages/CityServicePage";
+import CityCategoryPage from "./pages/CityCategoryPage";
+import CountryPage from "./pages/CountryPage";
 import ContactPage from "./pages/ContactPage";
-import FAQPage from "./pages/FAQPage";
+import AboutPage from "./pages/AboutPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import ProfilePage from "./pages/ProfilePage";
+import MyOrdersPage from "./pages/MyOrdersPage";
+import NotFound from "./pages/NotFound";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import ReturnsPage from "./pages/ReturnsPage";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import MyOrdersPage from "./pages/MyOrdersPage";
-import ProfilePage from "./pages/ProfilePage";
-import NotFound from "./pages/NotFound";
-import SitemapPage from "./pages/SitemapPage";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+import FAQPage from "./pages/FAQPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminServices from "./pages/admin/AdminServices";
 import AdminCategories from "./pages/admin/AdminCategories";
-import AdminOrders from "./pages/admin/AdminOrders";
+import AdminServices from "./pages/admin/AdminServices";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminOrders from "./pages/admin/AdminOrders";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AddService from "./pages/admin/AddService";
-import AddCategory from "./pages/admin/AddCategory";
+import AddCategory from '@/pages/admin/AddCategory';
+import AddService from '@/pages/admin/AddService';
+
+// Contexts
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
-import "./App.css";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <HelmetProvider>
-        <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <CartProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
@@ -58,46 +60,48 @@ function App() {
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/services/:categorySlug" element={<CategoryPage />} />
                   <Route path="/service/:serviceSlug" element={<ServiceDetailPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/faq" element={<FAQPage />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
-                  <Route path="/returns" element={<ReturnsPage />} />
-                  <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/my-orders" element={<MyOrdersPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/sitemap.xml" element={<SitemapPage />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
                   
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/services" element={<AdminServices />} />
-                  <Route path="/admin/categories" element={<AdminCategories />} />
-                  <Route path="/admin/orders" element={<AdminOrders />} />
-                  <Route path="/admin/users" element={<AdminUsers />} />
-                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                  <Route path="/admin/add-service" element={<AddService />} />
-                  <Route path="/admin/add-category" element={<AddCategory />} />
-                  
-                  {/* Location-based Routes */}
+                  {/* Location-based service routes */}
                   <Route path="/:country" element={<CountryPage />} />
                   <Route path="/:country/:state" element={<StateServicePage />} />
+                  <Route path="/:country/:state/service/:serviceSlug" element={<StateServiceDetailPage />} />
                   <Route path="/:country/:state/:city" element={<CityServicePage />} />
                   <Route path="/:country/:state/:city/services/:categorySlug" element={<CityCategoryPage />} />
                   <Route path="/:country/:state/:city/service/:serviceSlug" element={<LocationServiceDetailPage />} />
-                  <Route path="/:country/:state/service/:serviceSlug" element={<StateServiceDetailPage />} />
                   
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/my-orders" element={<MyOrdersPage />} />
+                  <Route path="/auth/login" element={<Login />} />
+                  <Route path="/auth/register" element={<Register />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/returns" element={<ReturnsPage />} />
+                  <Route path="/faq" element={<FAQPage />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/categories" element={<AdminCategories />} />
+                  <Route path="/admin/add-category" element={<AddCategory />} />
+                  <Route path="/admin/services" element={<AdminServices />} />
+                  <Route path="/admin/add-service" element={<AddService />} />
+                  <Route path="/admin/users" element={<AdminUsers />} />
+                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                  
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
-            </TooltipProvider>
-          </CartProvider>
-        </AuthProvider>
-      </HelmetProvider>
-    </QueryClientProvider>
+            </CartProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 

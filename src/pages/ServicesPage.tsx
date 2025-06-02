@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, SortAsc, SortDesc, X, Layers } from 'lucide-react';
-import { slugify } from '@/utils/slugify';
 
 const ServicesPage = () => {
   const { data: categoriesWithServices, isLoading, error } = useCategoriesWithServices();
@@ -28,7 +27,7 @@ const ServicesPage = () => {
       category.services.map(service => ({
         ...service,
         categoryTitle: category.title,
-        categorySlug: slugify(category.title) // Use the slugify utility consistently
+        categorySlug: category.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
       }))
     );
   }, [categoriesWithServices]);
@@ -177,7 +176,7 @@ const ServicesPage = () => {
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {categoriesWithServices?.map((category) => (
-                  <SelectItem key={category.id} value={slugify(category.title)}>
+                  <SelectItem key={category.id} value={category.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}>
                     {category.title}
                   </SelectItem>
                 ))}
@@ -233,7 +232,7 @@ const ServicesPage = () => {
               )}
               {selectedCategory !== 'all' && (
                 <Badge variant="secondary" className="flex items-center gap-2 px-4 py-2">
-                  Category: {categoriesWithServices?.find(c => slugify(c.title) === selectedCategory)?.title}
+                  Category: {categoriesWithServices?.find(c => c.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === selectedCategory)?.title}
                   <X className="h-4 w-4 cursor-pointer hover:text-red-500" onClick={() => setSelectedCategory('all')} />
                 </Badge>
               )}
