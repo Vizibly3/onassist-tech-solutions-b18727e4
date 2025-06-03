@@ -1,187 +1,270 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import { siteConfig } from '@/config/site';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Helmet } from 'react-helmet-async';
+import { siteConfig } from '@/config/site';
+import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+interface ContactFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  subject: string;
+  message: string;
+}
 
 const ContactPage = () => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Message sent successfully!", {
-      description: "We'll get back to you as soon as possible.",
-    });
+  const location = useLocation();
+  const { toast } = useToast();
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ContactFormData>();
+
+  // Pre-fill form if data is passed via navigation state
+  useEffect(() => {
+    if (location.state) {
+      const { selectedService, subject } = location.state as any;
+      if (selectedService) {
+        setValue('subject', subject || `Service Inquiry: ${selectedService}`);
+        setValue('message', `I'm interested in your ${selectedService} service. Please provide more information and schedule a consultation.`);
+      }
+    }
+  }, [location.state, setValue]);
+
+  const onSubmit = async (data: ContactFormData) => {
+    try {
+      const { error } = await supabase
+        .from('contact_inquiries')
+        .insert([{
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          phone_number: data.phoneNumber || null,
+          subject: data.subject,
+          message: data.message,
+          status: 'new'
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      reset();
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: "Error sending message",
+        description: "Please try again or call us directly.",
+        variant: "destructive",
+      });
+    }
   };
-  
+
   return (
     <Layout>
       <Helmet>
         <title>Contact Us | {siteConfig.name}</title>
-        <meta name="description" content="Get in touch with our tech support team for help with all your technology needs." />
+        <meta name="description" content="Get in touch with our tech support team. We're here to help with all your technology needs." />
       </Helmet>
-      
-      <div className="bg-gradient-to-r from-onassist-primary to-onassist-dark text-white py-16">
+
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-onassist-primary via-blue-600 to-onassist-dark text-white py-20">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl max-w-3xl opacity-90">
-            Have questions or need assistance? Our team is here to help you with all your tech support needs.
-          </p>
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">Get In Touch</h1>
+            <p className="text-xl mb-8 opacity-90 leading-relaxed">
+              Ready to solve your tech problems? Our expert team is here to help you get back on track.
+            </p>
+          </div>
         </div>
       </div>
-      
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
-              <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label htmlFor="firstName" className="block font-medium">First Name</label>
-                    <Input 
-                      id="firstName" 
-                      placeholder="John" 
-                      required 
+
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Contact Form */}
+          <Card className="shadow-xl border-0">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Send us a message</CardTitle>
+              <p className="text-gray-600">Fill out the form below and we'll get back to you within 24 hours.</p>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      {...register('firstName', { required: 'First name is required' })}
+                      className="mt-1"
                     />
+                    {errors.firstName && (
+                      <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                    )}
                   </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="lastName" className="block font-medium">Last Name</label>
-                    <Input 
-                      id="lastName" 
-                      placeholder="Doe" 
-                      required 
+                  <div>
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      id="lastName"
+                      {...register('lastName', { required: 'Last name is required' })}
+                      className="mt-1"
                     />
+                    {errors.lastName && (
+                      <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                    )}
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block font-medium">Email Address</label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="john.doe@example.com" 
-                    required 
+
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register('email', { 
+                      required: 'Email is required',
+                      pattern: {
+                        value: /^\S+@\S+$/i,
+                        message: 'Invalid email address'
+                      }
+                    })}
+                    className="mt-1"
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    {...register('phoneNumber')}
+                    className="mt-1"
                   />
                 </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="phone" className="block font-medium">Phone Number</label>
-                  <Input 
-                    id="phone" 
-                    type="tel" 
-                    placeholder="(555) 123-4567" 
+
+                <div>
+                  <Label htmlFor="subject">Subject *</Label>
+                  <Input
+                    id="subject"
+                    {...register('subject', { required: 'Subject is required' })}
+                    className="mt-1"
                   />
+                  {errors.subject && (
+                    <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>
+                  )}
                 </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="subject" className="block font-medium">Subject</label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="general">General Inquiry</SelectItem>
-                      <SelectItem value="support">Technical Support</SelectItem>
-                      <SelectItem value="booking">Service Booking</SelectItem>
-                      <SelectItem value="feedback">Feedback</SelectItem>
-                      <SelectItem value="career">Career Opportunities</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="message" className="block font-medium">Message</label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="How can we help you today?" 
-                    rows={5} 
-                    required 
+
+                <div>
+                  <Label htmlFor="message">Message *</Label>
+                  <Textarea
+                    id="message"
+                    rows={5}
+                    {...register('message', { required: 'Message is required' })}
+                    className="mt-1"
                   />
+                  {errors.message && (
+                    <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                  )}
                 </div>
-                
-                <Button 
+
+                <Button
                   type="submit"
-                  className="w-full bg-onassist-primary hover:bg-onassist-dark"
+                  disabled={isSubmitting}
+                  className="w-full bg-onassist-primary hover:bg-onassist-dark text-white py-3"
                 >
-                  Send Message
+                  {isSubmitting ? 'Sending...' : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Send Message
+                    </>
+                  )}
                 </Button>
               </form>
-            </div>
-            
-            {/* Contact Information */}
-            <div>
-              <div className="bg-gray-50 p-8 rounded-xl mb-8 border border-gray-100">
-                <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <div className="space-y-8">
+            <Card className="shadow-xl border-0">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
                 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="bg-onassist-primary/10 p-3 rounded-lg text-onassist-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
+                    <div className="bg-onassist-primary/10 p-3 rounded-xl">
+                      <Phone className="w-6 h-6 text-onassist-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">Phone</h3>
-                      <p className="text-gray-600 mb-2">{siteConfig.contactPhone}</p>
-                      <p className="text-sm text-onassist-primary">{siteConfig.support.hours}</p>
+                      <h4 className="font-semibold mb-1">Call Us</h4>
+                      <p className="text-gray-600">{siteConfig.contactPhone}</p>
+                      <p className="text-sm text-gray-500">Available 24/7 for emergencies</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4">
-                    <div className="bg-onassist-primary/10 p-3 rounded-lg text-onassist-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
+                    <div className="bg-onassist-primary/10 p-3 rounded-xl">
+                      <Mail className="w-6 h-6 text-onassist-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">Email</h3>
-                      <p className="text-gray-600">{siteConfig.email}</p>
+                      <h4 className="font-semibold mb-1">Email Us</h4>
+                      <p className="text-gray-600">{siteConfig.contactEmail}</p>
+                      <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4">
-                    <div className="bg-onassist-primary/10 p-3 rounded-lg text-onassist-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
+                    <div className="bg-onassist-primary/10 p-3 rounded-xl">
+                      <MapPin className="w-6 h-6 text-onassist-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">Address</h3>
-                      <p className="text-gray-600">{siteConfig.address}</p>
+                      <h4 className="font-semibold mb-1">Service Area</h4>
+                      <p className="text-gray-600">Nationwide Coverage</p>
+                      <p className="text-sm text-gray-500">On-site and remote support available</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="bg-onassist-primary/10 p-3 rounded-xl">
+                      <Clock className="w-6 h-6 text-onassist-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Business Hours</h4>
+                      <p className="text-gray-600">Mon - Fri: 8:00 AM - 8:00 PM</p>
+                      <p className="text-gray-600">Sat - Sun: 9:00 AM - 6:00 PM</p>
+                      <p className="text-sm text-gray-500">Emergency support available 24/7</p>
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-xl border border-gray-100">
-                <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-                
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">How soon can a technician come to my home?</h3>
-                    <p className="text-gray-600">In most areas, we can have a technician at your location within 1-2 hours for urgent issues, or you can schedule a visit at your convenience.</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">What areas do you service?</h3>
-                    <p className="text-gray-600">We provide service in most major metropolitan areas across the United States. Enter your zip code when booking to check availability.</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-lg mb-1">Are your technicians background checked?</h3>
-                    <p className="text-gray-600">Yes, all our technicians undergo thorough background checks and are fully trained and certified.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-xl border-0 bg-gradient-to-br from-onassist-primary to-blue-600 text-white">
+              <CardContent className="p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Need Immediate Help?</h3>
+                <p className="mb-6 opacity-90">
+                  For urgent tech issues, call us directly for immediate assistance.
+                </p>
+                <Button
+                  className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-8 py-3"
+                  onClick={() => window.open(`tel:${siteConfig.contactPhone}`, '_self')}
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  Call Now: {siteConfig.contactPhone}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

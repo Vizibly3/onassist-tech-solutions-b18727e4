@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useServiceCategories } from '@/hooks/useServices';
 import { ArrowRight, Wrench, Monitor, Home, Smartphone, Wifi, Settings } from 'lucide-react';
+import { slugify } from '@/utils/slugify';
 
 const FeatureServices = () => {
   const { data: categories, isLoading } = useServiceCategories();
@@ -18,10 +19,6 @@ const FeatureServices = () => {
     if (lowerTitle.includes('network') || lowerTitle.includes('wifi')) return Wifi;
     if (lowerTitle.includes('audio') || lowerTitle.includes('video')) return Settings;
     return Wrench;
-  };
-
-  const getCategorySlug = (title: string) => {
-    return title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   };
 
   if (isLoading) {
@@ -61,6 +58,7 @@ const FeatureServices = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {categories?.slice(0, 6).map((category, index) => {
             const IconComponent = getIcon(category.title);
+            const categorySlug = slugify(category.title);
             return (
               <Card 
                 key={category.id} 
@@ -83,7 +81,7 @@ const FeatureServices = () => {
                     </p>
                   </div>
                   
-                  <Link to={`/services/${getCategorySlug(category.title)}`}>
+                  <Link to={`/services/${categorySlug}`}>
                     <Button 
                       variant="outline" 
                       className="w-full group-hover:bg-onassist-primary group-hover:text-white group-hover:border-onassist-primary transition-all duration-300"
