@@ -27,41 +27,44 @@ const NeedHelpBox: React.FC<NeedHelpBoxProps> = ({ serviceTitle }) => {
   };
 
   return (
-    <div className="sticky top-24 z-40">
-      <Card className="shadow-xl border-0 bg-gradient-to-br from-onassist-primary to-blue-600 text-white overflow-hidden">
-        <CardContent className="p-6">
-          <div className="text-center mb-6">
-            <div className="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageCircle className="w-8 h-8 text-white" />
+    <div className="sticky top-24 z-40 max-w-sm">
+      <Card className="shadow-2xl border-0 bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden transform hover:scale-105 transition-all duration-300">
+        <CardContent className="p-8">
+          <div className="text-center mb-8">
+            <div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+              <MessageCircle className="w-10 h-10 text-white" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Need Help?</h3>
-            <p className="text-white/90 text-sm">
-              Get instant support from our tech experts
+            <h3 className="text-2xl font-bold mb-3">Need Help?</h3>
+            <p className="text-white/90 text-base leading-relaxed">
+              Get instant support from our certified tech experts
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Button
               onClick={handleContactSupport}
-              className="w-full bg-white text-onassist-primary hover:bg-gray-100 font-semibold"
+              className="w-full bg-white text-onassist-primary hover:bg-gray-100 font-bold py-4 text-lg shadow-xl rounded-xl transition-all duration-300 hover:shadow-2xl"
             >
-              <Phone className="w-4 h-4 mr-2" />
+              <Phone className="w-5 h-5 mr-3" />
               Contact Support
             </Button>
             
             <Button
               onClick={handleScheduleConsultation}
               variant="outline"
-              className="w-full border-white text-white hover:bg-white hover:text-onassist-primary font-semibold"
+              className="w-full border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-bold py-4 text-lg backdrop-blur-sm rounded-xl transition-all duration-300"
             >
-              <Clock className="w-4 h-4 mr-2" />
+              <Clock className="w-5 h-5 mr-3" />
               Schedule Consultation
             </Button>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/20 text-center">
-            <p className="text-xs text-white/80">
+          <div className="mt-6 pt-6 border-t border-white/20 text-center">
+            <p className="text-sm text-white/80 font-medium">
               Available 24/7 • Free consultation
+            </p>
+            <p className="text-xs text-white/70 mt-2">
+              100% Satisfaction Guarantee
             </p>
           </div>
         </CardContent>
