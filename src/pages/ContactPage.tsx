@@ -219,7 +219,7 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Email Us</h4>
-                      <p className="text-gray-600">{siteConfig.contactEmail}</p>
+                      <p className="text-gray-600">{siteConfig.email}</p>
                       <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                     </div>
                   </div>

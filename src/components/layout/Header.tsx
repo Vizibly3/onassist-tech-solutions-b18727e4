@@ -9,18 +9,16 @@ import { siteConfig } from '@/config/site';
 import ServicesDropdown from './ServicesDropdown';
 
 const Header = () => {
-  const { user, logout } = useAuth();
-  const { getTotalItems } = useCart();
+  const { user, signOut } = useAuth();
+  const { totalItems } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
+    await signOut();
     navigate('/');
   };
-
-  const totalItems = getTotalItems();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
