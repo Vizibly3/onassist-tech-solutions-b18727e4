@@ -12,9 +12,6 @@ const SitemapPage = () => {
         const xmlContent = await generateSitemapXML();
         setSitemapContent(xmlContent);
         
-        // Set the document content type to XML
-        document.contentType = 'application/xml';
-        
         // Replace the entire page content with XML
         document.open();
         document.write(xmlContent);
