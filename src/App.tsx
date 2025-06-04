@@ -75,6 +75,8 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnsPage />} />
+                
+                {/* Sitemap Route */}
                 <Route path="/sitemap.xml" element={<SitemapPage />} />
 
                 {/* Location-based Routes */}
