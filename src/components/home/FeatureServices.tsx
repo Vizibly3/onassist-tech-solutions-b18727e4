@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,12 +53,12 @@ const FeatureServices = () => {
               <div className="relative overflow-hidden">
                 <img 
                   src={category.image_url} 
-                  alt={category.name}
+                  alt={category.title}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-white font-bold text-xl mb-2">{category.name}</h3>
+                  <h3 className="text-white font-bold text-xl mb-2">{category.title}</h3>
                 </div>
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <ArrowRight className="w-4 h-4 text-onassist-primary" />
