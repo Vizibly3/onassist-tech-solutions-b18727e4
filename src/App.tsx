@@ -24,6 +24,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import ReturnsPage from "./pages/ReturnsPage";
 import NotFound from "./pages/NotFound";
+import SitemapPage from "./pages/SitemapPage";
 
 // Location-based pages
 import CountryPage from "./pages/CountryPage";
@@ -74,6 +75,7 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnsPage />} />
+                <Route path="/sitemap.xml" element={<SitemapPage />} />
 
                 {/* Location-based Routes */}
                 <Route path="/:country" element={<CountryPage />} />

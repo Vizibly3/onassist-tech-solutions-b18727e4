@@ -77,17 +77,6 @@ const Header = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Call Button with Phone Number */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:flex items-center gap-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white font-medium"
-              onClick={handleCallNow}
-            >
-              <Phone className="w-4 h-4" />
-              <span className="font-semibold">{siteConfig.contactPhone}</span>
-            </Button>
-
             {/* Cart */}
             <Link to="/cart" className="relative">
               <Button variant="ghost" size="icon" className="relative">
@@ -124,6 +113,17 @@ const Header = () => {
                 </Link>
               </div>
             )}
+
+            {/* Call Button with Phone Number */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex items-center gap-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white font-medium"
+              onClick={handleCallNow}
+            >
+              <Phone className="w-4 h-4" />
+              <span className="font-semibold">{siteConfig.contactPhone}</span>
+            </Button>
 
             {/* Mobile Menu Button */}
             <Button
