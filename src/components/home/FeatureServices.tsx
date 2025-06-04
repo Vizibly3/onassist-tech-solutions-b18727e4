@@ -50,37 +50,37 @@ const FeatureServices = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {categories?.slice(0, 6).map((category) => (
             <Card key={category.id} className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden h-full hover:-translate-y-2">
-              <div className="relative overflow-hidden">
-                <img 
-                  src={category.image_url} 
-                  alt={category.title}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-white font-bold text-xl mb-2">{category.title}</h3>
-                </div>
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <ArrowRight className="w-4 h-4 text-onassist-primary" />
-                </div>
-              </div>
-              
-              <CardContent className="p-6 flex flex-col h-full">
-                <div className="flex-1">
-                  <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
-                    {category.description}
-                  </p>
+              <Link to={`/services/${category.slug}`} className="block h-full">
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={category.image_url} 
+                    alt={category.title}
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-white font-bold text-xl mb-2">{category.title}</h3>
+                  </div>
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowRight className="w-4 h-4 text-onassist-primary" />
+                  </div>
                 </div>
                 
-                <div className="mt-auto">
-                  <Link to={`/services/${category.slug}`}>
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex-1">
+                    <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                      {category.description}
+                    </p>
+                  </div>
+                  
+                  <div className="mt-auto">
                     <Button className="w-full bg-onassist-primary hover:bg-onassist-dark text-white font-semibold group-hover:shadow-lg transition-all duration-300">
                       Explore Services
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
-                  </Link>
-                </div>
-              </CardContent>
+                  </div>
+                </CardContent>
+              </Link>
             </Card>
           ))}
         </div>

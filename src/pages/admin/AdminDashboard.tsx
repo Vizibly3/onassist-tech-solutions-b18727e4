@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -12,7 +11,8 @@ import {
   Settings,
   BarChart3,
   Plus,
-  Clock
+  Clock,
+  Mail
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -167,6 +167,13 @@ const AdminDashboard = () => {
       icon: ShoppingBag,
       link: '/admin/orders',
       color: 'bg-orange-500'
+    },
+    {
+      title: 'Contact Forms',
+      description: 'View contact form submissions',
+      icon: Mail,
+      link: '/admin/contacts',
+      color: 'bg-cyan-500'
     },
     {
       title: 'Analytics',

@@ -77,15 +77,15 @@ const Header = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Call Button */}
+            {/* Call Button with Phone Number */}
             <Button
               variant="outline"
               size="sm"
-              className="hidden sm:flex items-center gap-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white"
+              className="hidden sm:flex items-center gap-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white font-medium"
               onClick={handleCallNow}
             >
               <Phone className="w-4 h-4" />
-              {siteConfig.contactPhone}
+              <span className="font-semibold">{siteConfig.contactPhone}</span>
             </Button>
 
             {/* Cart */}
