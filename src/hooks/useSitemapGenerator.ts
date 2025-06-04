@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { locations } from '@/data/locations';
+import { countries } from '@/data/locations';
 
 export const useSitemapGenerator = () => {
   const generateSitemap = async () => {
@@ -69,9 +69,9 @@ export const useSitemapGenerator = () => {
         });
       }
 
-      // Add location-based pages
-      Object.entries(locations).forEach(([country, states]) => {
-        const countrySlug = country.toLowerCase().replace(/\s+/g, '-');
+      // Add location-based pages using the countries export
+      countries.forEach(country => {
+        const countrySlug = country.slug;
         
         entries.push(`  <url>
     <loc>${baseUrl}/${countrySlug}</loc>
@@ -80,8 +80,8 @@ export const useSitemapGenerator = () => {
     <lastmod>${currentDate}</lastmod>
   </url>`);
 
-        Object.entries(states).forEach(([state, cities]) => {
-          const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
+        country.states.forEach(state => {
+          const stateSlug = state.slug;
           
           entries.push(`  <url>
     <loc>${baseUrl}/${countrySlug}/${stateSlug}</loc>
@@ -102,8 +102,8 @@ export const useSitemapGenerator = () => {
             });
           }
 
-          cities.forEach(city => {
-            const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+          state.cities.forEach(city => {
+            const citySlug = city.slug;
             
             entries.push(`  <url>
     <loc>${baseUrl}/${countrySlug}/${stateSlug}/${citySlug}</loc>
