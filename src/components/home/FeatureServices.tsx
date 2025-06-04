@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { useServicesData } from '@/hooks/useServicesData';
+import { useServices } from '@/hooks/useServices';
 import { ArrowRight, Star } from 'lucide-react';
 
 const FeatureServices = () => {
-  const { categories, isLoading } = useServicesData();
+  const { categories, isLoading } = useServices();
 
   if (isLoading) {
     return (
