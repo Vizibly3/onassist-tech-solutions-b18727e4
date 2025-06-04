@@ -20,6 +20,10 @@ const Header = () => {
     navigate('/');
   };
 
+  const handleCallNow = () => {
+    window.open(`tel:${siteConfig.contactPhone}`, '_self');
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
       <nav className="container mx-auto px-4">
@@ -63,6 +67,12 @@ const Header = () => {
             <Link to="/contact" className="text-gray-600 hover:text-onassist-primary transition-colors">
               Contact
             </Link>
+            <Link to="/membership" className="text-gray-600 hover:text-onassist-primary transition-colors">
+              Membership
+            </Link>
+            <Link to="/partner" className="text-gray-600 hover:text-onassist-primary transition-colors">
+              Partner
+            </Link>
           </div>
 
           {/* Right Side Actions */}
@@ -72,7 +82,7 @@ const Header = () => {
               variant="outline"
               size="sm"
               className="hidden sm:flex items-center gap-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white"
-              onClick={() => window.open(`tel:${siteConfig.contactPhone}`, '_self')}
+              onClick={handleCallNow}
             >
               <Phone className="w-4 h-4" />
               {siteConfig.contactPhone}
@@ -159,6 +169,20 @@ const Header = () => {
               >
                 Contact
               </Link>
+              <Link
+                to="/membership"
+                className="text-gray-600 hover:text-onassist-primary transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Membership
+              </Link>
+              <Link
+                to="/partner"
+                className="text-gray-600 hover:text-onassist-primary transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Partner
+              </Link>
               
               {/* Mobile Call Button */}
               <Button
@@ -166,7 +190,7 @@ const Header = () => {
                 size="sm"
                 className="w-full justify-center items-center gap-2 border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white"
                 onClick={() => {
-                  window.open(`tel:${siteConfig.contactPhone}`, '_self');
+                  handleCallNow();
                   setIsMobileMenuOpen(false);
                 }}
               >

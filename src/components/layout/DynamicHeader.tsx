@@ -109,6 +109,14 @@ const DynamicHeader = () => {
                 >
                   Orders
                 </Link>
+                <Link 
+                  to="/admin/contacts" 
+                  className={`font-medium transition-colors hover:text-onassist-primary ${
+                    isActive('/admin/contacts') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Contacts
+                </Link>
               </>
             )}
             
@@ -241,6 +249,15 @@ const DynamicHeader = () => {
                   }`}
                 >
                   Orders
+                </Link>
+                <Link 
+                  to="/admin/contacts" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block px-4 py-2 font-medium transition-colors hover:text-onassist-primary ${
+                    isActive('/admin/contacts') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Contacts
                 </Link>
               </>
             )}

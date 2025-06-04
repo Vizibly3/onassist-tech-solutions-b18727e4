@@ -1,37 +1,29 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useServiceCategories } from '@/hooks/useServices';
-import { ArrowRight, Wrench, Monitor, Home, Smartphone, Wifi, Settings } from 'lucide-react';
-import { slugify } from '@/utils/slugify';
+import { Link } from 'react-router-dom';
+import { useServicesData } from '@/hooks/useServicesData';
+import { ArrowRight, Star } from 'lucide-react';
 
 const FeatureServices = () => {
-  const { data: categories, isLoading } = useServiceCategories();
-
-  const getIcon = (title: string) => {
-    const lowerTitle = title.toLowerCase();
-    if (lowerTitle.includes('home') || lowerTitle.includes('smart')) return Home;
-    if (lowerTitle.includes('computer') || lowerTitle.includes('laptop')) return Monitor;
-    if (lowerTitle.includes('phone') || lowerTitle.includes('mobile')) return Smartphone;
-    if (lowerTitle.includes('network') || lowerTitle.includes('wifi')) return Wifi;
-    if (lowerTitle.includes('audio') || lowerTitle.includes('video')) return Settings;
-    return Wrench;
-  };
+  const { categories, isLoading } = useServicesData();
 
   if (isLoading) {
     return (
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Tech Support Services</h2>
-            <div className="animate-pulse bg-gray-200 h-6 w-96 mx-auto rounded"></div>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Our Tech Support <span className="text-onassist-primary">Services</span>
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse bg-gray-200 h-64 rounded-xl"></div>
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="animate-pulse">
+                <div className="h-64 bg-gray-200 rounded-lg"></div>
+              </div>
             ))}
           </div>
         </div>
@@ -40,68 +32,62 @@ const FeatureServices = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
+    <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <Badge className="mb-4 bg-onassist-primary/10 text-onassist-primary border-onassist-primary/20">
-            Our Services
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
-            Our Tech Support Services
+          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-6 py-2 mb-4">
+            <Star className="w-5 h-5" />
+            <span className="font-medium">Featured Services</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Our Tech Support <span className="text-onassist-primary">Services</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            From computer issues to smart home setup, our certified tech experts are ready to solve 
-            your technology problems with professional, reliable solutions.
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Comprehensive technology solutions to keep your devices running smoothly and your business productive
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {categories?.slice(0, 6).map((category, index) => {
-            const IconComponent = getIcon(category.title);
-            const categorySlug = slugify(category.title);
-            return (
-              <Card 
-                key={category.id} 
-                className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg hover:scale-105 bg-white"
-              >
-                <CardContent className="p-8">
-                  <div className="mb-6">
-                    <div className={`inline-flex p-4 rounded-2xl mb-4 ${
-                      index % 3 === 0 ? 'bg-blue-100 text-blue-600' :
-                      index % 3 === 1 ? 'bg-green-100 text-green-600' :
-                      'bg-purple-100 text-purple-600'
-                    }`}>
-                      <IconComponent className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 group-hover:text-onassist-primary transition-colors">
-                      {category.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {category.description || 'Professional tech support services tailored to your needs.'}
-                    </p>
-                  </div>
-                  
-                  <Link to={`/services/${categorySlug}`}>
-                    <Button 
-                      variant="outline" 
-                      className="w-full group-hover:bg-onassist-primary group-hover:text-white group-hover:border-onassist-primary transition-all duration-300"
-                    >
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {categories?.slice(0, 6).map((category) => (
+            <Card key={category.id} className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden h-full hover:-translate-y-2">
+              <div className="relative overflow-hidden">
+                <img 
+                  src={category.image_url} 
+                  alt={category.name}
+                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-white font-bold text-xl mb-2">{category.name}</h3>
+                </div>
+                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <ArrowRight className="w-4 h-4 text-onassist-primary" />
+                </div>
+              </div>
+              
+              <CardContent className="p-6 flex flex-col h-full">
+                <div className="flex-1">
+                  <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                    {category.description}
+                  </p>
+                </div>
+                
+                <div className="mt-auto">
+                  <Link to={`/services/${category.slug}`}>
+                    <Button className="w-full bg-onassist-primary hover:bg-onassist-dark text-white font-semibold group-hover:shadow-lg transition-all duration-300">
                       Explore Services
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
-                </CardContent>
-              </Card>
-            );
-          })}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-        
-        <div className="text-center">
+
+        <div className="text-center mt-12">
           <Link to="/services">
-            <Button 
-              size="lg" 
-              className="bg-onassist-primary hover:bg-onassist-dark text-white px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            >
+            <Button size="lg" variant="outline" className="font-semibold px-8 py-3 text-lg hover:bg-onassist-primary hover:text-white border-onassist-primary text-onassist-primary">
               View All Services
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>

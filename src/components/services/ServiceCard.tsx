@@ -31,13 +31,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, linkPath }) => {
   };
 
   return (
-    <Card className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden h-full relative cursor-pointer hover:-translate-y-2">
-      <Link to={finalLinkPath} className="block h-full">
+    <Card className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg bg-white overflow-hidden h-full relative hover:-translate-y-2">
+      <Link to={finalLinkPath} className="block">
         <div className="relative overflow-hidden">
           <img 
             src={service.image_url} 
             alt={service.title}
-            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           />
           {service.popular && (
             <Badge className="absolute top-3 left-3 bg-yellow-500 text-yellow-900 border-0 shadow-lg">
@@ -46,7 +46,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, linkPath }) => {
             </Badge>
           )}
           <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg">
-            <ExternalLink className="w-4 h-4 text-onassist-primary" />
+            <ArrowRight className="w-4 h-4 text-onassist-primary" />
           </div>
         </div>
         
@@ -71,19 +71,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, linkPath }) => {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <Button 
                 onClick={handleAddToCart}
-                className="bg-onassist-primary hover:bg-onassist-dark text-white font-semibold pointer-events-auto transition-all duration-300 hover:shadow-lg"
+                className="w-full bg-onassist-primary hover:bg-onassist-dark text-white font-semibold pointer-events-auto transition-all duration-300 hover:shadow-lg"
                 size="sm"
               >
-                <ShoppingCart className="w-4 h-4 mr-1" />
-                Add to Cart
-              </Button>
-              
-              <Button variant="outline" className="group-hover:shadow-lg transition-shadow pointer-events-none border-onassist-primary text-onassist-primary hover:bg-onassist-primary hover:text-white font-semibold" size="sm">
-                Learn More
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Add to Cart - ${service.price}
               </Button>
             </div>
           </div>

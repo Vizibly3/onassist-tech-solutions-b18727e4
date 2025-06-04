@@ -27,7 +27,7 @@ const NeedHelpBox: React.FC<NeedHelpBoxProps> = ({ serviceTitle }) => {
   };
 
   return (
-    <div className="sticky top-24 z-40 max-w-sm">
+    <div className="fixed top-24 right-4 z-40 max-w-sm">
       <Card className="shadow-2xl border-0 bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden transform hover:scale-105 transition-all duration-300">
         <CardContent className="p-8">
           <div className="text-center mb-8">
