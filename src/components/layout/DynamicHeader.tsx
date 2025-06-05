@@ -1,15 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, User, Menu, X, ChevronDown, LayoutDashboard } from 'lucide-react';
-import ServicesDropdown from './ServicesDropdown';
+import ServicesMegaMenu from './ServicesMegaMenu';
 
 const DynamicHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+  const [isServicesMegaMenuOpen, setIsServicesMegaMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
@@ -28,8 +27,8 @@ const DynamicHeader = () => {
     setIsMenuOpen(false);
   };
 
-  const closeDropdown = () => {
-    setIsServicesDropdownOpen(false);
+  const closeMegaMenu = () => {
+    setIsServicesMegaMenuOpen(false);
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -60,19 +59,39 @@ const DynamicHeader = () => {
             </Link>
             
             {!isAdmin && (
-              <div 
-                className="relative"
-                onMouseEnter={() => setIsServicesDropdownOpen(true)}
-                onMouseLeave={() => setIsServicesDropdownOpen(false)}
-              >
-                <button className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
-                  location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
-                }`}>
-                  Services
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                <ServicesDropdown isOpen={isServicesDropdownOpen} onClose={closeDropdown} />
-              </div>
+              <>
+                <div 
+                  className="relative"
+                  onMouseEnter={() => setIsServicesMegaMenuOpen(true)}
+                  onMouseLeave={() => setIsServicesMegaMenuOpen(false)}
+                >
+                  <button className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
+                    location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}>
+                    Services
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMegaMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  <ServicesMegaMenu isOpen={isServicesMegaMenuOpen} onClose={closeMegaMenu} />
+                </div>
+                
+                <Link 
+                  to="/membership" 
+                  className={`font-medium transition-colors hover:text-onassist-primary ${
+                    isActive('/membership') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Membership
+                </Link>
+                
+                <Link 
+                  to="/partner" 
+                  className={`font-medium transition-colors hover:text-onassist-primary ${
+                    isActive('/partner') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Partner With Us
+                </Link>
+              </>
             )}
             
             {isAdmin && (
@@ -201,15 +220,37 @@ const DynamicHeader = () => {
             </Link>
             
             {!isAdmin && (
-              <Link 
-                to="/services" 
-                onClick={() => setIsMenuOpen(false)}
-                className={`block px-4 py-2 font-medium transition-colors hover:text-onassist-primary ${
-                  location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
-                }`}
-              >
-                Services
-              </Link>
+              <>
+                <Link 
+                  to="/services" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block px-4 py-2 font-medium transition-colors hover:text-onassist-primary ${
+                    location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Services
+                </Link>
+                
+                <Link 
+                  to="/membership" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block px-4 py-2 font-medium transition-colors hover:text-onassist-primary ${
+                    isActive('/membership') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Membership
+                </Link>
+                
+                <Link 
+                  to="/partner" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block px-4 py-2 font-medium transition-colors hover:text-onassist-primary ${
+                    isActive('/partner') ? 'text-onassist-primary' : 'text-gray-700'
+                  }`}
+                >
+                  Partner With Us
+                </Link>
+              </>
             )}
             
             {isAdmin && (

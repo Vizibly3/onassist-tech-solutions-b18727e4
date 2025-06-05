@@ -2,17 +2,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, ShoppingCart, Phone } from 'lucide-react';
+import { Menu, X, User, ShoppingCart, Phone, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { siteConfig } from '@/config/site';
-import ServicesDropdown from './ServicesDropdown';
+import ServicesMegaMenu from './ServicesMegaMenu';
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const { totalItems } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+  const [isServicesMegaMenuOpen, setIsServicesMegaMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -22,6 +22,10 @@ const Header = () => {
 
   const handleCallNow = () => {
     window.open(`tel:${siteConfig.contactPhone}`, '_self');
+  };
+
+  const closeMegaMenu = () => {
+    setIsServicesMegaMenuOpen(false);
   };
 
   return (
@@ -42,23 +46,16 @@ const Header = () => {
               Home
             </Link>
             
-            <div className="relative">
-              <button
-                className="text-gray-600 hover:text-onassist-primary transition-colors"
-                onMouseEnter={() => setIsServicesDropdownOpen(true)}
-                onMouseLeave={() => setIsServicesDropdownOpen(false)}
-              >
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsServicesMegaMenuOpen(true)}
+              onMouseLeave={() => setIsServicesMegaMenuOpen(false)}
+            >
+              <button className="flex items-center gap-1 text-gray-600 hover:text-onassist-primary transition-colors">
                 Services
+                <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMegaMenuOpen ? 'rotate-180' : ''}`} />
               </button>
-              <div
-                onMouseEnter={() => setIsServicesDropdownOpen(true)}
-                onMouseLeave={() => setIsServicesDropdownOpen(false)}
-              >
-                <ServicesDropdown
-                  isOpen={isServicesDropdownOpen}
-                  onClose={() => setIsServicesDropdownOpen(false)}
-                />
-              </div>
+              <ServicesMegaMenu isOpen={isServicesMegaMenuOpen} onClose={closeMegaMenu} />
             </div>
             
             <Link to="/about" className="text-gray-600 hover:text-onassist-primary transition-colors">
@@ -71,7 +68,7 @@ const Header = () => {
               Membership
             </Link>
             <Link to="/partner" className="text-gray-600 hover:text-onassist-primary transition-colors">
-              Partner
+              Partner With Us
             </Link>
           </div>
 
@@ -181,7 +178,7 @@ const Header = () => {
                 className="text-gray-600 hover:text-onassist-primary transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Partner
+                Partner With Us
               </Link>
               
               {/* Mobile Call Button */}
