@@ -32,21 +32,6 @@ export const generateSitemapXML = async (): Promise<string> => {
   </url>`);
   });
 
-  // Auth pages (lower priority)
-  const authPages = [
-    { path: '/auth/login', priority: '0.4', changefreq: 'monthly' },
-    { path: '/auth/register', priority: '0.4', changefreq: 'monthly' },
-  ];
-
-  authPages.forEach(page => {
-    entries.push(`  <url>
-    <loc>${baseUrl}${page.path}</loc>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-    <lastmod>${currentDate}</lastmod>
-  </url>`);
-  });
-
   try {
     // Fetch service categories from Supabase
     const { data: categories } = await supabase
@@ -85,7 +70,7 @@ export const generateSitemapXML = async (): Promise<string> => {
       });
     }
 
-    // Add location-based pages using the countries export
+    // Add location-based pages
     countries.forEach(country => {
       const countrySlug = country.slug;
       
@@ -172,4 +157,29 @@ ${entries.join('\n')}
 </urlset>`;
 
   return sitemapXml;
+};
+
+export const generateAndSaveSitemap = async () => {
+  try {
+    const sitemapContent = await generateSitemapXML();
+    
+    // Create a blob with the sitemap content
+    const blob = new Blob([sitemapContent], { type: 'application/xml' });
+    
+    // Create a download link and trigger it
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sitemap.xml';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    console.log('Sitemap generated and downloaded successfully');
+    return sitemapContent;
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    throw error;
+  }
 };
