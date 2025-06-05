@@ -9,14 +9,14 @@
   </url>
   <url>
     <loc>https://onassist.lovable.app/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
     <lastmod>2025-01-08</lastmod>
   </url>
   <url>
     <loc>https://onassist.lovable.app/contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
     <lastmod>2025-01-08</lastmod>
   </url>
   <url>
@@ -26,21 +26,33 @@
     <lastmod>2025-01-08</lastmod>
   </url>
   <url>
-    <loc>https://onassist.lovable.app/membership</loc>
+    <loc>https://onassist.lovable.app/cart</loc>
     <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/checkout</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/membership</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>2025-01-08</lastmod>
   </url>
   <url>
     <loc>https://onassist.lovable.app/partner</loc>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>2025-01-08</lastmod>
   </url>
   <url>
     <loc>https://onassist.lovable.app/faq</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
     <lastmod>2025-01-08</lastmod>
   </url>
   <url>
@@ -57,8 +69,332 @@
   </url>
   <url>
     <loc>https://onassist.lovable.app/returns</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/auth/login</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/auth/register</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Service Categories -->
+  <url>
+    <loc>https://onassist.lovable.app/services/computer-services</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/services/smart-home</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/services/network-services</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/services/mobile-services</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/services/home-automation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/services/tech-support</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Individual Services -->
+  <url>
+    <loc>https://onassist.lovable.app/service/computer-repair</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/service/smart-home-setup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/service/network-troubleshooting</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/service/phone-repair</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/service/laptop-upgrade</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/service/wifi-installation</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Location-based URLs -->
+  <!-- United States -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- California -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- California Cities -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/los-angeles</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/san-francisco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/san-diego</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/sacramento</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/fresno</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Texas -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/texas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Texas Cities -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/texas/houston</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/texas/dallas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/texas/san-antonio</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/texas/austin</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/texas/fort-worth</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- New York -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/new-york</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- New York Cities -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/new-york/new-york-city</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/new-york/buffalo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/new-york/rochester</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/new-york/yonkers</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/new-york/syracuse</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Florida -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/florida</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Florida Cities -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/florida/miami</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/florida/orlando</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/florida/tampa</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/florida/jacksonville</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/florida/fort-lauderdale</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Illinois -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/illinois</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Illinois Cities -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/illinois/chicago</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/illinois/aurora</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/illinois/rockford</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/illinois/joliet</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/illinois/naperville</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Location-based services with dynamic routes -->
+  <!-- Sample of state-level service pages -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/computer-repair</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/smart-home-setup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Sample of city-level service categories -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/los-angeles/services/computer-services</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/los-angeles/services/smart-home</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <!-- Sample of city-level service detail pages -->
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/los-angeles/service/computer-repair</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>2025-01-08</lastmod>
+  </url>
+  <url>
+    <loc>https://onassist.lovable.app/united-states/california/los-angeles/service/smart-home-setup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
     <lastmod>2025-01-08</lastmod>
   </url>
 </urlset>
