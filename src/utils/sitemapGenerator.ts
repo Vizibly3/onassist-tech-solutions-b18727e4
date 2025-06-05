@@ -1,8 +1,9 @@
 
 import { serviceCategories, getAllServices } from '@/config/services';
 import { countries, usStates } from '@/data/locations';
+import { useServiceCategories, useServices } from '@/hooks/useServices';
 
-export const generateSitemapXML = (): string => {
+export const generateSitemapXML = async (): Promise<string> => {
   const baseUrl = 'https://onassist.lovable.app';
   const currentDate = new Date().toISOString().split('T')[0];
   
@@ -60,9 +61,9 @@ export const generateSitemapXML = (): string => {
   </url>`;
   });
 
-  // Location-based URLs
+  // Location-based URLs - COMPLETE COVERAGE
   countries.forEach(country => {
-    // Country pages
+    // Country pages - Route: /:country
     sitemap += `
   <url>
     <loc>${baseUrl}/${country.slug}</loc>
@@ -71,10 +72,10 @@ export const generateSitemapXML = (): string => {
     <lastmod>${currentDate}</lastmod>
   </url>`;
 
-    // State pages for this country
-    if (country.slug === 'united-states') {
+    // For US, generate all state and city combinations
+    if (country.slug === 'us') {
       usStates.forEach(state => {
-        // State page
+        // State pages - Route: /:country/:state
         sitemap += `
   <url>
     <loc>${baseUrl}/${country.slug}/${state.slug}</loc>
@@ -83,9 +84,20 @@ export const generateSitemapXML = (): string => {
     <lastmod>${currentDate}</lastmod>
   </url>`;
 
+        // State-level service detail pages - Route: /:country/:state/:serviceSlug
+        allServices.forEach(service => {
+          sitemap += `
+  <url>
+    <loc>${baseUrl}/${country.slug}/${state.slug}/${service.id}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>${currentDate}</lastmod>
+  </url>`;
+        });
+
         // Cities for this state
         state.cities.forEach(city => {
-          // City page
+          // City pages - Route: /:country/:state/:city
           sitemap += `
   <url>
     <loc>${baseUrl}/${country.slug}/${state.slug}/${city.slug}</loc>
@@ -94,7 +106,7 @@ export const generateSitemapXML = (): string => {
     <lastmod>${currentDate}</lastmod>
   </url>`;
 
-          // Service categories for this city
+          // City-level category pages - Route: /:country/:state/:city/:categorySlug
           serviceCategories.forEach(category => {
             sitemap += `
   <url>
@@ -105,8 +117,8 @@ export const generateSitemapXML = (): string => {
   </url>`;
           });
 
-          // Individual services for this city
-          allServices.slice(0, 3).forEach(service => { // Sample services to avoid too many URLs
+          // City-level service detail pages - Route: /:country/:state/:city/:serviceSlug
+          allServices.forEach(service => {
             sitemap += `
   <url>
     <loc>${baseUrl}/${country.slug}/${state.slug}/${city.slug}/service/${service.id}</loc>
@@ -115,17 +127,6 @@ export const generateSitemapXML = (): string => {
     <lastmod>${currentDate}</lastmod>
   </url>`;
           });
-        });
-
-        // State-level services (sample)
-        allServices.slice(0, 2).forEach(service => {
-          sitemap += `
-  <url>
-    <loc>${baseUrl}/${country.slug}/${state.slug}/${service.id}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <lastmod>${currentDate}</lastmod>
-  </url>`;
         });
       });
     }
@@ -138,7 +139,7 @@ export const generateSitemapXML = (): string => {
 };
 
 export const generateAndSaveSitemap = async (): Promise<void> => {
-  const sitemapContent = generateSitemapXML();
+  const sitemapContent = await generateSitemapXML();
   
   // Create a blob and download
   const blob = new Blob([sitemapContent], { type: 'application/xml' });
