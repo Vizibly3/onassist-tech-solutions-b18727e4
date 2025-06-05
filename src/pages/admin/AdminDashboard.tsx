@@ -12,10 +12,12 @@ import {
   BarChart3,
   Plus,
   Clock,
-  Mail
+  Mail,
+  FileText
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import SitemapGenerator from '@/components/admin/SitemapGenerator';
 
 interface RecentActivity {
   id: string;
@@ -218,7 +220,7 @@ const AdminDashboard = () => {
           })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -275,6 +277,10 @@ const AdminDashboard = () => {
               )}
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
+          <SitemapGenerator />
         </div>
       </div>
     </Layout>

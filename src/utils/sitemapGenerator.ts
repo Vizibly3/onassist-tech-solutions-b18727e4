@@ -1,18 +1,18 @@
 
-import { serviceCategories, getAllServices } from '@/config/services';
 import { countries, usStates } from '@/data/locations';
-import { useServiceCategories, useServices } from '@/hooks/useServices';
+import { serviceCategories, getAllServices } from '@/config/services';
+
+const BASE_URL = 'https://onassist.lovable.app';
 
 export const generateSitemapXML = async (): Promise<string> => {
-  const baseUrl = 'https://onassist.lovable.app';
   const currentDate = new Date().toISOString().split('T')[0];
   
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
-  // Static pages
+  // Static Pages
   const staticPages = [
-    { url: '/', priority: '1.0', changefreq: 'daily' },
+    { url: '', priority: '1.0', changefreq: 'daily' },
     { url: '/about', priority: '0.7', changefreq: 'weekly' },
     { url: '/contact', priority: '0.7', changefreq: 'weekly' },
     { url: '/services', priority: '0.9', changefreq: 'weekly' },
@@ -25,111 +25,118 @@ export const generateSitemapXML = async (): Promise<string> => {
     { url: '/terms', priority: '0.3', changefreq: 'yearly' },
     { url: '/returns', priority: '0.7', changefreq: 'weekly' },
     { url: '/auth/login', priority: '0.5', changefreq: 'monthly' },
-    { url: '/auth/register', priority: '0.5', changefreq: 'monthly' },
+    { url: '/auth/register', priority: '0.5', changefreq: 'monthly' }
   ];
 
   staticPages.forEach(page => {
     sitemap += `
   <url>
-    <loc>${baseUrl}${page.url}</loc>
+    <loc>${BASE_URL}${page.url}</loc>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
     <lastmod>${currentDate}</lastmod>
   </url>`;
   });
 
-  // Service categories
+  // Service Categories
   serviceCategories.forEach(category => {
     sitemap += `
   <url>
-    <loc>${baseUrl}/services/${category.id}</loc>
+    <loc>${BASE_URL}/services/${category.id}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>${currentDate}</lastmod>
   </url>`;
   });
 
-  // Individual services
+  // Individual Services
   const allServices = getAllServices();
   allServices.forEach(service => {
     sitemap += `
   <url>
-    <loc>${baseUrl}/service/${service.id}</loc>
+    <loc>${BASE_URL}/service/${service.id}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <lastmod>${currentDate}</lastmod>
   </url>`;
   });
 
-  // Location-based URLs - COMPLETE COVERAGE
+  // Country Pages
   countries.forEach(country => {
-    // Country pages - Route: /:country
     sitemap += `
   <url>
-    <loc>${baseUrl}/${country.slug}</loc>
+    <loc>${BASE_URL}/${country.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <lastmod>${currentDate}</lastmod>
   </url>`;
+  });
 
-    // For US, generate all state and city combinations
-    if (country.slug === 'us') {
-      usStates.forEach(state => {
-        // State pages - Route: /:country/:state
+  // All State Pages
+  usStates.forEach(state => {
+    sitemap += `
+  <url>
+    <loc>${BASE_URL}/us/${state.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${currentDate}</lastmod>
+  </url>`;
+  });
+
+  // All City Pages
+  usStates.forEach(state => {
+    state.cities.forEach(city => {
+      sitemap += `
+  <url>
+    <loc>${BASE_URL}/us/${state.slug}/${city.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>${currentDate}</lastmod>
+  </url>`;
+    });
+  });
+
+  // State-Level Service Detail Pages (ALL services for ALL states)
+  usStates.forEach(state => {
+    allServices.forEach(service => {
+      sitemap += `
+  <url>
+    <loc>${BASE_URL}/us/${state.slug}/${service.id}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>${currentDate}</lastmod>
+  </url>`;
+    });
+  });
+
+  // City-Level Category Pages (ALL categories for ALL cities)
+  usStates.forEach(state => {
+    state.cities.forEach(city => {
+      serviceCategories.forEach(category => {
         sitemap += `
   <url>
-    <loc>${baseUrl}/${country.slug}/${state.slug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>${currentDate}</lastmod>
-  </url>`;
-
-        // State-level service detail pages - Route: /:country/:state/:serviceSlug
-        allServices.forEach(service => {
-          sitemap += `
-  <url>
-    <loc>${baseUrl}/${country.slug}/${state.slug}/${service.id}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <lastmod>${currentDate}</lastmod>
-  </url>`;
-        });
-
-        // Cities for this state
-        state.cities.forEach(city => {
-          // City pages - Route: /:country/:state/:city
-          sitemap += `
-  <url>
-    <loc>${baseUrl}/${country.slug}/${state.slug}/${city.slug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>${currentDate}</lastmod>
-  </url>`;
-
-          // City-level category pages - Route: /:country/:state/:city/:categorySlug
-          serviceCategories.forEach(category => {
-            sitemap += `
-  <url>
-    <loc>${baseUrl}/${country.slug}/${state.slug}/${city.slug}/services/${category.id}</loc>
+    <loc>${BASE_URL}/us/${state.slug}/${city.slug}/services/${category.id}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
     <lastmod>${currentDate}</lastmod>
   </url>`;
-          });
-
-          // City-level service detail pages - Route: /:country/:state/:city/:serviceSlug
-          allServices.forEach(service => {
-            sitemap += `
-  <url>
-    <loc>${baseUrl}/${country.slug}/${state.slug}/${city.slug}/service/${service.id}</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <lastmod>${currentDate}</lastmod>
-  </url>`;
-          });
-        });
       });
-    }
+    });
+  });
+
+  // City-Level Service Detail Pages (ALL services for ALL cities)
+  usStates.forEach(state => {
+    state.cities.forEach(city => {
+      allServices.forEach(service => {
+        sitemap += `
+  <url>
+    <loc>${BASE_URL}/us/${state.slug}/${city.slug}/service/${service.id}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <lastmod>${currentDate}</lastmod>
+  </url>`;
+      });
+    });
   });
 
   sitemap += `
@@ -139,16 +146,16 @@ export const generateSitemapXML = async (): Promise<string> => {
 };
 
 export const generateAndSaveSitemap = async (): Promise<void> => {
-  const sitemapContent = await generateSitemapXML();
+  const xmlContent = await generateSitemapXML();
   
   // Create a blob and download
-  const blob = new Blob([sitemapContent], { type: 'application/xml' });
+  const blob = new Blob([xmlContent], { type: 'application/xml' });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'sitemap.xml';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sitemap.xml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
