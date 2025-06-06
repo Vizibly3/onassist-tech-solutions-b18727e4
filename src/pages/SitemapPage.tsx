@@ -1,35 +1,32 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { generateSitemapXML } from '@/utils/sitemapGenerator';
 
 const SitemapPage = () => {
-  const [sitemapContent, setSitemapContent] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    const generateAndServeSitemap = async () => {
+    const serveSitemap = async () => {
       try {
         const xmlContent = await generateSitemapXML();
-        setSitemapContent(xmlContent);
         
-        // Replace the entire page content with XML
+        // Set the content type to XML
+        document.contentType = 'application/xml';
+        
+        // Clear the document and write XML content
         document.open();
         document.write(xmlContent);
         document.close();
         
       } catch (error) {
         console.error('Error generating sitemap:', error);
-        // Fallback: display XML content in pre tag
-        setSitemapContent('Error generating sitemap');
-      } finally {
-        setIsLoading(false);
+        document.open();
+        document.write('<?xml version="1.0" encoding="UTF-8"?><error>Failed to generate sitemap</error>');
+        document.close();
       }
     };
 
-    generateAndServeSitemap();
+    serveSitemap();
   }, []);
 
-  // This component serves XML content directly
   return null;
 };
 

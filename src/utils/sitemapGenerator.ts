@@ -96,7 +96,7 @@ export const generateSitemapXML = async (): Promise<string> => {
     });
   });
 
-  // State-Level Service Detail Pages (ALL services for ALL states)
+  // State-Level Service Detail Pages
   usStates.forEach(state => {
     allServices.forEach(service => {
       sitemap += `
@@ -109,7 +109,7 @@ export const generateSitemapXML = async (): Promise<string> => {
     });
   });
 
-  // City-Level Category Pages (ALL categories for ALL cities)
+  // City-Level Category Pages
   usStates.forEach(state => {
     state.cities.forEach(city => {
       serviceCategories.forEach(category => {
@@ -124,7 +124,7 @@ export const generateSitemapXML = async (): Promise<string> => {
     });
   });
 
-  // City-Level Service Detail Pages (ALL services for ALL cities)
+  // City-Level Service Detail Pages
   usStates.forEach(state => {
     state.cities.forEach(city => {
       allServices.forEach(service => {
