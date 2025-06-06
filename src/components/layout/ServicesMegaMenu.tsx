@@ -18,8 +18,8 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full left-0 w-full flex justify-center z-50">
-      <div className="w-[80vw] max-w-7xl bg-white shadow-2xl border border-gray-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
+    <div className="absolute top-full left-1/2 transform -translate-x-1/2 z-50 w-[80vw] max-w-7xl">
+      <div className="bg-white shadow-2xl border border-gray-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
         <div className="p-8">
           {error ? (
             <div className="text-center p-12">
@@ -49,13 +49,13 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                     ))
                   ) : categoriesWithServices && categoriesWithServices.length > 0 ? (
                     categoriesWithServices.map((category) => (
-                      <div key={category.id} className="space-y-4">
+                      <div key={category.id} className="space-y-4 min-w-0">
                         <Link
                           to={`/services/${slugify(category.title)}`}
                           onClick={onClose}
                           className="block group"
                         >
-                          <h3 className="font-bold text-lg text-gray-900 group-hover:text-onassist-primary transition-colors border-b-2 border-onassist-primary pb-2 mb-4">
+                          <h3 className="font-bold text-lg text-gray-900 group-hover:text-onassist-primary transition-colors border-b-2 border-onassist-primary pb-2 mb-4 truncate">
                             {category.title}
                           </h3>
                         </Link>
@@ -68,7 +68,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                                   key={service.id}
                                   to={`/service/${slugify(service.title)}`}
                                   onClick={onClose}
-                                  className="block text-sm text-gray-600 hover:text-onassist-primary transition-colors py-1 hover:pl-2 transition-all duration-200"
+                                  className="block text-sm text-gray-600 hover:text-onassist-primary transition-colors py-1 hover:pl-2 transition-all duration-200 truncate"
                                 >
                                   • {service.title}
                                 </Link>
