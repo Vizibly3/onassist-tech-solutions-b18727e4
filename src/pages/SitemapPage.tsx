@@ -1,33 +1,43 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { generateSitemapXML } from '@/utils/sitemapGenerator';
 
 const SitemapPage = () => {
+  const [xmlContent, setXmlContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const serveSitemap = async () => {
+    const loadSitemap = async () => {
       try {
         const xmlContent = await generateSitemapXML();
-        
-        // Set the content type to XML
-        document.contentType = 'application/xml';
-        
-        // Clear the document and write XML content
-        document.open();
-        document.write(xmlContent);
-        document.close();
-        
+        setXmlContent(xmlContent);
       } catch (error) {
         console.error('Error generating sitemap:', error);
-        document.open();
-        document.write('<?xml version="1.0" encoding="UTF-8"?><error>Failed to generate sitemap</error>');
-        document.close();
+        setXmlContent('<?xml version="1.0" encoding="UTF-8"?><error>Failed to generate sitemap</error>');
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    serveSitemap();
+    loadSitemap();
   }, []);
 
-  return null;
+  if (isLoading) {
+    return <div>Loading sitemap...</div>;
+  }
+
+  return (
+    <pre style={{ 
+      whiteSpace: 'pre-wrap', 
+      fontFamily: 'monospace',
+      fontSize: '12px',
+      padding: '20px',
+      backgroundColor: '#f5f5f5',
+      overflow: 'auto'
+    }}>
+      {xmlContent}
+    </pre>
+  );
 };
 
 export default SitemapPage;
