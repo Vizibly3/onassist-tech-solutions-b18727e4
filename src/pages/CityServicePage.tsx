@@ -45,17 +45,27 @@ const CityServicePage = () => {
   const { data: categories } = useServiceCategories();
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
-  // Get location data
+  console.log('CityServicePage params:', { country, state, city });
+  console.log('Available states:', usStates.map(s => ({ name: s.name, slug: s.slug })));
+
+  // Get location data - fix the data structure access
   const stateData = usStates.find(s => s.slug === state);
-  const cityData = stateData?.cities.find(c => c.slug === city);
+  console.log('Found state data:', stateData);
+  
+  const cityData = stateData?.cities?.find(c => c.slug === city);
+  console.log('Found city data:', cityData);
   
   if (!cityData || !stateData) {
+    console.error('City or state not found:', { state, city, stateData, cityData });
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">City not found</h1>
             <p className="text-gray-600 mb-6">The city you're looking for doesn't exist.</p>
+            <p className="text-sm text-gray-500 mb-6">
+              Looking for: {country}/{state}/{city}
+            </p>
             <Button asChild variant="outline">
               <Link to="/">Go Home</Link>
             </Button>
@@ -269,7 +279,7 @@ const CityServicePage = () => {
                       {category.services.slice(0, 3).map((service) => (
                         <Link
                           key={service.id}
-                          to={`/${country}/${state}/${city}/service/${slugify(service.title)}`}
+                          to={`/${country}/${state}/${city}/${slugify(service.title)}`}
                           className="block text-gray-700 hover:text-onassist-primary transition-colors p-2 rounded hover:bg-gray-50"
                         >
                           • {service.title}
@@ -278,7 +288,7 @@ const CityServicePage = () => {
                     </div>
                     
                     <Link
-                      to={`/${country}/${state}/${city}/services/${slugify(category.title)}`}
+                      to={`/${country}/${state}/${city}/${slugify(category.title)}`}
                       className="inline-flex items-center gap-2 text-onassist-primary font-semibold group-hover:gap-3 transition-all"
                     >
                       View All {category.title}

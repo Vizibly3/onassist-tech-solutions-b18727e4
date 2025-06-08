@@ -31,9 +31,13 @@ const LocationServiceDetailPage = () => {
   const { data: service, isLoading, error } = useServiceBySlug(serviceSlug || '');
   const [zipCode, setZipCode] = useState('');
 
+  console.log('LocationServiceDetailPage params:', { country, state, city, serviceSlug });
+
   // Get location data
   const stateData = usStates.find(s => s.slug === state);
   const cityData = stateData?.cities.find(c => c.slug === city);
+
+  console.log('Location data:', { stateData, cityData });
 
   const handleAddToCart = () => {
     if (service && zipCode.trim()) {
@@ -65,12 +69,16 @@ const LocationServiceDetailPage = () => {
   }
 
   if (error || !service || !cityData || !stateData) {
+    console.error('Service or location not found:', { service, cityData, stateData, error });
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Service not found</h1>
             <p className="text-gray-600 mb-6">The service or location you're looking for doesn't exist.</p>
+            <p className="text-sm text-gray-500 mb-6">
+              Looking for: {country}/{state}/{city}/{serviceSlug}
+            </p>
             <Button onClick={handleGoBack} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Go Back
