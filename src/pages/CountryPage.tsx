@@ -70,9 +70,6 @@ const CountryPage = () => {
 
   const countryData = locationData.country;
 
-  // Convert states object to array
-  const statesArray = Object.values(countryData.states);
-
   // Get all services
   const allServices = categoriesWithServices?.flatMap(cat => 
     cat.services.slice(0, 3).map(service => ({
@@ -359,7 +356,7 @@ const CountryPage = () => {
 
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-2xl p-12">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-              {statesArray.map((state, index) => (
+              {countryData.states.map((state, index) => (
                 <Link
                   key={state.name}
                   to={`/${country}/${state.slug}`}

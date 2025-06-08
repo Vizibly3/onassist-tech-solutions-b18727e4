@@ -1,5 +1,5 @@
 
-import { locations } from '@/data/locations';
+import { countries, usStates } from '@/data/locations';
 import { serviceCategories, getAllServices } from '@/config/services';
 
 const BASE_URL = 'https://onassist.lovable.app';
@@ -61,10 +61,6 @@ export const generateSitemapXML = async (): Promise<string> => {
   </url>`;
   });
 
-  // Extract countries and states from the locations structure
-  const countries = Object.values(locations);
-  const usStates = Object.values(locations.usa?.states || {});
-
   // Country Pages
   countries.forEach(country => {
     sitemap += `
@@ -80,7 +76,7 @@ export const generateSitemapXML = async (): Promise<string> => {
   usStates.forEach(state => {
     sitemap += `
   <url>
-    <loc>${BASE_URL}/usa/${state.slug}</loc>
+    <loc>${BASE_URL}/us/${state.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>${currentDate}</lastmod>
@@ -92,7 +88,7 @@ export const generateSitemapXML = async (): Promise<string> => {
     state.cities.forEach(city => {
       sitemap += `
   <url>
-    <loc>${BASE_URL}/usa/${state.slug}/${city.slug}</loc>
+    <loc>${BASE_URL}/us/${state.slug}/${city.slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>${currentDate}</lastmod>
@@ -105,7 +101,7 @@ export const generateSitemapXML = async (): Promise<string> => {
     allServices.forEach(service => {
       sitemap += `
   <url>
-    <loc>${BASE_URL}/usa/${state.slug}/${service.id}</loc>
+    <loc>${BASE_URL}/us/${state.slug}/${service.id}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <lastmod>${currentDate}</lastmod>
@@ -119,7 +115,7 @@ export const generateSitemapXML = async (): Promise<string> => {
       serviceCategories.forEach(category => {
         sitemap += `
   <url>
-    <loc>${BASE_URL}/usa/${state.slug}/${city.slug}/services/${category.id}</loc>
+    <loc>${BASE_URL}/us/${state.slug}/${city.slug}/services/${category.id}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
     <lastmod>${currentDate}</lastmod>
@@ -134,7 +130,7 @@ export const generateSitemapXML = async (): Promise<string> => {
       allServices.forEach(service => {
         sitemap += `
   <url>
-    <loc>${BASE_URL}/usa/${state.slug}/${city.slug}/service/${service.id}</loc>
+    <loc>${BASE_URL}/us/${state.slug}/${city.slug}/service/${service.id}</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <lastmod>${currentDate}</lastmod>
