@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -8,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { useServiceCategories, useCategoriesWithServices } from '@/hooks/useServices';
-import { getLocationBreadcrumb } from '@/data/locations';
+import { usStates } from '@/data/locations';
 import { 
   MapPin, 
   Star, 
@@ -32,6 +31,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import ServiceCard from '@/components/services/ServiceCard';
+import { slugify } from '@/utils/slugify';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,10 +46,10 @@ const StateServicePage = () => {
   const { data: categories } = useServiceCategories();
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
-  // Get location data
-  const locationData = getLocationBreadcrumb(country || '', state || '', '');
+  // Get state data
+  const stateData = usStates.find(s => s.slug === state);
   
-  if (!locationData.state || !locationData.country) {
+  if (!stateData) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
@@ -64,9 +64,6 @@ const StateServicePage = () => {
       </Layout>
     );
   }
-
-  const stateData = locationData.state;
-  const countryData = locationData.country;
 
   // Get popular services (first 6 categories)
   const popularCategories = categoriesWithServices?.slice(0, 6) || [];
@@ -152,7 +149,7 @@ const StateServicePage = () => {
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
                   <Link to={`/${country}`} className="text-gray-600 hover:text-onassist-primary transition-colors">
-                    {countryData.name}
+                    United States
                   </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -323,7 +320,7 @@ const StateServicePage = () => {
                       {category.services.slice(0, 3).map((service) => (
                         <Link
                           key={service.id}
-                          to={`/${country}/${state}/service/${service.slug}`}
+                          to={`/${country}/${state}/${slugify(service.title)}`}
                           className="block text-gray-700 hover:text-onassist-primary transition-colors p-2 rounded hover:bg-gray-50"
                         >
                           • {service.title}
@@ -332,7 +329,7 @@ const StateServicePage = () => {
                     </div>
                     
                     <Link
-                      to={`/services/${category.slug}`}
+                      to={`/services/${slugify(category.title)}`}
                       className="inline-flex items-center gap-2 text-onassist-primary font-semibold group-hover:gap-3 transition-all"
                     >
                       View All Services

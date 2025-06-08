@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -14,7 +13,7 @@ import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
 import { Clock, Star, Shield, CheckCircle, ArrowLeft, Wrench, Monitor, Home, Smartphone, Wifi, Zap, Users, Award, Phone, MapPin, Navigation, Building } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getLocationBreadcrumb } from '@/data/locations';
+import { usStates } from '@/data/locations';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,8 +30,8 @@ const StateServiceDetailPage = () => {
   const { data: service, isLoading, error } = useServiceBySlug(serviceSlug || '');
   const [zipCode, setZipCode] = useState('');
 
-  // Get location data
-  const locationData = getLocationBreadcrumb(country || '', state || '', '');
+  // Get state data
+  const stateData = usStates.find(s => s.slug === state);
 
   const handleAddToCart = () => {
     if (service && zipCode.trim()) {
@@ -156,7 +155,7 @@ const StateServiceDetailPage = () => {
     );
   }
 
-  if (error || !service || !locationData.state || !locationData.country) {
+  if (error || !service || !stateData) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
@@ -172,9 +171,6 @@ const StateServiceDetailPage = () => {
       </Layout>
     );
   }
-
-  const stateData = locationData.state;
-  const countryData = locationData.country;
 
   return (
     <Layout>
@@ -202,7 +198,7 @@ const StateServiceDetailPage = () => {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link to={`/${country}`} className="text-gray-600 hover:text-onassist-primary transition-colors">
-                      {countryData.name}
+                      United States
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
