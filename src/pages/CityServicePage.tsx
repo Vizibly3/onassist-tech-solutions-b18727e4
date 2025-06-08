@@ -46,17 +46,24 @@ const CityServicePage = () => {
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
   console.log('CityServicePage params:', { country, state, city });
-  console.log('Available states:', usStates.map(s => ({ name: s.name, slug: s.slug })));
 
-  // Get location data - fix the data structure access
+  // Get location data - ensure proper data structure access
   const stateData = usStates.find(s => s.slug === state);
-  console.log('Found state data:', stateData);
-  
   const cityData = stateData?.cities?.find(c => c.slug === city);
-  console.log('Found city data:', cityData);
+  
+  console.log('State lookup result:', { state, stateData });
+  console.log('City lookup result:', { city, cityData });
   
   if (!cityData || !stateData) {
-    console.error('City or state not found:', { state, city, stateData, cityData });
+    console.error('City or state not found:', { 
+      requestedState: state, 
+      requestedCity: city, 
+      foundState: stateData, 
+      foundCity: cityData,
+      availableStates: usStates.map(s => s.slug),
+      availableCities: stateData?.cities?.map(c => c.slug) || []
+    });
+    
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
@@ -66,6 +73,14 @@ const CityServicePage = () => {
             <p className="text-sm text-gray-500 mb-6">
               Looking for: {country}/{state}/{city}
             </p>
+            <p className="text-xs text-gray-400 mb-6">
+              Available states: {usStates.map(s => s.slug).join(', ')}
+            </p>
+            {stateData && (
+              <p className="text-xs text-gray-400 mb-6">
+                Available cities in {state}: {stateData.cities?.map(c => c.slug).join(', ')}
+              </p>
+            )}
             <Button asChild variant="outline">
               <Link to="/">Go Home</Link>
             </Button>

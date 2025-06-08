@@ -35,7 +35,7 @@ const LocationServiceDetailPage = () => {
 
   // Get location data
   const stateData = usStates.find(s => s.slug === state);
-  const cityData = stateData?.cities.find(c => c.slug === city);
+  const cityData = stateData?.cities?.find(c => c.slug === city);
 
   console.log('Location data:', { stateData, cityData });
 
@@ -69,7 +69,15 @@ const LocationServiceDetailPage = () => {
   }
 
   if (error || !service || !cityData || !stateData) {
-    console.error('Service or location not found:', { service, cityData, stateData, error });
+    console.error('Service or location not found:', { 
+      service, 
+      cityData, 
+      stateData, 
+      error,
+      requestedParams: { country, state, city, serviceSlug },
+      availableStates: usStates.map(s => s.slug),
+      availableCities: stateData?.cities?.map(c => c.slug) || []
+    });
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
