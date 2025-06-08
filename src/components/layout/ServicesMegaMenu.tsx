@@ -18,8 +18,8 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full left-0 right-0 z-50 flex justify-center px-[10vw]">
-      <div className="w-full bg-white shadow-2xl border border-gray-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
+    <div className="absolute top-full left-0 right-0 z-50 flex justify-center">
+      <div className="w-[80%] bg-white shadow-2xl border border-gray-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
         <div className="p-8">
           {error ? (
             <div className="text-center p-12">
