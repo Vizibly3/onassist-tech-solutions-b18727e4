@@ -6,13 +6,13 @@ import { Menu, X, User, ShoppingCart, Phone, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { siteConfig } from '@/config/site';
-import ServicesMegaMenu from './ServicesMegaMenu';
+import ServicesDropdown from './ServicesDropdown';
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const { totalItems } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isServicesMegaMenuOpen, setIsServicesMegaMenuOpen] = useState(false);
+  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -24,8 +24,8 @@ const Header = () => {
     window.open(`tel:${siteConfig.contactPhone}`, '_self');
   };
 
-  const closeMegaMenu = () => {
-    setIsServicesMegaMenuOpen(false);
+  const closeDropdown = () => {
+    setIsServicesDropdownOpen(false);
   };
 
   return (
@@ -48,14 +48,14 @@ const Header = () => {
             
             <div 
               className="relative"
-              onMouseEnter={() => setIsServicesMegaMenuOpen(true)}
-              onMouseLeave={() => setIsServicesMegaMenuOpen(false)}
+              onMouseEnter={() => setIsServicesDropdownOpen(true)}
+              onMouseLeave={() => setIsServicesDropdownOpen(false)}
             >
               <button className="flex items-center gap-1 text-gray-600 hover:text-onassist-primary transition-colors">
                 Services
-                <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMegaMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-              <ServicesMegaMenu isOpen={isServicesMegaMenuOpen} onClose={closeMegaMenu} />
+              <ServicesDropdown isOpen={isServicesDropdownOpen} onClose={closeDropdown} />
             </div>
             
             <Link to="/about" className="text-gray-600 hover:text-onassist-primary transition-colors">

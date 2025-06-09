@@ -75,13 +75,13 @@ function App() {
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnsPage />} />
 
-                {/* Location-based Routes */}
-                <Route path="/:country" element={<CountryPage />} />
-                <Route path="/:country/:state" element={<StateServicePage />} />
-                <Route path="/:country/:state/:serviceSlug" element={<StateServiceDetailPage />} />
+                {/* Location-based Routes - Order matters! Most specific first */}
+                <Route path="/:country/:state/:city/:serviceSlug" element={<LocationServiceDetailPage />} />
                 <Route path="/:country/:state/:city/:categorySlug" element={<CityCategoryPage />} />
                 <Route path="/:country/:state/:city" element={<CityServicePage />} />
-                <Route path="/:country/:state/:city/:serviceSlug" element={<LocationServiceDetailPage />} />
+                <Route path="/:country/:state/:serviceSlug" element={<StateServiceDetailPage />} />
+                <Route path="/:country/:state" element={<StateServicePage />} />
+                <Route path="/:country" element={<CountryPage />} />
 
                 {/* Auth Routes */}
                 <Route path="/auth/login" element={<Login />} />

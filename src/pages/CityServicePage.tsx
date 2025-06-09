@@ -46,6 +46,7 @@ const CityServicePage = () => {
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
   console.log('CityServicePage params:', { country, state, city });
+  console.log('Available states in data:', usStates.map(s => ({ name: s.name, slug: s.slug })));
 
   // Get location data - ensure proper data structure access
   const stateData = usStates.find(s => s.slug === state);
@@ -53,6 +54,7 @@ const CityServicePage = () => {
   
   console.log('State lookup result:', { state, stateData });
   console.log('City lookup result:', { city, cityData });
+  console.log('Available cities in state:', stateData?.cities?.map(c => ({ name: c.name, slug: c.slug })));
   
   if (!cityData || !stateData) {
     console.error('City or state not found:', { 
@@ -69,7 +71,7 @@ const CityServicePage = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">City not found</h1>
-            <p className="text-gray-600 mb-6">The city you're looking for doesn't exist.</p>
+            <p className="text-gray-600 mb-6">The city you're looking for doesn't exist in our system.</p>
             <p className="text-sm text-gray-500 mb-6">
               Looking for: {country}/{state}/{city}
             </p>
