@@ -1,14 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, User, Menu, X, ChevronDown, LayoutDashboard } from 'lucide-react';
-import ServicesMegaMenu from './ServicesMegaMenu';
+import ServicesDropdown from './ServicesDropdown';
 
 const DynamicHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isServicesMegaMenuOpen, setIsServicesMegaMenuOpen] = useState(false);
+  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
@@ -27,8 +28,8 @@ const DynamicHeader = () => {
     setIsMenuOpen(false);
   };
 
-  const closeMegaMenu = () => {
-    setIsServicesMegaMenuOpen(false);
+  const closeDropdown = () => {
+    setIsServicesDropdownOpen(false);
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -62,16 +63,16 @@ const DynamicHeader = () => {
               <>
                 <div 
                   className="relative"
-                  onMouseEnter={() => setIsServicesMegaMenuOpen(true)}
-                  onMouseLeave={() => setIsServicesMegaMenuOpen(false)}
+                  onMouseEnter={() => setIsServicesDropdownOpen(true)}
+                  onMouseLeave={() => setIsServicesDropdownOpen(false)}
                 >
                   <button className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
                     location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
                   }`}>
                     Services
-                    <ChevronDown className={`h-4 w-4 transition-transform ${isServicesMegaMenuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  <ServicesMegaMenu isOpen={isServicesMegaMenuOpen} onClose={closeMegaMenu} />
+                  <ServicesDropdown isOpen={isServicesDropdownOpen} onClose={closeDropdown} />
                 </div>
                 
                 <Link 
