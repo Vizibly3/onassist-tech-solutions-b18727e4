@@ -1,13 +1,19 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import SitemapIndex from '@/components/SitemapIndex';
 
 const SitemapChunkPage = () => {
-  const { chunkIndex } = useParams<{ chunkIndex: string }>();
-  const index = chunkIndex ? parseInt(chunkIndex) - 1 : 0; // Convert to 0-based index
+  const location = useLocation();
   
-  return <SitemapIndex chunkIndex={index} />;
+  // Extract chunk number from pathname like /sitemap1.xml, /sitemap2.xml, etc.
+  const match = location.pathname.match(/\/sitemap(\d+)\.xml/);
+  const chunkNumber = match ? parseInt(match[1]) : 1;
+  const chunkIndex = chunkNumber - 1; // Convert to 0-based index
+  
+  console.log('SitemapChunkPage - pathname:', location.pathname, 'chunkNumber:', chunkNumber, 'chunkIndex:', chunkIndex);
+  
+  return <SitemapIndex chunkIndex={chunkIndex} />;
 };
 
 export default SitemapChunkPage;

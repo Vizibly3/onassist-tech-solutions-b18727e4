@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from 'react-helmet-async';
@@ -63,7 +64,7 @@ function App() {
               <Routes>
                 {/* Sitemap routes - must be before other routes */}
                 <Route path="/sitemap.xml" element={<SitemapMainPage />} />
-                <Route path="/sitemap:chunkIndex.xml" element={<SitemapChunkPage />} />
+                <Route path="/sitemap*.xml" element={<SitemapChunkPage />} />
                 
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
@@ -82,8 +83,8 @@ function App() {
                 <Route path="/returns" element={<ReturnsPage />} />
 
                 {/* Location-based Routes - Order matters! Most specific first */}
-                <Route path="/:country/:state/:city/:serviceSlug" element={<LocationServiceDetailPage />} />
-                <Route path="/:country/:state/:city/:categorySlug" element={<CityCategoryPage />} />
+                <Route path="/:country/:state/:city/services/:categorySlug" element={<CityCategoryPage />} />
+                <Route path="/:country/:state/:city/service/:serviceSlug" element={<LocationServiceDetailPage />} />
                 <Route path="/:country/:state/:city" element={<CityServicePage />} />
                 <Route path="/:country/:state/:serviceSlug" element={<StateServiceDetailPage />} />
                 <Route path="/:country/:state" element={<StateServicePage />} />
