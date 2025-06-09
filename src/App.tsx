@@ -1,5 +1,4 @@
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from "@/components/ui/sonner";
@@ -48,6 +47,9 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AddService from "./pages/admin/AddService";
 import AddCategory from "./pages/admin/AddCategory";
 
+import SitemapMainPage from '@/pages/SitemapMainPage';
+import SitemapChunkPage from '@/pages/SitemapChunkPage';
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -55,10 +57,14 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
+          <Router>
             <HelmetProvider>
               <Toaster />
               <Routes>
+                {/* Sitemap routes - must be before other routes */}
+                <Route path="/sitemap.xml" element={<SitemapMainPage />} />
+                <Route path="/sitemap:chunkIndex.xml" element={<SitemapChunkPage />} />
+                
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<AboutPage />} />
@@ -106,7 +112,7 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </HelmetProvider>
-          </BrowserRouter>
+          </Router>
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
