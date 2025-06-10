@@ -1,7 +1,6 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
@@ -48,8 +47,8 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AddService from "./pages/admin/AddService";
 import AddCategory from "./pages/admin/AddCategory";
 
-import SitemapMainPage from '@/pages/SitemapMainPage';
-import SitemapChunkPage from '@/pages/SitemapChunkPage';
+import SitemapMainPage from "@/pages/SitemapMainPage";
+import SitemapChunkPage from "@/pages/SitemapChunkPage";
 
 const queryClient = new QueryClient();
 
@@ -64,15 +63,24 @@ function App() {
               <Routes>
                 {/* Sitemap routes - must be before other routes */}
                 <Route path="/sitemap.xml" element={<SitemapMainPage />} />
-                <Route path="/sitemap*.xml" element={<SitemapChunkPage />} />
-                
+                <Route
+                  path="/sitemap/:chunkId.xml"
+                  element={<SitemapChunkPage />}
+                />
+
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/services" element={<ServicesPage />} />
-                <Route path="/service/:serviceSlug" element={<ServiceDetailPage />} />
-                <Route path="/services/:categorySlug" element={<CategoryPage />} />
+                <Route
+                  path="/service/:serviceSlug"
+                  element={<ServiceDetailPage />}
+                />
+                <Route
+                  path="/services/:categorySlug"
+                  element={<CategoryPage />}
+                />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/membership" element={<MembershipPage />} />
@@ -83,10 +91,22 @@ function App() {
                 <Route path="/returns" element={<ReturnsPage />} />
 
                 {/* Location-based Routes - Order matters! Most specific first */}
-                <Route path="/:country/:state/:city/services/:categorySlug" element={<CityCategoryPage />} />
-                <Route path="/:country/:state/:city/service/:serviceSlug" element={<LocationServiceDetailPage />} />
-                <Route path="/:country/:state/:city" element={<CityServicePage />} />
-                <Route path="/:country/:state/:serviceSlug" element={<StateServiceDetailPage />} />
+                <Route
+                  path="/:country/:state/:city/services/:categorySlug"
+                  element={<CityCategoryPage />}
+                />
+                <Route
+                  path="/:country/:state/:city/service/:serviceSlug"
+                  element={<LocationServiceDetailPage />}
+                />
+                <Route
+                  path="/:country/:state/:city"
+                  element={<CityServicePage />}
+                />
+                <Route
+                  path="/:country/:state/:serviceSlug"
+                  element={<StateServiceDetailPage />}
+                />
                 <Route path="/:country/:state" element={<StateServicePage />} />
                 <Route path="/:country" element={<CountryPage />} />
 
