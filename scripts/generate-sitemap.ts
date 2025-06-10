@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 import { countries, usStates } from "../src/data/locations";
 import { serviceCategories, getAllServices } from "../src/config/services";
 
-const BASE_URL = "https://onassist.lovable.app";
+const BASE_URL = "https://onassist.vercel.app";
 const URLS_PER_CHUNK = 10000;
 
 interface SitemapUrl {
@@ -188,7 +188,7 @@ export const generateSitemapIndex = async (): Promise<string> => {
   for (let i = 0; i < totalChunks; i++) {
     sitemapIndex += `
   <sitemap>
-    <loc>${BASE_URL}/sitemap/${i + 1}.xml</loc>
+    <loc>${BASE_URL}/sitemap_${i + 1}.xml</loc>
     <lastmod>${currentDate}</lastmod>
   </sitemap>`;
   }
