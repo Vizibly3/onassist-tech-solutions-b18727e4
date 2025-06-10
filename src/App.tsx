@@ -62,11 +62,11 @@ function App() {
               <Toaster />
               <Routes>
                 {/* Sitemap routes - must be before other routes */}
-                <Route path="/sitemap.xml" element={<SitemapMainPage />} />
+                {/* <Route path="/sitemap.xml" element={<SitemapMainPage />} />
                 <Route
                   path="/sitemap/:chunkId.xml"
                   element={<SitemapChunkPage />}
-                />
+                /> */}
 
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
