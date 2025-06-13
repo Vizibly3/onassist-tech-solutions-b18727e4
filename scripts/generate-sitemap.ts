@@ -10,6 +10,8 @@ import { supabase } from "../src/integrations/supabase/client.ts";
 import { countries, usStates } from "../src/data/locations.ts";
 import { serviceCategories, getAllServices } from "../src/config/services.ts";
 
+// "generate-sitemap": "ts-node scripts/generate-sitemap.ts",
+
 const BASE_URL = "https://onassist.vercel.app";
 const URLS_PER_CHUNK = 10000;
 
