@@ -104,7 +104,7 @@ function App() {
                   element={<CityServicePage />}
                 />
                 <Route
-                  path="/:country/:state/:serviceSlug"
+                  path="/:country/:state/service/:serviceSlug"
                   element={<StateServiceDetailPage />}
                 />
                 <Route path="/:country/:state" element={<StateServicePage />} />

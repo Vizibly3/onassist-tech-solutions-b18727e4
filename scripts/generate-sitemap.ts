@@ -1,16 +1,14 @@
-// scripts/generate-sitemap.ts
-
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// ✅ Fix __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import { supabase } from "../src/integrations/supabase/client.ts";
 // Your existing imports
-import { countries, usStates } from "../src/data/locations";
-import { serviceCategories, getAllServices } from "../src/config/services";
+import { countries, usStates } from "../src/data/locations.ts";
+import { serviceCategories, getAllServices } from "../src/config/services.ts";
 
 const BASE_URL = "https://onassist.vercel.app";
 const URLS_PER_CHUNK = 10000;
@@ -24,7 +22,7 @@ interface SitemapUrl {
 
 const publicPath = path.join(__dirname, "..", "public");
 
-const generateAllUrls = (): SitemapUrl[] => {
+const generateAllUrls = async (): Promise<SitemapUrl[]> => {
   const currentDate = new Date().toISOString().split("T")[0];
   const urls: SitemapUrl[] = [];
 
@@ -56,9 +54,38 @@ const generateAllUrls = (): SitemapUrl[] => {
   });
 
   // Service Categories
+  // serviceCategories.forEach((category) => {
+  //   urls.push({
+  //     loc: `${BASE_URL}/services/${category.id}`,
+  //     changefreq: "weekly",
+  //     priority: "0.8",
+  //     lastmod: currentDate,
+  //   });
+  // });
+
+  const slugify = (text: string) =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  const { data: serviceCategories, error } = await supabase
+    .from("service_categories")
+    .select("title");
+
+  if (error) {
+    console.error("❌ Error fetching service_categories:", error.message);
+    process.exit(1);
+  }
+
+  // Add service category URLs
   serviceCategories.forEach((category) => {
+    const slug = slugify(category.title);
     urls.push({
-      loc: `${BASE_URL}/services/${category.id}`,
+      loc: `${BASE_URL}/services/${slug}`,
       changefreq: "weekly",
       priority: "0.8",
       lastmod: currentDate,
@@ -66,12 +93,32 @@ const generateAllUrls = (): SitemapUrl[] => {
   });
 
   // Individual Services
-  const allServices = getAllServices();
-  allServices.forEach((service) => {
+  // const allServices = getAllServices();
+  // allServices.forEach((service) => {
+  //   urls.push({
+  //     loc: `${BASE_URL}/service/${service.id}`,
+  //     changefreq: "monthly",
+  //     priority: "0.7",
+  //     lastmod: currentDate,
+  //   });
+  // });
+
+  // 👉 Fetch services and add URLs
+  const { data: services, error: serviceError } = await supabase
+    .from("services")
+    .select("title");
+
+  if (serviceError) {
+    console.error("❌ Error fetching services:", serviceError.message);
+    process.exit(1);
+  }
+
+  services.forEach((service) => {
+    const slug = slugify(service.title);
     urls.push({
-      loc: `${BASE_URL}/service/${service.id}`,
-      changefreq: "monthly",
-      priority: "0.7",
+      loc: `${BASE_URL}/service/${slug}`,
+      changefreq: "weekly",
+      priority: "0.9",
       lastmod: currentDate,
     });
   });
@@ -109,10 +156,22 @@ const generateAllUrls = (): SitemapUrl[] => {
   });
 
   // State-Level Service Detail Pages
+  // usStates.forEach((state) => {
+  //   allServices.forEach((service) => {
+  //     urls.push({
+  //       loc: `${BASE_URL}/us/${state.slug}/${service.id}`,
+  //       changefreq: "monthly",
+  //       priority: "0.6",
+  //       lastmod: currentDate,
+  //     });
+  //   });
+  // });
+
   usStates.forEach((state) => {
-    allServices.forEach((service) => {
+    services.forEach((service) => {
+      const serviceSlug = slugify(service.title);
       urls.push({
-        loc: `${BASE_URL}/us/${state.slug}/${service.id}`,
+        loc: `${BASE_URL}/us/${state.slug}/service/${serviceSlug}`,
         changefreq: "monthly",
         priority: "0.6",
         lastmod: currentDate,
@@ -121,11 +180,25 @@ const generateAllUrls = (): SitemapUrl[] => {
   });
 
   // City-Level Category Pages
+  // usStates.forEach((state) => {
+  //   state.cities.forEach((city) => {
+  //     serviceCategories.forEach((category) => {
+  //       urls.push({
+  //         loc: `${BASE_URL}/us/${state.slug}/${city.slug}/services/${category.id}`,
+  //         changefreq: "weekly",
+  //         priority: "0.6",
+  //         lastmod: currentDate,
+  //       });
+  //     });
+  //   });
+  // });
+
   usStates.forEach((state) => {
     state.cities.forEach((city) => {
       serviceCategories.forEach((category) => {
+        const categorySlug = slugify(category.title);
         urls.push({
-          loc: `${BASE_URL}/us/${state.slug}/${city.slug}/services/${category.id}`,
+          loc: `${BASE_URL}/us/${state.slug}/${city.slug}/services/${categorySlug}`,
           changefreq: "weekly",
           priority: "0.6",
           lastmod: currentDate,
@@ -135,11 +208,25 @@ const generateAllUrls = (): SitemapUrl[] => {
   });
 
   // City-Level Service Detail Pages
+  // usStates.forEach((state) => {
+  //   state.cities.forEach((city) => {
+  //     allServices.forEach((service) => {
+  //       urls.push({
+  //         loc: `${BASE_URL}/us/${state.slug}/${city.slug}/service/${service.id}`,
+  //         changefreq: "monthly",
+  //         priority: "0.6",
+  //         lastmod: currentDate,
+  //       });
+  //     });
+  //   });
+  // });
+
   usStates.forEach((state) => {
     state.cities.forEach((city) => {
-      allServices.forEach((service) => {
+      services.forEach((service) => {
+        const serviceSlug = slugify(service.title);
         urls.push({
-          loc: `${BASE_URL}/us/${state.slug}/${city.slug}/service/${service.id}`,
+          loc: `${BASE_URL}/us/${state.slug}/${city.slug}/service/${serviceSlug}`,
           changefreq: "monthly",
           priority: "0.6",
           lastmod: currentDate,
@@ -172,7 +259,7 @@ const generateSitemapFromUrls = (urls: SitemapUrl[]): string => {
 };
 
 export const generateSitemapIndex = async (): Promise<string> => {
-  const allUrls = generateAllUrls();
+  const allUrls = await generateAllUrls();
   const totalChunks = Math.ceil(allUrls.length / URLS_PER_CHUNK);
   const currentDate = new Date().toISOString().split("T")[0];
 
@@ -202,7 +289,7 @@ export const generateSitemapIndex = async (): Promise<string> => {
 export const generateSitemapChunk = async (
   chunkIndex: number
 ): Promise<string> => {
-  const allUrls = generateAllUrls();
+  const allUrls = await generateAllUrls();
   const startIndex = chunkIndex * URLS_PER_CHUNK;
   const endIndex = startIndex + URLS_PER_CHUNK;
   const chunkUrls = allUrls.slice(startIndex, endIndex);
@@ -211,7 +298,7 @@ export const generateSitemapChunk = async (
 };
 
 async function generate() {
-  const allUrls = generateAllUrls(); // call from your shared util
+  const allUrls = await generateAllUrls(); // call from your shared util
   const URLS_PER_CHUNK = 10000;
   const totalChunks = Math.ceil(allUrls.length / URLS_PER_CHUNK);
 
