@@ -11,7 +11,7 @@ import { siteConfig } from '@/config/site';
 import { useServiceBySlug, useCategoryBySlug } from '@/hooks/useServices';
 import { useCart } from '@/contexts/CartContext';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Clock, Star, CheckCircle, Phone, Globe, Home, ShoppingCart, Users, Award, Zap, Shield } from 'lucide-react';
+import { ArrowLeft, Clock, Star, CheckCircle, Phone, Globe, Home, ShoppingCart, Users, Award, Zap, Shield, Wrench, Monitor, Headphones, Settings, MessageCircle, ThumbsUp, Calendar } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -200,6 +200,74 @@ const ServiceDetailPage = () => {
               </CardContent>
             </Card>
 
+            {/* Service Process */}
+            <Card className="shadow-xl border-0">
+              <CardContent className="p-8">
+                <h2 className="text-3xl font-bold mb-6">Our Service Process</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                    {
+                      icon: Calendar,
+                      title: "Book Service",
+                      desc: "Schedule your appointment online or by phone",
+                      step: 1
+                    },
+                    {
+                      icon: Users,
+                      title: "Expert Arrives",
+                      desc: "Certified technician arrives at your location",
+                      step: 2
+                    },
+                    {
+                      icon: Wrench,
+                      title: "Professional Work",
+                      desc: "Expert diagnosis and quality service delivery",
+                      step: 3
+                    },
+                    {
+                      icon: ThumbsUp,
+                      title: "Satisfaction",
+                      desc: "Service completion with guarantee and support",
+                      step: 4
+                    }
+                  ].map((process, index) => (
+                    <div key={index} className="text-center">
+                      <div className="relative mb-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-full flex items-center justify-center mx-auto">
+                          <process.icon className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-sm font-bold text-gray-800">
+                          {process.step}
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-lg mb-2">{process.title}</h3>
+                      <p className="text-gray-600 text-sm">{process.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Technology & Tools */}
+            <Card className="shadow-xl border-0 bg-gradient-to-br from-gray-50 to-blue-50">
+              <CardContent className="p-8">
+                <h2 className="text-3xl font-bold mb-6">Professional Tools & Technology</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {[
+                    { icon: Monitor, name: "Advanced Diagnostics" },
+                    { icon: Settings, name: "Professional Tools" },
+                    { icon: Shield, name: "Security Software" },
+                    { icon: Headphones, name: "Remote Support" }
+                  ].map((tool, index) => (
+                    <div key={index} className="text-center bg-white p-4 rounded-xl shadow-sm">
+                      <tool.icon className="w-8 h-8 text-onassist-primary mx-auto mb-3" />
+                      <p className="font-medium text-sm">{tool.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Why Choose Us */}
             <Card className="shadow-xl border-0 bg-gradient-to-br from-onassist-primary to-blue-600 text-white">
               <CardContent className="p-8">
@@ -244,6 +312,40 @@ const ServiceDetailPage = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Customer Reviews */}
+            <Card className="shadow-xl border-0">
+              <CardContent className="p-8">
+                <h2 className="text-3xl font-bold mb-6">What Our Customers Say</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      name: "Sarah Johnson",
+                      rating: 5,
+                      review: "Excellent service! The technician was professional and fixed my computer quickly.",
+                      service: service.title
+                    },
+                    {
+                      name: "Mike Davis",
+                      rating: 5,
+                      review: "Great experience. Fair pricing and excellent communication throughout.",
+                      service: service.title
+                    }
+                  ].map((review, index) => (
+                    <div key={index} className="bg-gray-50 p-6 rounded-xl">
+                      <div className="flex items-center gap-2 mb-3">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                      <p className="text-gray-700 mb-4 italic">"{review.review}"</p>
+                      <div className="font-semibold text-gray-800">{review.name}</div>
+                      <div className="text-sm text-gray-500">Verified Customer</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar */}
@@ -281,6 +383,30 @@ const ServiceDetailPage = () => {
                       <Phone className="w-5 h-5 mr-2" />
                       Call to Book
                     </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Service Guarantee */}
+            <Card className="shadow-xl border-0 bg-green-50">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-green-600" />
+                  Service Guarantee
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>30-day service warranty</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Satisfaction guaranteed</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Free follow-up support</span>
                   </div>
                 </div>
               </CardContent>

@@ -23,11 +23,6 @@ interface UserRole {
   role: string;
 }
 
-interface AuthUser {
-  id: string;
-  email?: string;
-}
-
 interface UserProfile {
   id: string;
   first_name: string | null;
@@ -86,20 +81,25 @@ const AdminUsers = () => {
         console.error('Error fetching user roles:', rolesError);
       }
 
-      // Get auth users for email information
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Get all users with their emails
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.error('Error fetching auth users:', authError);
+        toast({
+          title: 'Warning',
+          description: 'Could not fetch user emails. Some data may be incomplete.',
+          variant: 'destructive'
+        });
       }
 
       const usersWithEmail = profiles?.map(profile => {
-        const authUser = authUsers?.users.find((au: AuthUser) => au.id === profile.id);
+        const authUser = authUsers?.find(au => au.id === profile.id);
         const userRole = userRoles?.find((ur: UserRole) => ur.user_id === profile.id);
         
         return {
           ...profile,
-          email: authUser?.email || 'N/A',
+          email: authUser?.email || 'Not available',
           role: userRole?.role || 'customer'
         };
       }) || [];
