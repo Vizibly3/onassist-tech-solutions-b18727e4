@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import {
@@ -17,7 +18,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Eye } from 'lucide-react';
+import { Eye, Search, Filter } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -53,8 +54,12 @@ interface Order {
 const AdminOrders = () => {
   const { user, isAdmin, isLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
 
   if (isLoading) {
     return (
@@ -73,6 +78,10 @@ const AdminOrders = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    filterOrders();
+  }, [orders, searchTerm, statusFilter, paymentFilter]);
 
   const fetchOrders = async () => {
     try {
@@ -113,6 +122,35 @@ const AdminOrders = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterOrders = () => {
+    let filtered = orders;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(order => {
+        const customerName = `${order.first_name} ${order.last_name}`.toLowerCase();
+        const orderId = order.id.toLowerCase();
+        const email = order.email.toLowerCase();
+        
+        return customerName.includes(searchTerm.toLowerCase()) ||
+               orderId.includes(searchTerm.toLowerCase()) ||
+               email.includes(searchTerm.toLowerCase());
+      });
+    }
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(order => order.status === statusFilter);
+    }
+
+    // Filter by payment status
+    if (paymentFilter !== 'all') {
+      filtered = filtered.filter(order => order.payment_status === paymentFilter);
+    }
+
+    setFilteredOrders(filtered);
   };
 
   const updateOrderStatus = async (orderId: string, status: string) => {
@@ -202,9 +240,53 @@ const AdminOrders = () => {
           <p className="text-gray-600">Manage customer orders and payments</p>
         </div>
 
+        {/* Search and Filter */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by customer name, order ID, or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Payment</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="refunded">Refunded</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
-            <CardTitle>Orders List</CardTitle>
+            <CardTitle>Orders List ({filteredOrders.length} orders)</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -225,7 +307,7 @@ const AdminOrders = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) => (
+                  {filteredOrders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">
                         {order.id.slice(0, 8)}...
