@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -81,32 +80,36 @@ const AdminUsers = () => {
         console.error('Error fetching user roles:', rolesError);
       }
 
-      // Get all users with their emails using admin API
+      // Get all users with their emails using admin API - this will fetch from auth.users table
       const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.error('Error fetching auth users:', authError);
         toast({
           title: 'Warning',
-          description: 'Could not fetch user emails. Some data may be incomplete.',
+          description: 'Could not fetch user emails from authentication system.',
           variant: 'destructive'
         });
       }
 
       const authUsers = authData?.users || [];
+      console.log('Auth users fetched:', authUsers.length);
 
       const usersWithEmail = profiles?.map(profile => {
         const authUser = authUsers.find(au => au.id === profile.id);
         const userRole = userRoles?.find((ur: UserRole) => ur.user_id === profile.id);
         
+        console.log(`Profile ${profile.id} matched with auth user:`, authUser?.email);
+        
         return {
           ...profile,
-          email: authUser?.email || 'Email not available',
+          email: authUser?.email || 'No email found',
           role: userRole?.role || 'customer'
         };
       }) || [];
 
       setUsers(usersWithEmail);
+      console.log('Final users with emails:', usersWithEmail);
     } catch (error: any) {
       console.error('Fetch users error:', error);
       toast({
