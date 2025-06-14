@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, FileText, Globe } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { generateSitemap } from '@/utils/sitemapGenerator';
+import { generateSitemapXML } from '@/utils/sitemapGenerator';
 import { usStates } from '@/data/locations';
-import { useServicesData } from '@/hooks/useServicesData';
+import { useServices } from '@/hooks/useServices';
 
 const SitemapGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const { data: services } = useServicesData();
+  const { data: services } = useServices();
 
   const totalCities = usStates.reduce((total, state) => total + state.cities.length, 0);
   const totalStates = usStates.length;
@@ -23,14 +23,14 @@ const SitemapGenerator = () => {
   const servicePages = totalServices; // /services/computer-repair etc
   const categoryServicePages = totalServices; // /services/computer-support/computer-repair etc
   const locationServicePages = totalCities * totalServices; // /united-states/california/los-angeles/computer-repair etc
-  const staticPages = 10; // home, about, contact, services, etc
+  const staticPages = 14; // home, about, contact, services, etc
 
   const totalUrls = countryPages + statePages + cityPages + servicePages + categoryServicePages + locationServicePages + staticPages;
 
   const handleGenerateAndDownload = async () => {
     setIsGenerating(true);
     try {
-      const sitemapContent = await generateSitemap();
+      const sitemapContent = await generateSitemapXML();
       
       // Create and download the file
       const blob = new Blob([sitemapContent], { type: 'application/xml' });

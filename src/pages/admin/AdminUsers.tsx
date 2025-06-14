@@ -81,8 +81,8 @@ const AdminUsers = () => {
         console.error('Error fetching user roles:', rolesError);
       }
 
-      // Get all users with their emails
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      // Get all users with their emails using admin API
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.error('Error fetching auth users:', authError);
@@ -93,19 +93,22 @@ const AdminUsers = () => {
         });
       }
 
+      const authUsers = authData?.users || [];
+
       const usersWithEmail = profiles?.map(profile => {
-        const authUser = authUsers?.find(au => au.id === profile.id);
+        const authUser = authUsers.find(au => au.id === profile.id);
         const userRole = userRoles?.find((ur: UserRole) => ur.user_id === profile.id);
         
         return {
           ...profile,
-          email: authUser?.email || 'Not available',
+          email: authUser?.email || 'Email not available',
           role: userRole?.role || 'customer'
         };
       }) || [];
 
       setUsers(usersWithEmail);
     } catch (error: any) {
+      console.error('Fetch users error:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch users: ' + error.message,
