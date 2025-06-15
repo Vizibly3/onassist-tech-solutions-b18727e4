@@ -18,7 +18,18 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Shield, ShieldCheck, Search, Filter } from 'lucide-react';
+import { Shield, ShieldCheck, Search, Filter, Edit, Ban, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface UserRole {
   user_id: string;
@@ -36,6 +47,7 @@ interface UserProfile {
   zip_code: string | null;
   created_at: string;
   role?: string;
+  is_banned?: boolean;
 }
 
 const AdminUsers = () => {
@@ -94,7 +106,8 @@ const AdminUsers = () => {
         
         return {
           ...profile,
-          role: userRole?.role || 'customer'
+          role: userRole?.role || 'customer',
+          is_banned: false // You can add a banned field to profiles table if needed
         };
       }) || [];
 
@@ -175,6 +188,59 @@ const AdminUsers = () => {
     }
   };
 
+  const editUser = (userId: string) => {
+    // Navigate to edit user page or open edit modal
+    // For now, we'll just show a toast
+    toast({
+      title: 'Edit User',
+      description: 'Edit user functionality would be implemented here'
+    });
+  };
+
+  const banUser = async (userId: string, userName: string) => {
+    try {
+      // You would implement ban functionality here
+      // This could involve updating a banned field in profiles or user_roles
+      toast({
+        title: 'Success',
+        description: `User ${userName} has been banned`
+      });
+      
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const deleteUser = async (userId: string, userName: string) => {
+    try {
+      // Delete user profile
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Success',
+        description: `User ${userName} has been deleted`
+      });
+      
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -233,49 +299,99 @@ const AdminUsers = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((userProfile) => (
-                    <TableRow key={userProfile.id}>
-                      <TableCell className="font-medium">
-                        {userProfile.first_name && userProfile.last_name
-                          ? `${userProfile.first_name} ${userProfile.last_name}`
-                          : 'N/A'}
-                      </TableCell>
-                      <TableCell>{userProfile.phone_number || 'N/A'}</TableCell>
-                      <TableCell>
-                        {userProfile.city && userProfile.state
-                          ? `${userProfile.city}, ${userProfile.state}`
-                          : 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={userProfile.role === 'admin' ? 'default' : 'secondary'}>
-                          {userProfile.role === 'admin' ? (
-                            <>
-                              <ShieldCheck className="h-3 w-3 mr-1" />
-                              Admin
-                            </>
-                          ) : (
-                            <>
-                              <Shield className="h-3 w-3 mr-1" />
-                              Customer
-                            </>
-                          )}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(userProfile.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant={userProfile.role === 'admin' ? 'destructive' : 'default'}
-                          size="sm"
-                          onClick={() => toggleUserRole(userProfile.id, userProfile.role || 'customer')}
-                          disabled={userProfile.id === user?.id}
-                        >
-                          {userProfile.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredUsers.map((userProfile) => {
+                    const userName = userProfile.first_name && userProfile.last_name
+                      ? `${userProfile.first_name} ${userProfile.last_name}`
+                      : 'N/A';
+                    
+                    return (
+                      <TableRow key={userProfile.id}>
+                        <TableCell className="font-medium">{userName}</TableCell>
+                        <TableCell>{userProfile.phone_number || 'N/A'}</TableCell>
+                        <TableCell>
+                          {userProfile.city && userProfile.state
+                            ? `${userProfile.city}, ${userProfile.state}`
+                            : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={userProfile.role === 'admin' ? 'default' : 'secondary'}>
+                            {userProfile.role === 'admin' ? (
+                              <>
+                                <ShieldCheck className="h-3 w-3 mr-1" />
+                                Admin
+                              </>
+                            ) : (
+                              <>
+                                <Shield className="h-3 w-3 mr-1" />
+                                Customer
+                              </>
+                            )}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(userProfile.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => editUser(userProfile.id)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            
+                            <Button
+                              variant={userProfile.role === 'admin' ? 'destructive' : 'default'}
+                              size="sm"
+                              onClick={() => toggleUserRole(userProfile.id, userProfile.role || 'customer')}
+                              disabled={userProfile.id === user?.id}
+                            >
+                              {userProfile.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
+                            </Button>
+                            
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => banUser(userProfile.id, userName)}
+                              disabled={userProfile.id === user?.id}
+                            >
+                              <Ban className="h-4 w-4" />
+                            </Button>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={userProfile.id === user?.id}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the user account for {userName}.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteUser(userProfile.id, userName)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}

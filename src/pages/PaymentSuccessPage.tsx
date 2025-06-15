@@ -128,7 +128,7 @@ const PaymentSuccessPage = () => {
 
                 <div className="flex gap-4 justify-center mt-6">
                   <Button asChild>
-                    <Link to="/my-orders">View My Orders</Link>
+                    <Link to="/profile">View My Profile</Link>
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/services">Continue Shopping</Link>
