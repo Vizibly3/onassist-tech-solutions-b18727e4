@@ -1,4 +1,3 @@
-
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +14,8 @@ import {
   MessageSquare,
   Package,
   BarChart3,
-  UserPlus
+  UserPlus,
+  Globe
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -65,10 +65,10 @@ const AdminDashboard = () => {
       color: "bg-purple-500"
     },
     {
-      title: "Analytics",
-      description: "View detailed analytics",
-      icon: BarChart3,
-      href: "/admin/analytics",
+      title: "Manage Sitemap",
+      description: "Generate and manage sitemaps",
+      icon: Globe,
+      href: "/admin/sitemap",
       color: "bg-orange-500"
     }
   ];

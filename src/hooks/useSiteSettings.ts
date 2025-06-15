@@ -3,23 +3,54 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 
 export const fetchSiteSettings = async () => {
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('*')
-    .eq('id', 1)
-    .single();
-  
-  if (error) throw error;
-  return data;
+  try {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
+    
+    if (error) {
+      console.error('Error fetching site settings:', error);
+      throw error;
+    }
+    
+    // Return default values if no settings found
+    if (!data) {
+      return {
+        id: 1,
+        name: 'OnAssist',
+        description: 'Professional tech support services for your home and business',
+        email: 'support@onassist.com',
+        contactphone: '+1 (888) 970-1698',
+        address: '123 Tech Avenue, Suite 100, San Francisco, CA 94107'
+      };
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error in fetchSiteSettings:', error);
+    throw error;
+  }
 };
 
 export const updateSiteSettings = async (updates: any) => {
-  const { error } = await supabase
-    .from('site_settings')
-    .update(updates)
-    .eq('id', 1);
-  
-  if (error) throw error;
+  try {
+    const { error } = await supabase
+      .from('site_settings')
+      .upsert({
+        id: 1,
+        ...updates
+      });
+    
+    if (error) {
+      console.error('Error updating site settings:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in updateSiteSettings:', error);
+    throw error;
+  }
 };
 
 export function useSiteSettings() {
@@ -28,12 +59,17 @@ export function useSiteSettings() {
   const query = useQuery({
     queryKey: ['site_settings'],
     queryFn: fetchSiteSettings,
+    retry: 2,
+    refetchOnWindowFocus: false,
   });
 
   const mutation = useMutation({
     mutationFn: updateSiteSettings,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['site_settings'] });
+    },
+    onError: (error) => {
+      console.error('Site settings mutation error:', error);
     },
   });
 

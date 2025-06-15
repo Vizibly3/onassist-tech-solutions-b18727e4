@@ -38,43 +38,31 @@ const AdminAnalytics = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-16 flex justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth/login" replace />;
-  }
-
   useEffect(() => {
-    fetchAnalytics();
-    
-    // Set up real-time subscriptions
-    const ordersChannel = supabase
-      .channel('orders-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        fetchAnalytics();
-      })
-      .subscribe();
+    if (user) {
+      fetchAnalytics();
+      
+      // Set up real-time subscriptions
+      const ordersChannel = supabase
+        .channel('orders-channel')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+          fetchAnalytics();
+        })
+        .subscribe();
 
-    const usersChannel = supabase
-      .channel('users-channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-        fetchAnalytics();
-      })
-      .subscribe();
+      const usersChannel = supabase
+        .channel('users-channel')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+          fetchAnalytics();
+        })
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(ordersChannel);
-      supabase.removeChannel(usersChannel);
-    };
-  }, []);
+      return () => {
+        supabase.removeChannel(ordersChannel);
+        supabase.removeChannel(usersChannel);
+      };
+    }
+  }, [user]);
 
   const fetchAnalytics = async () => {
     try {
@@ -184,6 +172,20 @@ const AdminAnalytics = () => {
       setLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 flex justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth/login" replace />;
+  }
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 

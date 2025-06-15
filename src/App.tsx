@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
@@ -45,6 +46,8 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminContacts from "./pages/admin/AdminContacts";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSiteSettings from "./pages/admin/AdminSiteSettings";
+import AdminSitemap from "./pages/admin/AdminSitemap";
 import AddService from "./pages/admin/AddService";
 import AddCategory from "./pages/admin/AddCategory";
 
@@ -129,6 +132,8 @@ function App() {
                   <Route path="/admin/orders" element={<AdminOrders />} />
                   <Route path="/admin/contacts" element={<AdminContacts />} />
                   <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                  <Route path="/admin/site-settings" element={<AdminSiteSettings />} />
+                  <Route path="/admin/sitemap" element={<AdminSitemap />} />
                   <Route path="/admin/add-service" element={<AddService />} />
                   <Route path="/admin/add-category" element={<AddCategory />} />
 

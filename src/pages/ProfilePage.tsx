@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
-import { useDynamicSiteConfig } from '@/hooks/useDynamicSiteConfig';
+import { siteConfig } from '@/config/site';
 import { Loader2, User, ShoppingBag, Calendar, Package, AlertCircle } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -50,7 +50,6 @@ interface Order {
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile } = useAuth();
-  const { config: siteConfig } = useDynamicSiteConfig();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -67,44 +66,48 @@ const ProfilePage = () => {
     },
   });
 
-  // Fetch orders with better error handling
+  // Fixed orders query with better error handling
   const { data: orders, isLoading: ordersLoading, error: ordersError, refetch: refetchOrders } = useQuery({
     queryKey: ['user_orders', user?.id],
     queryFn: async () => {
       if (!user?.id) {
-        console.log('No user ID available for fetching orders');
         return [];
       }
       
       console.log('Fetching orders for user:', user.id);
       
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          id,
-          total_amount,
-          status,
-          payment_status,
-          created_at,
-          order_items (
-            quantity,
-            service_title,
-            service_price
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select(`
+            id,
+            total_amount,
+            status,
+            payment_status,
+            created_at,
+            order_items (
+              quantity,
+              service_title,
+              service_price
+            )
+          `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching orders:', error);
+        if (error) {
+          console.error('Supabase error:', error);
+          throw new Error(`Failed to fetch orders: ${error.message}`);
+        }
+        
+        console.log('Orders fetched successfully:', data);
+        return data as Order[] || [];
+      } catch (error) {
+        console.error('Error in orders query:', error);
         throw error;
       }
-      
-      console.log('Orders fetched successfully:', data);
-      return data as Order[];
     },
     enabled: !!user?.id,
-    retry: 3,
+    retry: 2,
     refetchOnWindowFocus: false,
   });
 
@@ -435,7 +438,9 @@ const ProfilePage = () => {
                     <div className="text-center py-8">
                       <AlertCircle className="w-16 h-16 text-red-300 mx-auto mb-4" />
                       <h3 className="text-xl font-semibold mb-2 text-red-600">Error loading orders</h3>
-                      <p className="text-gray-600 mb-4">There was an issue loading your orders. Please try again.</p>
+                      <p className="text-gray-600 mb-4">
+                        {ordersError instanceof Error ? ordersError.message : 'There was an issue loading your orders. Please try again.'}
+                      </p>
                       <Button onClick={() => refetchOrders()} variant="outline">
                         Retry
                       </Button>
@@ -469,15 +474,19 @@ const ProfilePage = () => {
                             <div className="border-t pt-4">
                               <h4 className="font-semibold mb-3">Services Ordered:</h4>
                               <div className="space-y-2">
-                                {order.order_items.map((item, index) => (
-                                  <div key={index} className="flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg">
-                                    <div>
-                                      <p className="font-medium">{item.service_title}</p>
-                                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                {order.order_items && order.order_items.length > 0 ? (
+                                  order.order_items.map((item, index) => (
+                                    <div key={index} className="flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg">
+                                      <div>
+                                        <p className="font-medium">{item.service_title}</p>
+                                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                      </div>
+                                      <p className="font-semibold text-onassist-primary">${(item.service_price * item.quantity).toFixed(2)}</p>
                                     </div>
-                                    <p className="font-semibold text-onassist-primary">${(item.service_price * item.quantity).toFixed(2)}</p>
-                                  </div>
-                                ))}
+                                  ))
+                                ) : (
+                                  <p className="text-gray-500 text-sm">No items found for this order</p>
+                                )}
                               </div>
                             </div>
                           </CardContent>
