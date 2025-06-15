@@ -56,11 +56,11 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <>
-      <ScrollToTop />
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CartProvider>
             <Router>
+              <ScrollToTop />
               <HelmetProvider>
                 <Toaster />
                 <Routes>
