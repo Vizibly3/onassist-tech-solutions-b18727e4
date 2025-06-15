@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -265,16 +264,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Sign out user
+  // Sign out user with proper redirect
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      
+      // Clear all state
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      setIsAdmin(false);
+      
       toast({
         title: "Signed out",
         description: "You have been successfully signed out",
       });
+
+      // Redirect to home page after sign out
+      window.location.href = "/";
+      
     } catch (error) {
       console.error("Error signing out:", error);
+      toast({
+        title: "Sign out error",
+        description: "There was an issue signing you out. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

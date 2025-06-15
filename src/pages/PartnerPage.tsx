@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,6 +44,7 @@ interface PartnerFormData {
 
 const PartnerPage = () => {
   const { toast } = useToast();
+  const [showThankYou, setShowThankYou] = useState(false);
   const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<PartnerFormData>({
     defaultValues: {
       companyName: '',
@@ -104,6 +105,9 @@ ${data.message}
         description: "Your partnership application has been submitted successfully! Our partnership team will review your application and get back to you within 48 hours with next steps.",
       });
 
+      // Show thank you section
+      setShowThankYou(true);
+
       // Reset form
       reset({
         companyName: '',
@@ -116,6 +120,11 @@ ${data.message}
         experience: '',
         message: ''
       });
+
+      // Hide thank you message after 7 seconds
+      setTimeout(() => {
+        setShowThankYou(false);
+      }, 7000);
 
     } catch (error) {
       console.error('Error submitting partnership form:', error);
@@ -380,182 +389,212 @@ ${data.message}
                 <CardTitle className="text-2xl font-bold text-center">Partnership Application</CardTitle>
               </CardHeader>
               <CardContent className="p-8">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="companyName">Company Name *</Label>
-                      <Input
-                        id="companyName"
-                        {...register('companyName', { required: 'Company name is required' })}
-                        className="mt-2"
-                      />
-                      {errors.companyName && (
-                        <p className="text-red-500 text-sm mt-1">{errors.companyName.message}</p>
-                      )}
+                {showThankYou ? (
+                  <div className="text-center py-12">
+                    <div className="bg-green-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle className="w-12 h-12 text-green-600" />
                     </div>
-                    <div>
-                      <Label htmlFor="contactName">Contact Name *</Label>
-                      <Input
-                        id="contactName"
-                        {...register('contactName', { required: 'Contact name is required' })}
-                        className="mt-2"
-                      />
-                      {errors.contactName && (
-                        <p className="text-red-500 text-sm mt-1">{errors.contactName.message}</p>
-                      )}
+                    <h3 className="text-3xl font-bold text-green-800 mb-4">Application Submitted!</h3>
+                    <p className="text-gray-600 mb-2 text-lg">
+                      Thank you for your interest in partnering with OnAssist!
+                    </p>
+                    <p className="text-gray-600 mb-8">
+                      Our partnership team will review your application and get back to you within 48 hours with next steps.
+                    </p>
+                    <div className="bg-blue-50 rounded-lg p-6 mb-8">
+                      <h4 className="font-semibold text-blue-800 mb-2">What happens next?</h4>
+                      <ul className="text-blue-700 text-sm space-y-1">
+                        <li>• Partnership team review (24-48 hours)</li>
+                        <li>• Initial consultation call</li>
+                        <li>• Partnership agreement setup</li>
+                        <li>• Training and onboarding</li>
+                      </ul>
                     </div>
+                    <Button
+                      onClick={() => setShowThankYou(false)}
+                      className="bg-onassist-primary hover:bg-onassist-dark text-white px-8 py-3"
+                    >
+                      Submit Another Application
+                    </Button>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        {...register('email', { 
-                          required: 'Email is required',
-                          pattern: {
-                            value: /^\S+@\S+$/i,
-                            message: 'Invalid email address'
-                          }
-                        })}
-                        className="mt-2"
-                      />
-                      {errors.email && (
-                        <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                      )}
+                ) : (
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="companyName">Company Name *</Label>
+                        <Input
+                          id="companyName"
+                          {...register('companyName', { required: 'Company name is required' })}
+                          className="mt-2"
+                        />
+                        {errors.companyName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.companyName.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="contactName">Contact Name *</Label>
+                        <Input
+                          id="contactName"
+                          {...register('contactName', { required: 'Contact name is required' })}
+                          className="mt-2"
+                        />
+                        {errors.contactName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.contactName.message}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="phone">Phone *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        {...register('phone', { required: 'Phone is required' })}
-                        className="mt-2"
-                      />
-                      {errors.phone && (
-                        <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
-                      )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          {...register('email', { 
+                            required: 'Email is required',
+                            pattern: {
+                              value: /^\S+@\S+$/i,
+                              message: 'Invalid email address'
+                            }
+                          })}
+                          className="mt-2"
+                        />
+                        {errors.email && (
+                          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">Phone *</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          {...register('phone', { required: 'Phone is required' })}
+                          className="mt-2"
+                        />
+                        {errors.phone && (
+                          <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      {...register('website')}
-                      className="mt-2"
-                      placeholder="https://yourcompany.com"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label htmlFor="partnershipType">Partnership Type *</Label>
+                      <Label htmlFor="website">Website</Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        {...register('website')}
+                        className="mt-2"
+                        placeholder="https://yourcompany.com"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="partnershipType">Partnership Type *</Label>
+                        <Controller
+                          name="partnershipType"
+                          control={control}
+                          rules={{ required: 'Partnership type is required' }}
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value || ''}>
+                              <SelectTrigger className="mt-2">
+                                <SelectValue placeholder="Select partnership type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="reseller">Reseller Partner</SelectItem>
+                                <SelectItem value="referral">Referral Partner</SelectItem>
+                                <SelectItem value="technology">Technology Partner</SelectItem>
+                                <SelectItem value="service">Service Partner</SelectItem>
+                                <SelectItem value="growth">Growth Partner</SelectItem>
+                                <SelectItem value="enterprise">Enterprise Partner</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        {errors.partnershipType && (
+                          <p className="text-red-500 text-sm mt-1">{errors.partnershipType.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="companySize">Company Size *</Label>
+                        <Controller
+                          name="companySize"
+                          control={control}
+                          rules={{ required: 'Company size is required' }}
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value || ''}>
+                              <SelectTrigger className="mt-2">
+                                <SelectValue placeholder="Select company size" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1-10">1-10 employees</SelectItem>
+                                <SelectItem value="11-50">11-50 employees</SelectItem>
+                                <SelectItem value="51-200">51-200 employees</SelectItem>
+                                <SelectItem value="201-500">201-500 employees</SelectItem>
+                                <SelectItem value="500+">500+ employees</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        {errors.companySize && (
+                          <p className="text-red-500 text-sm mt-1">{errors.companySize.message}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="experience">Experience in Tech Industry *</Label>
                       <Controller
-                        name="partnershipType"
+                        name="experience"
                         control={control}
-                        rules={{ required: 'Partnership type is required' }}
+                        rules={{ required: 'Experience is required' }}
                         render={({ field }) => (
                           <Select onValueChange={field.onChange} value={field.value || ''}>
                             <SelectTrigger className="mt-2">
-                              <SelectValue placeholder="Select partnership type" />
+                              <SelectValue placeholder="Select your experience level" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="reseller">Reseller Partner</SelectItem>
-                              <SelectItem value="referral">Referral Partner</SelectItem>
-                              <SelectItem value="technology">Technology Partner</SelectItem>
-                              <SelectItem value="service">Service Partner</SelectItem>
-                              <SelectItem value="growth">Growth Partner</SelectItem>
-                              <SelectItem value="enterprise">Enterprise Partner</SelectItem>
+                              <SelectItem value="0-2">0-2 years</SelectItem>
+                              <SelectItem value="3-5">3-5 years</SelectItem>
+                              <SelectItem value="6-10">6-10 years</SelectItem>
+                              <SelectItem value="10+">10+ years</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
                       />
-                      {errors.partnershipType && (
-                        <p className="text-red-500 text-sm mt-1">{errors.partnershipType.message}</p>
+                      {errors.experience && (
+                        <p className="text-red-500 text-sm mt-1">{errors.experience.message}</p>
                       )}
                     </div>
+
                     <div>
-                      <Label htmlFor="companySize">Company Size *</Label>
-                      <Controller
-                        name="companySize"
-                        control={control}
-                        rules={{ required: 'Company size is required' }}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value || ''}>
-                            <SelectTrigger className="mt-2">
-                              <SelectValue placeholder="Select company size" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="1-10">1-10 employees</SelectItem>
-                              <SelectItem value="11-50">11-50 employees</SelectItem>
-                              <SelectItem value="51-200">51-200 employees</SelectItem>
-                              <SelectItem value="201-500">201-500 employees</SelectItem>
-                              <SelectItem value="500+">500+ employees</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
+                      <Label htmlFor="message">Tell us about your business and partnership goals *</Label>
+                      <Textarea
+                        id="message"
+                        rows={5}
+                        {...register('message', { required: 'Message is required' })}
+                        className="mt-2"
+                        placeholder="Describe your business, current services, target market, and how you envision our partnership..."
                       />
-                      {errors.companySize && (
-                        <p className="text-red-500 text-sm mt-1">{errors.companySize.message}</p>
+                      {errors.message && (
+                        <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
                       )}
                     </div>
-                  </div>
 
-                  <div>
-                    <Label htmlFor="experience">Experience in Tech Industry *</Label>
-                    <Controller
-                      name="experience"
-                      control={control}
-                      rules={{ required: 'Experience is required' }}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value || ''}>
-                          <SelectTrigger className="mt-2">
-                            <SelectValue placeholder="Select your experience level" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0-2">0-2 years</SelectItem>
-                            <SelectItem value="3-5">3-5 years</SelectItem>
-                            <SelectItem value="6-10">6-10 years</SelectItem>
-                            <SelectItem value="10+">10+ years</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-onassist-primary hover:bg-onassist-dark text-white py-4 text-lg font-bold"
+                    >
+                      {isSubmitting ? 'Submitting...' : (
+                        <>
+                          <Send className="w-5 h-5 mr-2" />
+                          Submit Partnership Application
+                        </>
                       )}
-                    />
-                    {errors.experience && (
-                      <p className="text-red-500 text-sm mt-1">{errors.experience.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="message">Tell us about your business and partnership goals *</Label>
-                    <Textarea
-                      id="message"
-                      rows={5}
-                      {...register('message', { required: 'Message is required' })}
-                      className="mt-2"
-                      placeholder="Describe your business, current services, target market, and how you envision our partnership..."
-                    />
-                    {errors.message && (
-                      <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
-                    )}
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-onassist-primary hover:bg-onassist-dark text-white py-4 text-lg font-bold"
-                  >
-                    {isSubmitting ? 'Submitting...' : (
-                      <>
-                        <Send className="w-5 h-5 mr-2" />
-                        Submit Partnership Application
-                      </>
-                    )}
-                  </Button>
-                </form>
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
           </div>

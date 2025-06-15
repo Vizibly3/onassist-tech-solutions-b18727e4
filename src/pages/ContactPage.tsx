@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Helmet } from 'react-helmet-async';
 import { siteConfig } from '@/config/site';
-import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +25,7 @@ interface ContactFormData {
 const ContactPage = () => {
   const location = useLocation();
   const { toast } = useToast();
+  const [showThankYou, setShowThankYou] = useState(false);
   const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
     defaultValues: {
       firstName: '',
@@ -75,6 +75,9 @@ const ContactPage = () => {
         description: "Your message has been sent successfully! Our expert team will review your inquiry and get back to you within 24 hours with personalized assistance.",
       });
 
+      // Show thank you section
+      setShowThankYou(true);
+
       // Reset form
       reset({
         firstName: '',
@@ -84,6 +87,11 @@ const ContactPage = () => {
         subject: '',
         message: ''
       });
+
+      // Hide thank you message after 5 seconds
+      setTimeout(() => {
+        setShowThankYou(false);
+      }, 5000);
 
     } catch (error) {
       console.error('Error submitting contact form:', error);
@@ -123,99 +131,117 @@ const ContactPage = () => {
               <p className="text-gray-600">Fill out the form below and we'll get back to you within 24 hours.</p>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {showThankYou ? (
+                <div className="text-center py-12">
+                  <div className="bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-10 h-10 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-green-800 mb-4">Thank You!</h3>
+                  <p className="text-gray-600 mb-6">
+                    Your message has been sent successfully! Our expert team will review your inquiry and get back to you within 24 hours.
+                  </p>
+                  <Button
+                    onClick={() => setShowThankYou(false)}
+                    className="bg-onassist-primary hover:bg-onassist-dark text-white"
+                  >
+                    Send Another Message
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">First Name *</Label>
+                      <Input
+                        id="firstName"
+                        {...register('firstName', { required: 'First name is required' })}
+                        className="mt-1"
+                      />
+                      {errors.firstName && (
+                        <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name *</Label>
+                      <Input
+                        id="lastName"
+                        {...register('lastName', { required: 'Last name is required' })}
+                        className="mt-1"
+                      />
+                      {errors.lastName && (
+                        <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                      )}
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="firstName">First Name *</Label>
+                    <Label htmlFor="email">Email *</Label>
                     <Input
-                      id="firstName"
-                      {...register('firstName', { required: 'First name is required' })}
+                      id="email"
+                      type="email"
+                      {...register('email', { 
+                        required: 'Email is required',
+                        pattern: {
+                          value: /^\S+@\S+$/i,
+                          message: 'Invalid email address'
+                        }
+                      })}
                       className="mt-1"
                     />
-                    {errors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                     )}
                   </div>
+
                   <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
                     <Input
-                      id="lastName"
-                      {...register('lastName', { required: 'Last name is required' })}
+                      id="phoneNumber"
+                      type="tel"
+                      {...register('phoneNumber')}
                       className="mt-1"
                     />
-                    {errors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="subject">Subject *</Label>
+                    <Input
+                      id="subject"
+                      {...register('subject', { required: 'Subject is required' })}
+                      className="mt-1"
+                    />
+                    {errors.subject && (
+                      <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>
                     )}
                   </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...register('email', { 
-                      required: 'Email is required',
-                      pattern: {
-                        value: /^\S+@\S+$/i,
-                        message: 'Invalid email address'
-                      }
-                    })}
-                    className="mt-1"
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                  )}
-                </div>
+                  <div>
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea
+                      id="message"
+                      rows={5}
+                      {...register('message', { required: 'Message is required' })}
+                      className="mt-1"
+                    />
+                    {errors.message && (
+                      <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <Label htmlFor="phoneNumber">Phone Number</Label>
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    {...register('phoneNumber')}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="subject">Subject *</Label>
-                  <Input
-                    id="subject"
-                    {...register('subject', { required: 'Subject is required' })}
-                    className="mt-1"
-                  />
-                  {errors.subject && (
-                    <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="message">Message *</Label>
-                  <Textarea
-                    id="message"
-                    rows={5}
-                    {...register('message', { required: 'Message is required' })}
-                    className="mt-1"
-                  />
-                  {errors.message && (
-                    <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-onassist-primary hover:bg-onassist-dark text-white py-3"
-                >
-                  {isSubmitting ? 'Sending...' : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
-                    </>
-                  )}
-                </Button>
-              </form>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-onassist-primary hover:bg-onassist-dark text-white py-3"
+                  >
+                    {isSubmitting ? 'Sending...' : (
+                      <>
+                        <Send className="w-5 h-5 mr-2" />
+                        Send Message
+                      </>
+                    )}
+                  </Button>
+                </form>
+              )}
             </CardContent>
           </Card>
 
