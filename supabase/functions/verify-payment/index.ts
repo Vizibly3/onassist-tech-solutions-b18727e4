@@ -33,7 +33,39 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    // Use test Stripe key (same as create-payment)
+    // Handle test mode
+    if (sessionId.includes("test_session_")) {
+      logStep("Test mode verification", { sessionId });
+      
+      // Update order to paid status for test
+      const { error: updateError } = await supabaseService
+        .from("orders")
+        .update({
+          payment_status: "paid",
+          status: "confirmed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("payment_id", sessionId);
+
+      if (updateError) {
+        logStep("Test order update failed", { error: updateError });
+      } else {
+        logStep("Test order updated successfully");
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          paymentStatus: "paid",
+          orderStatus: "confirmed"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
+    // Real Stripe verification
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "sk_test_51234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12";
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 

@@ -115,7 +115,7 @@ const CheckoutPage = () => {
 
     setIsProcessing(true);
     try {
-      console.log('Processing payment with Stripe...');
+      console.log('Processing payment with values:', values);
       
       const orderData = {
         user_id: user.id,
@@ -134,6 +134,8 @@ const CheckoutPage = () => {
         service: item.service,
         quantity: item.quantity
       }));
+
+      console.log('Calling create-payment function with:', { orderData, cartItems });
 
       // Call Stripe payment function
       const { data, error } = await supabase.functions.invoke('create-payment', {
@@ -172,10 +174,16 @@ const CheckoutPage = () => {
       // Clear cart before redirect
       await clearCart();
 
-      // Redirect to Stripe Checkout
+      // Redirect to payment URL or success page
       if (data.url) {
-        toast.success('Redirecting to payment...');
-        window.location.href = data.url;
+        if (data.message && data.message.includes('TEST MODE')) {
+          toast.success('Test mode: Order created successfully!');
+          // For test mode, redirect to success page directly
+          window.location.href = data.url;
+        } else {
+          toast.success('Redirecting to payment...');
+          window.location.href = data.url;
+        }
       } else {
         throw new Error('No payment URL received');
       }
