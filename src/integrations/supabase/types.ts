@@ -331,6 +331,33 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          address: string | null
+          contactphone: string | null
+          description: string | null
+          email: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          contactphone?: string | null
+          description?: string | null
+          email?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          address?: string | null
+          contactphone?: string | null
+          description?: string | null
+          email?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
