@@ -67,7 +67,7 @@ const ProfilePage = () => {
     },
   });
 
-  // Fetch orders with simpler query that doesn't rely on RLS
+  // Fetch orders with better error handling
   const { data: orders, isLoading: ordersLoading, error: ordersError, refetch: refetchOrders } = useQuery({
     queryKey: ['user_orders', user?.id],
     queryFn: async () => {
@@ -78,49 +78,30 @@ const ProfilePage = () => {
       
       console.log('Fetching orders for user:', user.id);
       
-      // First fetch orders
-      const { data: ordersData, error: ordersError } = await supabase
+      const { data, error } = await supabase
         .from('orders')
-        .select('id, total_amount, status, payment_status, created_at, user_id')
+        .select(`
+          id,
+          total_amount,
+          status,
+          payment_status,
+          created_at,
+          order_items (
+            quantity,
+            service_title,
+            service_price
+          )
+        `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (ordersError) {
-        console.error('Error fetching orders:', ordersError);
-        throw ordersError;
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
       }
-
-      console.log('Orders data:', ordersData);
-
-      if (!ordersData || ordersData.length === 0) {
-        return [];
-      }
-
-      // Then fetch order items for each order
-      const ordersWithItems = await Promise.all(
-        ordersData.map(async (order) => {
-          const { data: itemsData, error: itemsError } = await supabase
-            .from('order_items')
-            .select('quantity, service_title, service_price')
-            .eq('order_id', order.id);
-
-          if (itemsError) {
-            console.error('Error fetching order items:', itemsError);
-            return {
-              ...order,
-              order_items: []
-            };
-          }
-
-          return {
-            ...order,
-            order_items: itemsData || []
-          };
-        })
-      );
       
-      console.log('Orders with items:', ordersWithItems);
-      return ordersWithItems as Order[];
+      console.log('Orders fetched successfully:', data);
+      return data as Order[];
     },
     enabled: !!user?.id,
     retry: 3,
@@ -492,7 +473,7 @@ const ProfilePage = () => {
                                   <div key={index} className="flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg">
                                     <div>
                                       <p className="font-medium">{item.service_title}</p>
-                                      <p className="text-gray-600">Quantity: {item.quantity}</p>
+                                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                                     </div>
                                     <p className="font-semibold text-onassist-primary">${(item.service_price * item.quantity).toFixed(2)}</p>
                                   </div>
