@@ -49,8 +49,10 @@ const AdminSiteSettings = () => {
     try {
       await updateSiteSettings(formData);
       console.log('Site settings updated successfully');
-    } catch (error) {
+      toast.success('Site settings updated and will reflect across the website!');
+    } catch (error: any) {
       console.error('Error updating site settings:', error);
+      toast.error(`Failed to update settings: ${error.message || 'Please try again.'}`);
     }
   };
 
@@ -160,11 +162,11 @@ const AdminSiteSettings = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full" 
+                  className="w-full bg-onassist-primary hover:bg-onassist-primary/90" 
                   disabled={isUpdating}
                 >
                   {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Update Site Settings
+                  {isUpdating ? 'Updating...' : 'Update Site Settings'}
                 </Button>
               </form>
             </CardContent>

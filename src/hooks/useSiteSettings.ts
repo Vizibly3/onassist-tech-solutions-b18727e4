@@ -44,22 +44,49 @@ export const updateSiteSettings = async (updates: any) => {
   try {
     console.log('Updating site settings with:', updates);
     
-    const { data, error } = await supabase
+    // First check if record exists
+    const { data: existingData } = await supabase
       .from('site_settings')
-      .upsert({
-        id: 1,
-        ...updates
-      })
-      .select()
-      .single();
+      .select('id')
+      .eq('id', 1)
+      .maybeSingle();
+
+    let result;
     
-    if (error) {
-      console.error('Error updating site settings:', error);
-      throw error;
+    if (existingData) {
+      // Update existing record
+      const { data, error } = await supabase
+        .from('site_settings')
+        .update(updates)
+        .eq('id', 1)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating site settings:', error);
+        throw error;
+      }
+      result = data;
+    } else {
+      // Insert new record
+      const { data, error } = await supabase
+        .from('site_settings')
+        .insert({
+          id: 1,
+          ...updates
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error inserting site settings:', error);
+        throw error;
+      }
+      result = data;
     }
     
-    console.log('Site settings updated successfully:', data);
-    return data;
+    console.log('Site settings updated successfully:', result);
+    return result;
   } catch (error) {
     console.error('Error in updateSiteSettings:', error);
     throw error;
@@ -72,7 +99,7 @@ export function useSiteSettings() {
   const query = useQuery({
     queryKey: ['site_settings'],
     queryFn: fetchSiteSettings,
-    retry: 2,
+    retry: 3,
     refetchOnWindowFocus: false,
   });
 
@@ -80,15 +107,15 @@ export function useSiteSettings() {
     mutationFn: updateSiteSettings,
     onSuccess: (data) => {
       console.log('Site settings mutation successful:', data);
-      // Invalidate and refetch
+      // Invalidate and refetch all related queries
       queryClient.invalidateQueries({ queryKey: ['site_settings'] });
       // Also update the cache immediately
       queryClient.setQueryData(['site_settings'], data);
       toast.success('Site settings updated successfully!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Site settings mutation error:', error);
-      toast.error('Failed to update site settings. Please try again.');
+      toast.error(`Failed to update site settings: ${error.message || 'Please try again.'}`);
     },
   });
 
