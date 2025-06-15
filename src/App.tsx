@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 
 // Pages
 import Index from "./pages/Index";
@@ -54,89 +55,92 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
-          <Router>
-            <HelmetProvider>
-              <Toaster />
-              <Routes>
-                {/* Sitemap routes - must be before other routes */}
-                {/* <Route path="/sitemap.xml" element={<SitemapMainPage />} />
-                <Route
-                  path="/sitemap/:chunkId.xml"
-                  element={<SitemapChunkPage />}
-                /> */}
+    <>
+      <ScrollToTop />
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <CartProvider>
+            <Router>
+              <HelmetProvider>
+                <Toaster />
+                <Routes>
+                  {/* Sitemap routes - must be before other routes */}
+                  {/* <Route path="/sitemap.xml" element={<SitemapMainPage />} />
+                  <Route
+                    path="/sitemap/:chunkId.xml"
+                    element={<SitemapChunkPage />}
+                  /> */}
 
-                {/* Public Routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route
-                  path="/service/:serviceSlug"
-                  element={<ServiceDetailPage />}
-                />
-                <Route
-                  path="/services/:categorySlug"
-                  element={<CategoryPage />}
-                />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/membership" element={<MembershipPage />} />
-                <Route path="/partner" element={<PartnerPage />} />
-                <Route path="/faq" element={<FAQPage />} />
-                <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                <Route path="/terms" element={<TermsPage />} />
-                <Route path="/returns" element={<ReturnsPage />} />
+                  {/* Public Routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route
+                    path="/service/:serviceSlug"
+                    element={<ServiceDetailPage />}
+                  />
+                  <Route
+                    path="/services/:categorySlug"
+                    element={<CategoryPage />}
+                  />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/membership" element={<MembershipPage />} />
+                  <Route path="/partner" element={<PartnerPage />} />
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/returns" element={<ReturnsPage />} />
 
-                {/* Location-based Routes - Order matters! Most specific first */}
-                <Route
-                  path="/:country/:state/:city/services/:categorySlug"
-                  element={<CityCategoryPage />}
-                />
-                <Route
-                  path="/:country/:state/:city/service/:serviceSlug"
-                  element={<LocationServiceDetailPage />}
-                />
-                <Route
-                  path="/:country/:state/:city"
-                  element={<CityServicePage />}
-                />
-                <Route
-                  path="/:country/:state/service/:serviceSlug"
-                  element={<StateServiceDetailPage />}
-                />
-                <Route path="/:country/:state" element={<StateServicePage />} />
-                <Route path="/:country" element={<CountryPage />} />
+                  {/* Location-based Routes - Order matters! Most specific first */}
+                  <Route
+                    path="/:country/:state/:city/services/:categorySlug"
+                    element={<CityCategoryPage />}
+                  />
+                  <Route
+                    path="/:country/:state/:city/service/:serviceSlug"
+                    element={<LocationServiceDetailPage />}
+                  />
+                  <Route
+                    path="/:country/:state/:city"
+                    element={<CityServicePage />}
+                  />
+                  <Route
+                    path="/:country/:state/service/:serviceSlug"
+                    element={<StateServiceDetailPage />}
+                  />
+                  <Route path="/:country/:state" element={<StateServicePage />} />
+                  <Route path="/:country" element={<CountryPage />} />
 
-                {/* Auth Routes */}
-                <Route path="/auth/login" element={<Login />} />
-                <Route path="/auth/register" element={<Register />} />
+                  {/* Auth Routes */}
+                  <Route path="/auth/login" element={<Login />} />
+                  <Route path="/auth/register" element={<Register />} />
 
-                {/* Protected User Routes */}
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/orders" element={<MyOrdersPage />} />
+                  {/* Protected User Routes */}
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/orders" element={<MyOrdersPage />} />
 
-                {/* Admin Routes */}
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/services" element={<AdminServices />} />
-                <Route path="/admin/categories" element={<AdminCategories />} />
-                <Route path="/admin/orders" element={<AdminOrders />} />
-                <Route path="/admin/contacts" element={<AdminContacts />} />
-                <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                <Route path="/admin/add-service" element={<AddService />} />
-                <Route path="/admin/add-category" element={<AddCategory />} />
+                  {/* Admin Routes */}
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/users" element={<AdminUsers />} />
+                  <Route path="/admin/services" element={<AdminServices />} />
+                  <Route path="/admin/categories" element={<AdminCategories />} />
+                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/contacts" element={<AdminContacts />} />
+                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                  <Route path="/admin/add-service" element={<AddService />} />
+                  <Route path="/admin/add-category" element={<AddCategory />} />
 
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </HelmetProvider>
-          </Router>
-        </CartProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+                  {/* Catch-all route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </HelmetProvider>
+            </Router>
+          </CartProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </>
   );
 }
 

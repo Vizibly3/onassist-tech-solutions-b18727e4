@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -52,25 +51,30 @@ const PartnerPage = () => {
       const { error } = await supabase
         .from('contact_inquiries')
         .insert([{
-          first_name: data.contactName.split(' ')[0] || data.contactName,
-          last_name: data.contactName.split(' ').slice(1).join(' ') || '',
+          first_name: data.contactName.split(' ')[0] ?? data.contactName,
+          last_name: data.contactName.split(' ').slice(1).join(' ') ?? '',
           email: data.email,
           phone_number: data.phone,
           subject: `Partnership Inquiry - ${data.partnershipType}`,
-          message: `Company: ${data.companyName}\nWebsite: ${data.website || 'N/A'}\nPartnership Type: ${data.partnershipType}\nCompany Size: ${data.companySize}\nExperience: ${data.experience}\n\nMessage:\n${data.message}`,
+          message: `
+Company: ${data.companyName}
+Website: ${data.website || 'N/A'}
+Partnership Type: ${data.partnershipType}
+Company Size: ${data.companySize}
+Experience: ${data.experience}
+
+Message:
+${data.message}
+          `,
           status: 'new'
         }]);
-
       if (error) throw error;
-
       toast({
-        title: "Partnership inquiry sent successfully!",
-        description: "We'll review your application and get back to you within 48 hours.",
+        title: "Thank you!",
+        description: "Your partnership inquiry has been submitted successfully. We'll review your application and get back to you within 48 hours.",
       });
-
       reset();
     } catch (error) {
-      console.error('Error submitting partnership form:', error);
       toast({
         title: "Error sending inquiry",
         description: "Please try again or contact us directly.",
