@@ -10,7 +10,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { Loader2, ShoppingCart, CreditCard } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -115,14 +115,11 @@ const CheckoutPage = () => {
 
     setIsProcessing(true);
     try {
-      console.log('Creating order with values:', values);
+      console.log('Processing payment with Stripe...');
       
-      // Create order with all required fields
       const orderData = {
         user_id: user.id,
         total_amount: totalPrice,
-        status: 'pending',
-        payment_status: 'pending',
         first_name: values.first_name,
         last_name: values.last_name,
         email: values.email,
@@ -133,63 +130,55 @@ const CheckoutPage = () => {
         zip_code: values.zip_code
       };
 
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert(orderData)
-        .select()
-        .single();
-
-      if (orderError) {
-        console.error('Error creating order:', orderError);
-        throw new Error('Failed to create order. Please try again.');
-      }
-
-      console.log('Order created successfully:', order);
-
-      // Create order items
-      const orderItems = cart.map(item => ({
-        order_id: order.id,
-        service_id: item.service.id,
-        service_title: item.service.title,
-        service_price: item.service.price,
+      const cartItems = cart.map(item => ({
+        service: item.service,
         quantity: item.quantity
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+      // Call Stripe payment function
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
+          orderData,
+          cartItems
+        }
+      });
 
-      if (itemsError) {
-        console.error('Error creating order items:', itemsError);
-        throw new Error('Failed to save order details. Please contact support.');
+      if (error) {
+        console.error('Payment function error:', error);
+        throw new Error(error.message || 'Payment processing failed');
       }
 
-      console.log('Order items created successfully');
+      console.log('Payment session created:', data);
 
       // Update profile with new address info if needed
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          first_name: values.first_name,
-          last_name: values.last_name,
-          phone_number: values.phone_number,
-          address: values.address,
-          city: values.city,
-          state: values.state,
-          zip_code: values.zip_code
-        });
-
-      if (profileError) {
+      try {
+        await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            first_name: values.first_name,
+            last_name: values.last_name,
+            phone_number: values.phone_number,
+            address: values.address,
+            city: values.city,
+            state: values.state,
+            zip_code: values.zip_code
+          });
+      } catch (profileError) {
         console.error('Error updating profile:', profileError);
-        // Don't throw error here as order was successful
+        // Don't throw error here as payment session was successful
       }
 
-      // Clear cart
-      clearCart();
+      // Clear cart before redirect
+      await clearCart();
 
-      toast.success('🎉 Order placed successfully! We will contact you soon.');
-      navigate('/my-orders');
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        toast.success('Redirecting to payment...');
+        window.location.href = data.url;
+      } else {
+        throw new Error('No payment URL received');
+      }
 
     } catch (error: any) {
       console.error('Checkout error:', error);
@@ -384,14 +373,27 @@ const CheckoutPage = () => {
                       />
                     </div>
 
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CreditCard className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-semibold text-blue-800">Secure Payment with Stripe</h3>
+                      </div>
+                      <p className="text-sm text-blue-700">
+                        Your payment will be processed securely by Stripe. You'll be redirected to complete your payment.
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        Test Mode: Use card 4242 4242 4242 4242 with any future date and CVC
+                      </p>
+                    </div>
+
                     <Button 
                       type="submit" 
-                      className="w-full mt-6" 
+                      className="w-full mt-6 bg-blue-600 hover:bg-blue-700" 
                       disabled={isProcessing}
                       size="lg"
                     >
                       {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Place Order - ${totalPrice.toFixed(2)}
+                      {isProcessing ? 'Processing...' : `Pay $${totalPrice.toFixed(2)} with Stripe`}
                     </Button>
                   </form>
                 </Form>
