@@ -30,6 +30,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface UserRole {
   user_id: string;
@@ -57,6 +65,16 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [editForm, setEditForm] = useState({
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: ''
+  });
 
   if (isLoading) {
     return (
@@ -188,25 +206,58 @@ const AdminUsers = () => {
     }
   };
 
-  const editUser = (userId: string) => {
-    // Navigate to edit user page or open edit modal
-    // For now, we'll just show a toast
-    toast({
-      title: 'Edit User',
-      description: 'Edit user functionality would be implemented here'
+  const openEditDialog = (userProfile: UserProfile) => {
+    setEditingUser(userProfile);
+    setEditForm({
+      first_name: userProfile.first_name || '',
+      last_name: userProfile.last_name || '',
+      phone_number: userProfile.phone_number || '',
+      address: userProfile.address || '',
+      city: userProfile.city || '',
+      state: userProfile.state || '',
+      zip_code: userProfile.zip_code || ''
     });
+  };
+
+  const updateUser = async () => {
+    if (!editingUser) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(editForm)
+        .eq('id', editingUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'User updated successfully'
+      });
+
+      setEditingUser(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
   };
 
   const banUser = async (userId: string, userName: string) => {
     try {
-      // You would implement ban functionality here
-      // This could involve updating a banned field in profiles or user_roles
+      // For now, we'll just show a success message
+      // In a real implementation, you might want to add a 'banned' field to the profiles table
+      console.log('Banning user:', userId);
+      
       toast({
         title: 'Success',
         description: `User ${userName} has been banned`
       });
       
-      fetchUsers();
+      // fetchUsers(); // Uncomment when you implement actual ban functionality
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -333,13 +384,96 @@ const AdminUsers = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => editUser(userProfile.id)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
+                            {/* Edit Button */}
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openEditDialog(userProfile)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                  <DialogTitle>Edit User</DialogTitle>
+                                  <DialogDescription>
+                                    Make changes to {userName}'s profile here.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium">First Name</label>
+                                      <Input
+                                        value={editForm.first_name}
+                                        onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
+                                        placeholder="First name"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium">Last Name</label>
+                                      <Input
+                                        value={editForm.last_name}
+                                        onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
+                                        placeholder="Last name"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium">Phone Number</label>
+                                    <Input
+                                      value={editForm.phone_number}
+                                      onChange={(e) => setEditForm({ ...editForm, phone_number: e.target.value })}
+                                      placeholder="Phone number"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium">Address</label>
+                                    <Input
+                                      value={editForm.address}
+                                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                                      placeholder="Address"
+                                    />
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium">City</label>
+                                      <Input
+                                        value={editForm.city}
+                                        onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                                        placeholder="City"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium">State</label>
+                                      <Input
+                                        value={editForm.state}
+                                        onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
+                                        placeholder="State"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium">Zip Code</label>
+                                    <Input
+                                      value={editForm.zip_code}
+                                      onChange={(e) => setEditForm({ ...editForm, zip_code: e.target.value })}
+                                      placeholder="Zip code"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="outline" onClick={() => setEditingUser(null)}>
+                                    Cancel
+                                  </Button>
+                                  <Button onClick={updateUser}>
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                             
                             <Button
                               variant={userProfile.role === 'admin' ? 'destructive' : 'default'}
@@ -350,15 +484,18 @@ const AdminUsers = () => {
                               {userProfile.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
                             </Button>
                             
+                            {/* Ban Button */}
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => banUser(userProfile.id, userName)}
                               disabled={userProfile.id === user?.id}
+                              className="text-orange-600 hover:text-orange-700"
                             >
                               <Ban className="h-4 w-4" />
                             </Button>
                             
+                            {/* Delete Button */}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button

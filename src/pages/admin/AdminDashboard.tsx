@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 import { 
   Users, 
   ShoppingBag, 
@@ -24,26 +26,58 @@ import {
 } from "lucide-react";
 
 const AdminDashboard = () => {
+  const { user, isAdmin, isLoading } = useAuth();
+
+  // Check authentication first
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 flex justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
   // Fetch dashboard statistics
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading, error } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      const [usersRes, ordersRes, contactsRes, servicesRes] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact" }),
-        supabase.from("orders").select("id, total_amount", { count: "exact" }),
-        supabase.from("contact_inquiries").select("id", { count: "exact" }),
-        supabase.from("services").select("id", { count: "exact" })
-      ]);
+      console.log('Fetching admin stats...');
+      
+      try {
+        const [usersRes, ordersRes, contactsRes, servicesRes] = await Promise.all([
+          supabase.from("profiles").select("id", { count: "exact" }),
+          supabase.from("orders").select("id, total_amount", { count: "exact" }),
+          supabase.from("contact_inquiries").select("id", { count: "exact" }),
+          supabase.from("services").select("id", { count: "exact" })
+        ]);
 
-      const totalRevenue = ordersRes.data?.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0) || 0;
+        console.log('Stats results:', { usersRes, ordersRes, contactsRes, servicesRes });
 
-      return {
-        totalUsers: usersRes.count || 0,
-        totalOrders: ordersRes.count || 0,
-        totalRevenue,
-        totalContacts: contactsRes.count || 0,
-        totalServices: servicesRes.count || 0
-      };
+        // Check for errors
+        if (usersRes.error) throw usersRes.error;
+        if (ordersRes.error) throw ordersRes.error;
+        if (contactsRes.error) throw contactsRes.error;
+        if (servicesRes.error) throw servicesRes.error;
+
+        const totalRevenue = ordersRes.data?.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0) || 0;
+
+        return {
+          totalUsers: usersRes.count || 0,
+          totalOrders: ordersRes.count || 0,
+          totalRevenue,
+          totalContacts: contactsRes.count || 0,
+          totalServices: servicesRes.count || 0
+        };
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        throw error;
+      }
     },
   });
 
@@ -129,7 +163,24 @@ const AdminDashboard = () => {
     }
   ];
 
-  if (isLoading) {
+  if (error) {
+    console.error('Dashboard error:', error);
+    return (
+      <Layout>
+        <div className="p-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Dashboard</h1>
+            <p className="text-gray-600 mb-4">There was an error loading the dashboard data.</p>
+            <Button onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (statsLoading) {
     return (
       <Layout>
         <div className="p-8">
