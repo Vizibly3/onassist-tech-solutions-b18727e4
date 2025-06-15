@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -66,7 +67,7 @@ const ProfilePage = () => {
     },
   });
 
-  // Fixed orders query with better error handling
+  // Fixed orders query with better error handling and proper relationship
   const { data: orders, isLoading: ordersLoading, error: ordersError, refetch: refetchOrders } = useQuery({
     queryKey: ['user_orders', user?.id],
     queryFn: async () => {
@@ -77,30 +78,42 @@ const ProfilePage = () => {
       console.log('Fetching orders for user:', user.id);
       
       try {
-        const { data, error } = await supabase
+        // First fetch orders
+        const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
-          .select(`
-            id,
-            total_amount,
-            status,
-            payment_status,
-            created_at,
-            order_items (
-              quantity,
-              service_title,
-              service_price
-            )
-          `)
+          .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Supabase error:', error);
-          throw new Error(`Failed to fetch orders: ${error.message}`);
+        if (ordersError) {
+          console.error('Orders fetch error:', ordersError);
+          throw new Error(`Failed to fetch orders: ${ordersError.message}`);
         }
+
+        if (!ordersData || ordersData.length === 0) {
+          return [];
+        }
+
+        // Then fetch order items for each order
+        const ordersWithItems = await Promise.all(
+          ordersData.map(async (order) => {
+            const { data: itemsData, error: itemsError } = await supabase
+              .from('order_items')
+              .select('*')
+              .eq('order_id', order.id);
+
+            if (itemsError) {
+              console.error('Order items fetch error:', itemsError);
+              // Continue with empty items array if items fetch fails
+              return { ...order, order_items: [] };
+            }
+
+            return { ...order, order_items: itemsData || [] };
+          })
+        );
         
-        console.log('Orders fetched successfully:', data);
-        return data as Order[] || [];
+        console.log('Orders with items fetched successfully:', ordersWithItems);
+        return ordersWithItems as Order[];
       } catch (error) {
         console.error('Error in orders query:', error);
         throw error;

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2, Settings, Phone, Mail, MapPin, Building } from "lucide-react";
 
 const AdminSiteSettings = () => {
@@ -22,6 +22,7 @@ const AdminSiteSettings = () => {
 
   useEffect(() => {
     if (siteSettings) {
+      console.log('Setting form data from site settings:', siteSettings);
       setFormData({
         name: siteSettings.name || '',
         description: siteSettings.description || '',
@@ -34,6 +35,7 @@ const AdminSiteSettings = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    console.log('Form field changed:', name, value);
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -42,19 +44,13 @@ const AdminSiteSettings = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Submitting form with data:', formData);
+    
     try {
       await updateSiteSettings(formData);
-      toast({
-        title: "Success!",
-        description: "Site settings have been updated successfully.",
-      });
+      console.log('Site settings updated successfully');
     } catch (error) {
       console.error('Error updating site settings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update site settings. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 

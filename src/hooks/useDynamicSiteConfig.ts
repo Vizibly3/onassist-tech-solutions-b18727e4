@@ -7,6 +7,7 @@ export const useDynamicSiteConfig = () => {
   const { data: dbSettings, isLoading } = useQuery({
     queryKey: ['site_settings'],
     queryFn: fetchSiteSettings,
+    refetchOnWindowFocus: false,
   });
 
   // Merge database settings with static config, preferring database values
