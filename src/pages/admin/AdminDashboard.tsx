@@ -1,286 +1,243 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
-import Layout from '@/components/layout/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+
+import React from "react";
+import Layout from "@/components/layout/Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Users, 
-  Package, 
   ShoppingBag, 
-  Settings,
-  BarChart3,
+  DollarSign, 
+  TrendingUp,
   Plus,
-  Clock,
-  Mail,
-  FileText
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import SitemapGenerator from '@/components/admin/SitemapGenerator';
-
-interface RecentActivity {
-  id: string;
-  type: 'order' | 'user' | 'service' | 'category';
-  description: string;
-  timestamp: string;
-}
+  Settings,
+  MessageSquare,
+  Package,
+  BarChart3,
+  UserPlus
+} from "lucide-react";
 
 const AdminDashboard = () => {
-  const { user, isAdmin, isLoading } = useAuth();
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
-  const [activityLoading, setActivityLoading] = useState(true);
+  // Fetch dashboard statistics
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async () => {
+      const [usersRes, ordersRes, contactsRes, servicesRes] = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact" }),
+        supabase.from("orders").select("id, total_amount", { count: "exact" }),
+        supabase.from("contact_inquiries").select("id", { count: "exact" }),
+        supabase.from("services").select("id", { count: "exact" })
+      ]);
 
-  useEffect(() => {
-    if (user && isAdmin) {
-      fetchRecentActivity();
+      const totalRevenue = ordersRes.data?.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0) || 0;
+
+      return {
+        totalUsers: usersRes.count || 0,
+        totalOrders: ordersRes.count || 0,
+        totalRevenue,
+        totalContacts: contactsRes.count || 0,
+        totalServices: servicesRes.count || 0
+      };
+    },
+  });
+
+  const quickActions = [
+    {
+      title: "Add Service",
+      description: "Create a new service offering",
+      icon: Plus,
+      href: "/admin/add-service",
+      color: "bg-blue-500"
+    },
+    {
+      title: "Add Category",
+      description: "Create a new service category",
+      icon: UserPlus,
+      href: "/admin/add-category",
+      color: "bg-green-500"
+    },
+    {
+      title: "Site Settings",
+      description: "Manage site configuration",
+      icon: Settings,
+      href: "/admin/site-settings",
+      color: "bg-purple-500"
+    },
+    {
+      title: "Analytics",
+      description: "View detailed analytics",
+      icon: BarChart3,
+      href: "/admin/analytics",
+      color: "bg-orange-500"
     }
-  }, [user, isAdmin]);
+  ];
 
-  const fetchRecentActivity = async () => {
-    try {
-      setActivityLoading(true);
-      const activities: RecentActivity[] = [];
-
-      // Fetch recent orders
-      const { data: orders } = await supabase
-        .from('orders')
-        .select('id, first_name, last_name, created_at')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (orders) {
-        orders.forEach(order => {
-          activities.push({
-            id: order.id,
-            type: 'order',
-            description: `New order from ${order.first_name} ${order.last_name}`,
-            timestamp: order.created_at
-          });
-        });
-      }
-
-      // Fetch recent users
-      const { data: users } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, created_at')
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (users) {
-        users.forEach(user => {
-          activities.push({
-            id: user.id,
-            type: 'user',
-            description: `New user registered: ${user.first_name || 'Unknown'} ${user.last_name || 'User'}`,
-            timestamp: user.created_at
-          });
-        });
-      }
-
-      // Fetch recent services
-      const { data: services } = await supabase
-        .from('services')
-        .select('id, title, created_at')
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (services) {
-        services.forEach(service => {
-          activities.push({
-            id: service.id,
-            type: 'service',
-            description: `New service added: ${service.title}`,
-            timestamp: service.created_at
-          });
-        });
-      }
-
-      // Sort all activities by timestamp
-      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      setRecentActivity(activities.slice(0, 10));
-    } catch (error) {
-      console.error('Error fetching recent activity:', error);
-    } finally {
-      setActivityLoading(false);
+  const managementLinks = [
+    {
+      title: "Manage Users",
+      description: "View and manage user accounts",
+      icon: Users,
+      href: "/admin/users",
+      count: stats?.totalUsers
+    },
+    {
+      title: "Manage Orders",
+      description: "Process and track orders",
+      icon: ShoppingBag,
+      href: "/admin/orders",
+      count: stats?.totalOrders
+    },
+    {
+      title: "Manage Services",
+      description: "Edit and organize services",
+      icon: Package,
+      href: "/admin/services",
+      count: stats?.totalServices
+    },
+    {
+      title: "Contact Inquiries",
+      description: "Respond to customer inquiries",
+      icon: MessageSquare,
+      href: "/admin/contacts",
+      count: stats?.totalContacts
     }
-  };
+  ];
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'order': return <ShoppingBag className="h-4 w-4 text-green-600" />;
-      case 'user': return <Users className="h-4 w-4 text-blue-600" />;
-      case 'service': return <Settings className="h-4 w-4 text-purple-600" />;
-      case 'category': return <Package className="h-4 w-4 text-orange-600" />;
-      default: return <Clock className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const time = new Date(timestamp);
-    const diffInHours = Math.floor((now.getTime() - time.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    return `${Math.floor(diffInHours / 24)}d ago`;
-  };
-
-  // Always call hooks in the same order
   if (isLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 flex justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
+        <div className="p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
         </div>
       </Layout>
     );
   }
 
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth/login" replace />;
-  }
-
-  const dashboardCards = [
-    {
-      title: 'Service Categories',
-      description: 'Manage service categories',
-      icon: Package,
-      link: '/admin/categories',
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'Services',
-      description: 'Manage individual services',
-      icon: Settings,
-      link: '/admin/services',
-      color: 'bg-green-500'
-    },
-    {
-      title: 'Users',
-      description: 'Manage user accounts',
-      icon: Users,
-      link: '/admin/users',
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Orders',
-      description: 'View and manage orders',
-      icon: ShoppingBag,
-      link: '/admin/orders',
-      color: 'bg-orange-500'
-    },
-    {
-      title: 'Contact Forms',
-      description: 'View contact form submissions',
-      icon: Mail,
-      link: '/admin/contacts',
-      color: 'bg-cyan-500'
-    },
-    {
-      title: 'Analytics',
-      description: 'View reports and analytics',
-      icon: BarChart3,
-      link: '/admin/analytics',
-      color: 'bg-red-500'
-    }
-  ];
-
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Welcome back! Manage your OnAssist platform from here.</p>
+      <div className="p-8 space-y-8">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <Button asChild>
+            <a href="/admin/analytics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Analytics
+            </a>
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {dashboardCards.map((card, index) => {
-            const Icon = card.icon;
-            return (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {card.title}
-                  </CardTitle>
-                  <div className={`${card.color} p-2 rounded-md`}>
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-4">{card.description}</p>
-                  <Link to={card.link}>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Manage
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Link to="/admin/add-category">
-                <Button className="w-full justify-start">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Category
-                </Button>
-              </Link>
-              <Link to="/admin/add-service">
-                <Button variant="outline" className="w-full justify-start">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Service
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              {activityLoading ? (
-                <div className="flex justify-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-onassist-primary"></div>
-                </div>
-              ) : recentActivity.length > 0 ? (
-                <div className="space-y-4">
-                  {recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50">
-                      <div className="mt-0.5">
-                        {getActivityIcon(activity.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900 truncate">{activity.description}</p>
-                        <p className="text-xs text-gray-500">{formatTimeAgo(activity.timestamp)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-600 text-center py-4">
-                  No recent activity found.
-                </p>
-              )}
+              <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                Registered customers
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.totalOrders || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                Orders processed
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${stats?.totalRevenue?.toFixed(2) || '0.00'}</div>
+              <p className="text-xs text-muted-foreground">
+                Revenue generated
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Contact Inquiries</CardTitle>
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.totalContacts || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                Customer inquiries
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 gap-6">
-          <SitemapGenerator />
+        {/* Quick Actions */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {quickActions.map((action) => (
+              <Card key={action.title} className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardContent className="p-6">
+                  <a href={action.href} className="block">
+                    <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-4`}>
+                      <action.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="font-semibold mb-2">{action.title}</h3>
+                    <p className="text-sm text-muted-foreground">{action.description}</p>
+                  </a>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Management Links */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Management</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {managementLinks.map((link) => (
+              <Card key={link.title} className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardContent className="p-6">
+                  <a href={link.href} className="block">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <link.icon className="w-6 h-6 text-gray-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">{link.title}</h3>
+                          <p className="text-sm text-muted-foreground">{link.description}</p>
+                        </div>
+                      </div>
+                      {link.count !== undefined && (
+                        <div className="text-2xl font-bold text-onassist-primary">
+                          {link.count}
+                        </div>
+                      )}
+                    </div>
+                  </a>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </Layout>

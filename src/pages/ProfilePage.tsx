@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -10,8 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
-import { siteConfig } from '@/config/site';
-import { Loader2, User, ShoppingBag, Calendar, Package } from 'lucide-react';
+import { useDynamicSiteConfig } from '@/hooks/useDynamicSiteConfig';
+import { Loader2, User, ShoppingBag, Calendar, Package, AlertCircle } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,6 +50,7 @@ interface Order {
 
 const ProfilePage = () => {
   const { user, profile, refreshProfile } = useAuth();
+  const { config: siteConfig } = useDynamicSiteConfig();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -67,11 +67,16 @@ const ProfilePage = () => {
     },
   });
 
-  // Fetch orders
-  const { data: orders, isLoading: ordersLoading } = useQuery({
-    queryKey: ['orders', user?.id],
+  // Fetch orders with better error handling
+  const { data: orders, isLoading: ordersLoading, error: ordersError, refetch: refetchOrders } = useQuery({
+    queryKey: ['user_orders', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user?.id) {
+        console.log('No user ID available for fetching orders');
+        return [];
+      }
+      
+      console.log('Fetching orders for user:', user.id);
       
       const { data, error } = await supabase
         .from('orders')
@@ -90,10 +95,17 @@ const ProfilePage = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+      }
+      
+      console.log('Orders fetched successfully:', data);
       return data as Order[];
     },
-    enabled: !!user,
+    enabled: !!user?.id,
+    retry: 3,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -123,7 +135,6 @@ const ProfilePage = () => {
     try {
       console.log('Fetching profile for user:', user.id);
       
-      // First try to get existing profile
       const { data: existingProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -131,7 +142,6 @@ const ProfilePage = () => {
         .single();
 
       if (fetchError && fetchError.code === 'PGRST116') {
-        // Profile doesn't exist, create one
         console.log('Profile not found, creating new profile...');
         
         const newProfile = {
@@ -172,7 +182,6 @@ const ProfilePage = () => {
         console.error('Error fetching profile:', fetchError);
         throw fetchError;
       } else {
-        // Profile exists, populate form
         console.log('Profile found:', existingProfile);
         
         form.reset({
@@ -216,7 +225,6 @@ const ProfilePage = () => {
       console.log('Profile updated successfully');
       toast.success('Profile updated successfully!');
       
-      // Refresh the profile data
       await refreshProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -267,6 +275,11 @@ const ProfilePage = () => {
               <TabsTrigger value="orders" className="flex items-center gap-2">
                 <ShoppingBag className="w-4 h-4" />
                 My Orders
+                {orders && orders.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {orders.length}
+                  </Badge>
+                )}
               </TabsTrigger>
             </TabsList>
 
@@ -403,12 +416,29 @@ const ProfilePage = () => {
                   <CardTitle className="flex items-center gap-2">
                     <Package className="w-5 h-5" />
                     Order History
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => refetchOrders()}
+                      className="ml-auto"
+                    >
+                      Refresh
+                    </Button>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {ordersLoading ? (
                     <div className="flex justify-center py-8">
                       <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                  ) : ordersError ? (
+                    <div className="text-center py-8">
+                      <AlertCircle className="w-16 h-16 text-red-300 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2 text-red-600">Error loading orders</h3>
+                      <p className="text-gray-600 mb-4">There was an issue loading your orders. Please try again.</p>
+                      <Button onClick={() => refetchOrders()} variant="outline">
+                        Retry
+                      </Button>
                     </div>
                   ) : orders && orders.length > 0 ? (
                     <div className="space-y-6">
