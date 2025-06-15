@@ -1,4 +1,3 @@
-
 import React from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,7 +65,13 @@ const AdminDashboard = () => {
         const contacts = contactsRes.status === 'fulfilled' && !contactsRes.value.error ? contactsRes.value : { count: 0, data: [] };
         const services = servicesRes.status === 'fulfilled' && !servicesRes.value.error ? servicesRes.value : { count: 0, data: [] };
 
-        const totalRevenue = orders.data?.reduce((sum: number, order: any) => sum + (Number(order.total_amount) || 0), 0) || 0;
+        // Fix the totalRevenue calculation
+        let totalRevenue = 0;
+        if (orders.data && Array.isArray(orders.data)) {
+          totalRevenue = orders.data.reduce((sum: number, order: any) => {
+            return sum + (parseFloat(order.total_amount) || 0);
+          }, 0);
+        }
 
         return {
           totalUsers: users.count || 0,
