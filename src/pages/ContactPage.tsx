@@ -41,6 +41,8 @@ const ContactPage = () => {
 
   const onSubmit = async (data: ContactFormData) => {
     try {
+      console.log('Submitting contact form with data:', data);
+      
       const { error } = await supabase
         .from('contact_inquiries')
         .insert([{
@@ -53,19 +55,22 @@ const ContactPage = () => {
           status: 'new'
         }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       toast({
-        title: "Message sent successfully!",
-        description: "We'll get back to you within 24 hours.",
+        title: "🎉 Thank You for Reaching Out!",
+        description: "Your message has been sent successfully! Our expert team will review your inquiry and get back to you within 24 hours with personalized assistance.",
       });
 
       reset();
     } catch (error) {
       console.error('Error submitting contact form:', error);
       toast({
-        title: "Error sending message",
-        description: "Please try again or call us directly.",
+        title: "❌ Error sending message",
+        description: "We're sorry, there was an issue sending your message. Please try again or call us directly at " + siteConfig.contactPhone,
         variant: "destructive",
       });
     }

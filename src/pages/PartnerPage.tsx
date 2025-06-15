@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ import {
   Briefcase,
   Send
 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -44,10 +45,12 @@ interface PartnerFormData {
 
 const PartnerPage = () => {
   const { toast } = useToast();
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<PartnerFormData>();
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<PartnerFormData>();
 
   const onSubmit = async (data: PartnerFormData) => {
     try {
+      console.log('Submitting partnership form with data:', data);
+      
       const { error } = await supabase
         .from('contact_inquiries')
         .insert([{
@@ -68,16 +71,23 @@ ${data.message}
           `,
           status: 'new'
         }]);
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
       toast({
-        title: "Thank you!",
-        description: "Your partnership inquiry has been submitted successfully. We'll review your application and get back to you within 48 hours.",
+        title: "🎉 Thank You for Your Interest!",
+        description: "Your partnership application has been submitted successfully. Our partnership team will review your application and get back to you within 48 hours with next steps.",
       });
+
       reset();
     } catch (error) {
+      console.error('Error submitting partnership form:', error);
       toast({
-        title: "Error sending inquiry",
-        description: "Please try again or contact us directly.",
+        title: "❌ Error sending inquiry",
+        description: "We're sorry, there was an issue submitting your application. Please try again or contact us directly at partnerships@onassist.com",
         variant: "destructive",
       });
     }
@@ -409,50 +419,80 @@ ${data.message}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="partnershipType">Partnership Type *</Label>
-                      <Select onValueChange={(value) => register('partnershipType').onChange({ target: { value } })}>
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Select partnership type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="reseller">Reseller Partner</SelectItem>
-                          <SelectItem value="referral">Referral Partner</SelectItem>
-                          <SelectItem value="technology">Technology Partner</SelectItem>
-                          <SelectItem value="service">Service Partner</SelectItem>
-                          <SelectItem value="growth">Growth Partner</SelectItem>
-                          <SelectItem value="enterprise">Enterprise Partner</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="partnershipType"
+                        control={control}
+                        rules={{ required: 'Partnership type is required' }}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="mt-2">
+                              <SelectValue placeholder="Select partnership type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="reseller">Reseller Partner</SelectItem>
+                              <SelectItem value="referral">Referral Partner</SelectItem>
+                              <SelectItem value="technology">Technology Partner</SelectItem>
+                              <SelectItem value="service">Service Partner</SelectItem>
+                              <SelectItem value="growth">Growth Partner</SelectItem>
+                              <SelectItem value="enterprise">Enterprise Partner</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.partnershipType && (
+                        <p className="text-red-500 text-sm mt-1">{errors.partnershipType.message}</p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="companySize">Company Size *</Label>
-                      <Select onValueChange={(value) => register('companySize').onChange({ target: { value } })}>
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Select company size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1-10">1-10 employees</SelectItem>
-                          <SelectItem value="11-50">11-50 employees</SelectItem>
-                          <SelectItem value="51-200">51-200 employees</SelectItem>
-                          <SelectItem value="201-500">201-500 employees</SelectItem>
-                          <SelectItem value="500+">500+ employees</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="companySize"
+                        control={control}
+                        rules={{ required: 'Company size is required' }}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="mt-2">
+                              <SelectValue placeholder="Select company size" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1-10">1-10 employees</SelectItem>
+                              <SelectItem value="11-50">11-50 employees</SelectItem>
+                              <SelectItem value="51-200">51-200 employees</SelectItem>
+                              <SelectItem value="201-500">201-500 employees</SelectItem>
+                              <SelectItem value="500+">500+ employees</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.companySize && (
+                        <p className="text-red-500 text-sm mt-1">{errors.companySize.message}</p>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <Label htmlFor="experience">Experience in Tech Industry *</Label>
-                    <Select onValueChange={(value) => register('experience').onChange({ target: { value } })}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select your experience level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0-2">0-2 years</SelectItem>
-                        <SelectItem value="3-5">3-5 years</SelectItem>
-                        <SelectItem value="6-10">6-10 years</SelectItem>
-                        <SelectItem value="10+">10+ years</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="experience"
+                      control={control}
+                      rules={{ required: 'Experience is required' }}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="mt-2">
+                            <SelectValue placeholder="Select your experience level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="0-2">0-2 years</SelectItem>
+                            <SelectItem value="3-5">3-5 years</SelectItem>
+                            <SelectItem value="6-10">6-10 years</SelectItem>
+                            <SelectItem value="10+">10+ years</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.experience && (
+                      <p className="text-red-500 text-sm mt-1">{errors.experience.message}</p>
+                    )}
                   </div>
 
                   <div>
