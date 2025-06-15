@@ -26,7 +26,16 @@ interface ContactFormData {
 const ContactPage = () => {
   const location = useLocation();
   const { toast } = useToast();
-  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ContactFormData>();
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      subject: '',
+      message: ''
+    }
+  });
 
   // Pre-fill form if data is passed via navigation state
   useEffect(() => {
@@ -60,16 +69,26 @@ const ContactPage = () => {
         throw error;
       }
 
+      // Show success message
       toast({
         title: "🎉 Thank You for Reaching Out!",
         description: "Your message has been sent successfully! Our expert team will review your inquiry and get back to you within 24 hours with personalized assistance.",
       });
 
-      reset();
+      // Reset form
+      reset({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        subject: '',
+        message: ''
+      });
+
     } catch (error) {
       console.error('Error submitting contact form:', error);
       toast({
-        title: "❌ Error sending message",
+        title: "❌ Error Sending Message",
         description: "We're sorry, there was an issue sending your message. Please try again or call us directly at " + siteConfig.contactPhone,
         variant: "destructive",
       });

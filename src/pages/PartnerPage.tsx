@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -45,30 +44,52 @@ interface PartnerFormData {
 
 const PartnerPage = () => {
   const { toast } = useToast();
-  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<PartnerFormData>();
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<PartnerFormData>({
+    defaultValues: {
+      companyName: '',
+      contactName: '',
+      email: '',
+      phone: '',
+      website: '',
+      partnershipType: '',
+      companySize: '',
+      experience: '',
+      message: ''
+    }
+  });
 
   const onSubmit = async (data: PartnerFormData) => {
     try {
       console.log('Submitting partnership form with data:', data);
       
+      // Ensure all required fields have values
+      if (!data.partnershipType || !data.companySize || !data.experience) {
+        toast({
+          title: "❌ Missing Information",
+          description: "Please fill in all required fields including Partnership Type, Company Size, and Experience.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const { error } = await supabase
         .from('contact_inquiries')
         .insert([{
-          first_name: data.contactName.split(' ')[0] ?? data.contactName,
-          last_name: data.contactName.split(' ').slice(1).join(' ') ?? '',
+          first_name: data.contactName.split(' ')[0] || data.contactName,
+          last_name: data.contactName.split(' ').slice(1).join(' ') || '',
           email: data.email,
           phone_number: data.phone,
           subject: `Partnership Inquiry - ${data.partnershipType}`,
           message: `
 Company: ${data.companyName}
-Website: ${data.website || 'N/A'}
+Website: ${data.website || 'Not provided'}
 Partnership Type: ${data.partnershipType}
 Company Size: ${data.companySize}
 Experience: ${data.experience}
 
 Message:
 ${data.message}
-          `,
+          `.trim(),
           status: 'new'
         }]);
       
@@ -77,16 +98,29 @@ ${data.message}
         throw error;
       }
 
+      // Show success message
       toast({
-        title: "🎉 Thank You for Your Interest!",
-        description: "Your partnership application has been submitted successfully. Our partnership team will review your application and get back to you within 48 hours with next steps.",
+        title: "🎉 Thank You for Your Partnership Interest!",
+        description: "Your partnership application has been submitted successfully! Our partnership team will review your application and get back to you within 48 hours with next steps.",
       });
 
-      reset();
+      // Reset form
+      reset({
+        companyName: '',
+        contactName: '',
+        email: '',
+        phone: '',
+        website: '',
+        partnershipType: '',
+        companySize: '',
+        experience: '',
+        message: ''
+      });
+
     } catch (error) {
       console.error('Error submitting partnership form:', error);
       toast({
-        title: "❌ Error sending inquiry",
+        title: "❌ Error Sending Application",
         description: "We're sorry, there was an issue submitting your application. Please try again or contact us directly at partnerships@onassist.com",
         variant: "destructive",
       });
@@ -424,7 +458,7 @@ ${data.message}
                         control={control}
                         rules={{ required: 'Partnership type is required' }}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || ''}>
                             <SelectTrigger className="mt-2">
                               <SelectValue placeholder="Select partnership type" />
                             </SelectTrigger>
@@ -450,7 +484,7 @@ ${data.message}
                         control={control}
                         rules={{ required: 'Company size is required' }}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || ''}>
                             <SelectTrigger className="mt-2">
                               <SelectValue placeholder="Select company size" />
                             </SelectTrigger>
@@ -477,7 +511,7 @@ ${data.message}
                       control={control}
                       rules={{ required: 'Experience is required' }}
                       render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value || ''}>
                           <SelectTrigger className="mt-2">
                             <SelectValue placeholder="Select your experience level" />
                           </SelectTrigger>
