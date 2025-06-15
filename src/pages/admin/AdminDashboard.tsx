@@ -66,7 +66,7 @@ const AdminDashboard = () => {
         const contacts = contactsRes.status === 'fulfilled' && !contactsRes.value.error ? contactsRes.value : { count: 0, data: [] };
         const services = servicesRes.status === 'fulfilled' && !servicesRes.value.error ? servicesRes.value : { count: 0, data: [] };
 
-        const totalRevenue = orders.data?.reduce((sum, order) => sum + (Number(order.total_amount) || 0), 0) || 0;
+        const totalRevenue = orders.data?.reduce((sum: number, order: any) => sum + (Number(order.total_amount) || 0), 0) || 0;
 
         return {
           totalUsers: users.count || 0,
