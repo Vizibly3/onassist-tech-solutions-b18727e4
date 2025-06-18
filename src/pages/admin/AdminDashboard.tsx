@@ -6,10 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { 
-  Users, 
-  ShoppingBag, 
-  DollarSign, 
+import {
+  Users,
+  ShoppingBag,
+  DollarSign,
   TrendingUp,
   Plus,
   Settings,
@@ -21,11 +21,122 @@ import {
   Activity,
   Star,
   Calendar,
-  Zap
+  Zap,
+  ClipboardList,
+  FileText,
 } from "lucide-react";
+
+interface Order {
+  id: string;
+  total_amount: number;
+}
 
 const AdminDashboard = () => {
   const { user, isAdmin, isLoading } = useAuth();
+
+  // Fetch dashboard statistics with better error handling
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error,
+  } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async () => {
+      console.log("Fetching admin stats...");
+
+      try {
+        // Use Promise.allSettled instead of Promise.all to handle individual failures
+        const [
+          usersRes,
+          ordersRes,
+          contactsRes,
+          servicesRes,
+          categoryLeadsRes,
+          serviceLeadsRes,
+        ] = await Promise.allSettled([
+          supabase.from("profiles").select("id", { count: "exact" }),
+          supabase
+            .from("orders")
+            .select("id, total_amount", { count: "exact" }),
+          supabase.from("contact_inquiries").select("id", { count: "exact" }),
+          supabase.from("services").select("id", { count: "exact" }),
+          supabase
+            .from("category_service_leads")
+            .select("id", { count: "exact" }),
+          supabase.from("service_leads").select("id", { count: "exact" }),
+        ]);
+
+        console.log("Stats results:", {
+          usersRes,
+          ordersRes,
+          contactsRes,
+          servicesRes,
+          categoryLeadsRes,
+          serviceLeadsRes,
+        });
+
+        // Extract data from settled promises
+        const users =
+          usersRes.status === "fulfilled" && !usersRes.value.error
+            ? usersRes.value
+            : { count: 0, data: [] };
+        const orders =
+          ordersRes.status === "fulfilled" && !ordersRes.value.error
+            ? ordersRes.value
+            : { count: 0, data: [] };
+        const contacts =
+          contactsRes.status === "fulfilled" && !contactsRes.value.error
+            ? contactsRes.value
+            : { count: 0, data: [] };
+        const services =
+          servicesRes.status === "fulfilled" && !servicesRes.value.error
+            ? servicesRes.value
+            : { count: 0, data: [] };
+        const categoryLeads =
+          categoryLeadsRes.status === "fulfilled" &&
+          !categoryLeadsRes.value.error
+            ? categoryLeadsRes.value
+            : { count: 0, data: [] };
+        const serviceLeads =
+          serviceLeadsRes.status === "fulfilled" && !serviceLeadsRes.value.error
+            ? serviceLeadsRes.value
+            : { count: 0, data: [] };
+
+        // Fix the totalRevenue calculation
+        let totalRevenue = 0;
+        if (orders.data && Array.isArray(orders.data)) {
+          totalRevenue = orders.data.reduce(
+            (sum: number, order: { total_amount: number }) => {
+              return sum + (parseFloat(String(order.total_amount)) || 0);
+            },
+            0
+          );
+        }
+
+        return {
+          totalUsers: users.count || 0,
+          totalOrders: orders.count || 0,
+          totalRevenue,
+          totalContacts: contacts.count || 0,
+          totalServices: services.count || 0,
+          totalCategoryLeads: categoryLeads.count || 0,
+          totalServiceLeads: serviceLeads.count || 0,
+        };
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+        // Return default values instead of throwing
+        return {
+          totalUsers: 0,
+          totalOrders: 0,
+          totalRevenue: 0,
+          totalContacts: 0,
+          totalServices: 0,
+          totalCategoryLeads: 0,
+          totalServiceLeads: 0,
+        };
+      }
+    },
+  });
 
   // Check authentication first
   if (isLoading) {
@@ -42,58 +153,6 @@ const AdminDashboard = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Fetch dashboard statistics with better error handling
-  const { data: stats, isLoading: statsLoading, error } = useQuery({
-    queryKey: ["admin-stats"],
-    queryFn: async () => {
-      console.log('Fetching admin stats...');
-      
-      try {
-        // Use Promise.allSettled instead of Promise.all to handle individual failures
-        const [usersRes, ordersRes, contactsRes, servicesRes] = await Promise.allSettled([
-          supabase.from("profiles").select("id", { count: "exact" }),
-          supabase.from("orders").select("id, total_amount", { count: "exact" }),
-          supabase.from("contact_inquiries").select("id", { count: "exact" }),
-          supabase.from("services").select("id", { count: "exact" })
-        ]);
-
-        console.log('Stats results:', { usersRes, ordersRes, contactsRes, servicesRes });
-
-        // Extract data from settled promises
-        const users = usersRes.status === 'fulfilled' && !usersRes.value.error ? usersRes.value : { count: 0, data: [] };
-        const orders = ordersRes.status === 'fulfilled' && !ordersRes.value.error ? ordersRes.value : { count: 0, data: [] };
-        const contacts = contactsRes.status === 'fulfilled' && !contactsRes.value.error ? contactsRes.value : { count: 0, data: [] };
-        const services = servicesRes.status === 'fulfilled' && !servicesRes.value.error ? servicesRes.value : { count: 0, data: [] };
-
-        // Fix the totalRevenue calculation
-        let totalRevenue = 0;
-        if (orders.data && Array.isArray(orders.data)) {
-          totalRevenue = orders.data.reduce((sum: number, order: any) => {
-            return sum + (parseFloat(order.total_amount) || 0);
-          }, 0);
-        }
-
-        return {
-          totalUsers: users.count || 0,
-          totalOrders: orders.count || 0,
-          totalRevenue,
-          totalContacts: contacts.count || 0,
-          totalServices: services.count || 0
-        };
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-        // Return default values instead of throwing
-        return {
-          totalUsers: 0,
-          totalOrders: 0,
-          totalRevenue: 0,
-          totalContacts: 0,
-          totalServices: 0
-        };
-      }
-    },
-  });
-
   const quickActions = [
     {
       title: "Add Service",
@@ -102,7 +161,7 @@ const AdminDashboard = () => {
       href: "/admin/add-service",
       gradient: "from-blue-500 to-blue-600",
       shadowColor: "shadow-blue-200",
-      iconBg: "bg-white/20"
+      iconBg: "bg-white/20",
     },
     {
       title: "Add Category",
@@ -111,7 +170,7 @@ const AdminDashboard = () => {
       href: "/admin/add-category",
       gradient: "from-emerald-500 to-emerald-600",
       shadowColor: "shadow-emerald-200",
-      iconBg: "bg-white/20"
+      iconBg: "bg-white/20",
     },
     {
       title: "Site Settings",
@@ -120,7 +179,7 @@ const AdminDashboard = () => {
       href: "/admin/site-settings",
       gradient: "from-purple-500 to-purple-600",
       shadowColor: "shadow-purple-200",
-      iconBg: "bg-white/20"
+      iconBg: "bg-white/20",
     },
     {
       title: "Manage Sitemap",
@@ -129,8 +188,26 @@ const AdminDashboard = () => {
       href: "/admin/sitemap",
       gradient: "from-orange-500 to-orange-600",
       shadowColor: "shadow-orange-200",
-      iconBg: "bg-white/20"
-    }
+      iconBg: "bg-white/20",
+    },
+    {
+      title: "Category Leads",
+      description: "View category inquiries",
+      icon: ClipboardList,
+      href: "/admin-category-leads",
+      gradient: "from-violet-500 to-violet-600",
+      shadowColor: "shadow-violet-200",
+      iconBg: "bg-white/20",
+    },
+    {
+      title: "Service Leads",
+      description: "View service inquiries",
+      icon: FileText,
+      href: "/admin-service-leads",
+      gradient: "from-rose-500 to-rose-600",
+      shadowColor: "shadow-rose-200",
+      iconBg: "bg-white/20",
+    },
   ];
 
   const managementLinks = [
@@ -142,7 +219,7 @@ const AdminDashboard = () => {
       count: stats?.totalUsers,
       gradient: "from-indigo-50 to-indigo-100",
       iconColor: "text-indigo-600",
-      iconBg: "bg-indigo-100"
+      iconBg: "bg-indigo-100",
     },
     {
       title: "Manage Orders",
@@ -152,7 +229,7 @@ const AdminDashboard = () => {
       count: stats?.totalOrders,
       gradient: "from-green-50 to-green-100",
       iconColor: "text-green-600",
-      iconBg: "bg-green-100"
+      iconBg: "bg-green-100",
     },
     {
       title: "Manage Services",
@@ -162,7 +239,7 @@ const AdminDashboard = () => {
       count: stats?.totalServices,
       gradient: "from-yellow-50 to-yellow-100",
       iconColor: "text-yellow-600",
-      iconBg: "bg-yellow-100"
+      iconBg: "bg-yellow-100",
     },
     {
       title: "Contact Inquiries",
@@ -172,8 +249,28 @@ const AdminDashboard = () => {
       count: stats?.totalContacts,
       gradient: "from-pink-50 to-pink-100",
       iconColor: "text-pink-600",
-      iconBg: "bg-pink-100"
-    }
+      iconBg: "bg-pink-100",
+    },
+    {
+      title: "Category Leads",
+      description: "Manage category inquiries",
+      icon: ClipboardList,
+      href: "/admin-category-leads",
+      count: stats?.totalCategoryLeads,
+      gradient: "from-violet-50 to-violet-100",
+      iconColor: "text-violet-600",
+      iconBg: "bg-violet-100",
+    },
+    {
+      title: "Service Leads",
+      description: "Manage service inquiries",
+      icon: FileText,
+      href: "/admin-service-leads",
+      count: stats?.totalServiceLeads,
+      gradient: "from-rose-50 to-rose-100",
+      iconColor: "text-rose-600",
+      iconBg: "bg-rose-100",
+    },
   ];
 
   // Show loading state
@@ -196,7 +293,7 @@ const AdminDashboard = () => {
 
   // Show error state but still render the dashboard with default values
   if (error) {
-    console.error('Dashboard error:', error);
+    console.error("Dashboard error:", error);
   }
 
   return (
@@ -207,9 +304,14 @@ const AdminDashboard = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
-            <p className="text-gray-600 mt-2">Welcome back! Here's what's happening with your business.</p>
+            <p className="text-gray-600 mt-2">
+              Welcome back! Here's what's happening with your business.
+            </p>
           </div>
-          <Button asChild className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-onassist-primary/90 hover:to-blue-600/90 shadow-lg">
+          <Button
+            asChild
+            className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-onassist-primary/90 hover:to-blue-600/90 shadow-lg"
+          >
             <a href="/admin/analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
               View Analytics
@@ -221,7 +323,9 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-100">Total Users</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-100">
+                Total Users
+              </CardTitle>
               <div className="p-2 bg-white/20 rounded-lg">
                 <Users className="h-5 w-5 text-white" />
               </div>
@@ -234,48 +338,60 @@ const AdminDashboard = () => {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-emerald-100">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium text-emerald-100">
+                Total Orders
+              </CardTitle>
               <div className="p-2 bg-white/20 rounded-lg">
                 <ShoppingBag className="h-5 w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats?.totalOrders || 0}</div>
+              <div className="text-3xl font-bold">
+                {stats?.totalOrders || 0}
+              </div>
               <p className="text-xs text-emerald-100 flex items-center mt-1">
                 <Activity className="w-3 h-3 mr-1" />
                 Orders processed
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-br from-yellow-500 to-orange-500 text-white shadow-xl border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-100">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-yellow-100">
+                Total Revenue
+              </CardTitle>
               <div className="p-2 bg-white/20 rounded-lg">
                 <DollarSign className="h-5 w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">${stats?.totalRevenue?.toFixed(2) || '0.00'}</div>
+              <div className="text-3xl font-bold">
+                ${stats?.totalRevenue?.toFixed(2) || "0.00"}
+              </div>
               <p className="text-xs text-yellow-100 flex items-center mt-1">
                 <Star className="w-3 h-3 mr-1" />
                 Revenue generated
               </p>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-xl border-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-100">Contact Inquiries</CardTitle>
+              <CardTitle className="text-sm font-medium text-purple-100">
+                Contact Inquiries
+              </CardTitle>
               <div className="p-2 bg-white/20 rounded-lg">
                 <MessageSquare className="h-5 w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats?.totalContacts || 0}</div>
+              <div className="text-3xl font-bold">
+                {stats?.totalContacts || 0}
+              </div>
               <p className="text-xs text-purple-100 flex items-center mt-1">
                 <Zap className="w-3 h-3 mr-1" />
                 Customer inquiries
@@ -292,14 +408,23 @@ const AdminDashboard = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {quickActions.map((action) => (
-              <Card key={action.title} className={`hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br ${action.gradient} ${action.shadowColor} shadow-lg hover:scale-105`}>
+              <Card
+                key={action.title}
+                className={`hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br ${action.gradient} ${action.shadowColor} shadow-lg hover:scale-105`}
+              >
                 <CardContent className="p-6">
                   <a href={action.href} className="block">
-                    <div className={`w-14 h-14 ${action.iconBg} rounded-xl flex items-center justify-center mb-4 mx-auto`}>
+                    <div
+                      className={`w-14 h-14 ${action.iconBg} rounded-xl flex items-center justify-center mb-4 mx-auto`}
+                    >
                       <action.icon className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="font-bold mb-2 text-white text-center">{action.title}</h3>
-                    <p className="text-sm text-white/80 text-center">{action.description}</p>
+                    <h3 className="font-bold mb-2 text-white text-center">
+                      {action.title}
+                    </h3>
+                    <p className="text-sm text-white/80 text-center">
+                      {action.description}
+                    </p>
                   </a>
                 </CardContent>
               </Card>
@@ -315,17 +440,26 @@ const AdminDashboard = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {managementLinks.map((link) => (
-              <Card key={link.title} className={`hover:shadow-xl transition-all duration-300 cursor-pointer bg-gradient-to-br ${link.gradient} border border-gray-200 hover:scale-105`}>
+              <Card
+                key={link.title}
+                className={`hover:shadow-xl transition-all duration-300 cursor-pointer bg-gradient-to-br ${link.gradient} border border-gray-200 hover:scale-105`}
+              >
                 <CardContent className="p-6">
                   <a href={link.href} className="block">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className={`w-14 h-14 ${link.iconBg} rounded-xl flex items-center justify-center`}>
+                        <div
+                          className={`w-14 h-14 ${link.iconBg} rounded-xl flex items-center justify-center`}
+                        >
                           <link.icon className={`w-7 h-7 ${link.iconColor}`} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-gray-800">{link.title}</h3>
-                          <p className="text-sm text-gray-600">{link.description}</p>
+                          <h3 className="font-bold text-gray-800">
+                            {link.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {link.description}
+                          </p>
                         </div>
                       </div>
                       {link.count !== undefined && (
