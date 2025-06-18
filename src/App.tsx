@@ -48,6 +48,8 @@ import AdminSiteSettings from "./pages/admin/AdminSiteSettings";
 import AdminSitemap from "./pages/admin/AdminSitemap";
 import AddService from "./pages/admin/AddService";
 import AddCategory from "./pages/admin/AddCategory";
+import CategoryLeadsPage from "./pages/admin/CategoryLeadsPage";
+import ServiceLeadsPage from "./pages/admin/ServiceLeadsPage";
 
 // Sitemap Pages
 import SitemapPage from "./pages/SitemapPage";
@@ -140,6 +142,14 @@ const App = () => (
                 <Route path="/admin/sitemap" element={<AdminSitemap />} />
                 <Route path="/admin/add-service" element={<AddService />} />
                 <Route path="/admin/add-category" element={<AddCategory />} />
+                <Route
+                  path="/admin-category-leads"
+                  element={<CategoryLeadsPage />}
+                />
+                <Route
+                  path="/admin-service-leads"
+                  element={<ServiceLeadsPage />}
+                />
 
                 {/* Sitemap Routes */}
                 <Route path="/sitemap.xml" element={<SitemapPage />} />
