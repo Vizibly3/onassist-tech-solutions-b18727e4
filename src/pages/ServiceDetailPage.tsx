@@ -61,6 +61,46 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceLead } from "@/types/supabase";
 
+// Add this at the top of the file, after imports
+const gradientAnimation = `
+  @keyframes gradient-x {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 0%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+
+  .gradient-border {
+    position: relative;
+    border-radius: 1.5rem;
+    padding: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+    background-size: 300% 100%;
+    animation: gradient-x 3s linear infinite;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.5rem;
+    padding: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+    background-size: 300% 100%;
+    animation: gradient-x 3s linear infinite;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+`;
+
 const ServiceDetailPage = () => {
   const { serviceSlug } = useParams();
 
@@ -323,6 +363,7 @@ const ServiceDetailPage = () => {
 
   return (
     <Layout>
+      <style>{gradientAnimation}</style>
       <Helmet>
         <title>
           {service.title} | {siteConfig.name}
@@ -829,79 +870,84 @@ const ServiceDetailPage = () => {
               <NeedHelpBox serviceTitle={service.title} />
 
               {/* Booking Card */}
-              <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-blue-50 rounded-3xl overflow-hidden">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      Book This Service
-                    </h3>
-                    <p className="text-gray-600">
-                      Professional service at your fingertips
-                    </p>
-                  </div>
+              <Card className="relative shadow-2xl border-0 bg-gradient-to-br from-white to-blue-50 rounded-3xl overflow-hidden">
+                <div className="gradient-border">
+                  <CardContent className="p-8 relative z-10 bg-gradient-to-br from-white to-blue-50 rounded-3xl">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                        Book This Service
+                      </h3>
+                      <p className="text-gray-600">
+                        Professional service at your fingertips
+                      </p>
+                    </div>
 
-                  <div className="space-y-6">
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="text-gray-600 font-medium">
-                          Service Price:
-                        </span>
-                        <div className="text-right">
-                          <span className="text-3xl font-bold text-blue-600">
-                            ${service.price}
+                    <div className="space-y-6">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="text-gray-600 font-medium">
+                            Service Price:
                           </span>
-                          <div className="text-sm text-gray-500">
-                            Starting from
+                          <div className="text-right">
+                            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                              ${service.price}
+                            </span>
+                            <div className="text-sm text-gray-500">
+                              Starting from
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600 font-medium">
+                            Duration:
+                          </span>
+                          <div className="flex items-center gap-2 text-gray-800">
+                            <Clock className="w-4 h-4" />
+                            <span className="font-semibold">
+                              {service.duration}
+                            </span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 font-medium">
-                          Duration:
-                        </span>
-                        <div className="flex items-center gap-2 text-gray-800">
-                          <Clock className="w-4 h-4" />
-                          <span className="font-semibold">
-                            {service.duration}
+
+                      <div className="space-y-4">
+                        <Button
+                          onClick={handleAddToCart}
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+                        >
+                          <ShoppingCart className="w-5 h-5 mr-2" />
+                          Add to Cart
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-105"
+                          onClick={() =>
+                            window.open(
+                              `tel:${siteConfig.contactPhone}`,
+                              "_self"
+                            )
+                          }
+                        >
+                          <Phone className="w-5 h-5 mr-2" />
+                          Call to Book Now
+                        </Button>
+                      </div>
+
+                      <div className="text-center">
+                        <div className="text-sm text-gray-500 mb-2">
+                          Quick Response
+                        </div>
+                        <div className="flex items-center justify-center gap-2 text-green-600">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="font-medium">
+                            Usually responds in 1 hour
                           </span>
                         </div>
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      <Button
-                        onClick={handleAddToCart}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
-                      >
-                        <ShoppingCart className="w-5 h-5 mr-2" />
-                        Add to Cart
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-105"
-                        onClick={() =>
-                          window.open(`tel:${siteConfig.contactPhone}`, "_self")
-                        }
-                      >
-                        <Phone className="w-5 h-5 mr-2" />
-                        Call to Book Now
-                      </Button>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="text-sm text-gray-500 mb-2">
-                        Quick Response
-                      </div>
-                      <div className="flex items-center justify-center gap-2 text-green-600">
-                        <CheckCircle className="w-4 h-4" />
-                        <span className="font-medium">
-                          Usually responds in 1 hour
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
+                  </CardContent>
+                </div>
               </Card>
 
               {/* Service Statistics */}
