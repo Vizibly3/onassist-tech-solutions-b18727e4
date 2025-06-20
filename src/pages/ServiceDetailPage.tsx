@@ -372,7 +372,7 @@ const ServiceDetailPage = () => {
       </Helmet>
 
       {/* Hero Breadcrumb */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 relative overflow-hidden pb-0">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-transparent"></div>
         {/* Animated background elements */}
@@ -413,7 +413,7 @@ const ServiceDetailPage = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-8">
             <Button
               onClick={handleGoBack}
               variant="ghost"
@@ -429,103 +429,288 @@ const ServiceDetailPage = () => {
               </Badge>
             )}
           </div>
+
+          {/* Hero Main Section: Service Info (left) + Form (right) */}
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_48px_1fr] gap-0 lg:gap-24 items-stretch justify-between py-8">
+            {/* Left: Service Info */}
+            <div className="pr-0 lg:pr-16 flex flex-col justify-between min-h-[650px] py-8 lg:py-12">
+              <div>
+                <div className="relative group mb-8">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
+                  <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden">
+                    <div className="relative">
+                      <img
+                        src={service.image_url}
+                        alt={service.title}
+                        className="w-full h-80 md:h-96 object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                      {/* Play button overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
+                          <Play className="w-8 h-8 text-white ml-1" />
+                        </div>
+                      </div>
+                      {service.popular && (
+                        <div className="absolute top-6 right-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
+                          <Sparkles className="w-4 h-4 inline mr-1" />
+                          Popular Choice
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent mb-6 leading-tight">
+                  {service.title}
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 leading-relaxed font-light mb-8">
+                  {service.description}
+                </p>
+              </div>
+            </div>
+            {/* Divider for large screens */}
+            <div className="hidden lg:flex justify-center items-center h-full">
+              <div className="w-1 h-[650px] bg-gradient-to-b from-white/10 via-white/40 to-white/10 mx-auto rounded-full"></div>
+            </div>
+            {/* Right: Lead Generation Form */}
+            <div className="relative flex flex-col justify-between items-center mt-16 lg:mt-0 min-h-[650px] py-8 lg:py-12">
+              <div className="absolute inset-0 blur-xl bg-gradient-to-br from-blue-200/30 via-purple-200/30 to-white/30 rounded-3xl z-0"></div>
+              <div className="relative bg-white/95 p-14 rounded-3xl shadow-2xl border border-blue-100 max-w-xl w-full flex flex-col justify-center min-h-[650px] lg:ml-0 lg:mr-4">
+                <h2 className="text-3xl font-extrabold mb-6 text-center text-onassist-primary drop-shadow">
+                  Request This Service
+                </h2>
+                <form
+                  onSubmit={handleSubmit}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                >
+                  {/* Left Column */}
+                  <div className="space-y-6">
+                    {/* Name Field */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="name"
+                        className="font-semibold text-gray-700 flex items-center gap-2"
+                      >
+                        <Users className="w-5 h-5 text-blue-500" /> Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Your full name"
+                        className={`w-full p-3 rounded-xl border ${
+                          errors.name ? "border-red-500" : "border-gray-300"
+                        } focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition`}
+                      />
+                      {errors.name && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.name}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Email Field */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="email"
+                        className="font-semibold text-gray-700 flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-5 h-5 text-purple-500" />{" "}
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="your.email@example.com"
+                        className={`w-full p-3 rounded-xl border ${
+                          errors.email ? "border-red-500" : "border-gray-300"
+                        } focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition`}
+                      />
+                      {errors.email && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phone Field */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="phone"
+                        className="font-semibold text-gray-700 flex items-center gap-2"
+                      >
+                        <Phone className="w-5 h-5 text-green-500" /> Phone
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+1 234 567 8900"
+                        className={`w-full p-3 rounded-xl border ${
+                          errors.phone ? "border-red-500" : "border-gray-300"
+                        } focus:ring-2 focus:ring-green-400 focus:border-green-400 transition`}
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Service Field (Pre-filled) */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="service"
+                        className="font-semibold text-gray-700 flex items-center gap-2"
+                      >
+                        <Wrench className="w-5 h-5 text-yellow-500" /> Service
+                      </label>
+                      <input
+                        type="text"
+                        id="service"
+                        name="service"
+                        value={formData.service}
+                        readOnly
+                        className="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-500"
+                      />
+                    </div>
+
+                    {/* Preferred Date & Time Field */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="preferredDateTime"
+                        className="font-semibold text-gray-700 flex items-center gap-2"
+                      >
+                        <Calendar className="w-5 h-5 text-pink-500" /> Preferred
+                        Date & Time
+                      </label>
+                      <input
+                        type="datetime-local"
+                        id="preferredDateTime"
+                        name="preferredDateTime"
+                        value={formData.preferredDateTime}
+                        onChange={handleInputChange}
+                        min={new Date().toISOString().slice(0, 16)}
+                        step="1"
+                        className={`w-full p-3 rounded-xl border ${
+                          errors.preferredDateTime
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        } focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition`}
+                      />
+                      {errors.preferredDateTime && (
+                        <p className="text-red-500 text-sm flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.preferredDateTime}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Message Field */}
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="message"
+                        className="font-semibold text-gray-700 flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-5 h-5 text-blue-500" />{" "}
+                        Message
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        value={formData.message}
+                        onChange={handleInputChange}
+                        placeholder="Any additional information or requirements..."
+                        rows={4}
+                        className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Submit Button - Full Width */}
+                  <div className="md:col-span-2">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit Request"}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          {/* Key Metrics - Centered, Full Width Below Hero */}
+          <div className="flex justify-center mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+              <div className="group">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-8 rounded-3xl text-white shadow-2xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-2 min-h-[140px] flex flex-col justify-between">
+                  <div className="text-4xl font-bold mb-2 truncate">
+                    ${service.price}
+                  </div>
+                  <div className="text-blue-100 font-medium break-words">
+                    Starting Price
+                  </div>
+                  <div className="mt-4 text-blue-200 text-sm break-words">
+                    Professional Rate
+                  </div>
+                </div>
+              </div>
+              <div className="group">
+                <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-8 rounded-3xl text-white shadow-2xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-2 min-h-[140px] flex flex-col justify-between">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Clock className="w-8 h-8" />
+                    <span className="text-4xl font-bold truncate">
+                      {service.duration}
+                    </span>
+                  </div>
+                  <div className="text-green-100 font-medium break-words">
+                    Service Duration
+                  </div>
+                  <div className="mt-4 text-green-200 text-sm break-words">
+                    Estimated Time
+                  </div>
+                </div>
+              </div>
+              <div className="group">
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-8 rounded-3xl text-white shadow-2xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-2 min-h-[140px] flex flex-col justify-between">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Award className="w-8 h-8" />
+                    <span className="text-4xl font-bold truncate">Expert</span>
+                  </div>
+                  <div className="text-purple-100 font-medium break-words">
+                    Certified Tech
+                  </div>
+                  <div className="mt-4 text-purple-200 text-sm break-words">
+                    Professional Grade
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="bg-gradient-to-br from-gray-50 via-white to-blue-50 min-h-screen">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-stretch min-h-[700px]">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-12">
-              {/* Service Header with Image */}
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-                <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden">
-                  <div className="relative">
-                    <img
-                      src={service.image_url}
-                      alt={service.title}
-                      className="w-full h-80 md:h-96 object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-
-                    {/* Play button overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
-                        <Play className="w-8 h-8 text-white ml-1" />
-                      </div>
-                    </div>
-
-                    {service.popular && (
-                      <div className="absolute top-6 right-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
-                        <Sparkles className="w-4 h-4 inline mr-1" />
-                        Popular Choice
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Service Title & Description */}
-              <div className="space-y-6">
-                <div>
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight">
-                    {service.title}
-                  </h1>
-                  <p className="text-xl md:text-2xl text-gray-600 leading-relaxed font-light">
-                    {service.description}
-                  </p>
-                </div>
-
-                {/* Key Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="group">
-                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-8 rounded-3xl text-white shadow-2xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-2">
-                      <div className="text-4xl font-bold mb-2">
-                        ${service.price}
-                      </div>
-                      <div className="text-blue-100 font-medium">
-                        Starting Price
-                      </div>
-                      <div className="mt-4 text-blue-200 text-sm">
-                        Professional Rate
-                      </div>
-                    </div>
-                  </div>
-                  <div className="group">
-                    <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-8 rounded-3xl text-white shadow-2xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-2">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Clock className="w-8 h-8" />
-                        <span className="text-4xl font-bold">
-                          {service.duration}
-                        </span>
-                      </div>
-                      <div className="text-green-100 font-medium">
-                        Service Duration
-                      </div>
-                      <div className="mt-4 text-green-200 text-sm">
-                        Estimated Time
-                      </div>
-                    </div>
-                  </div>
-                  <div className="group">
-                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-8 rounded-3xl text-white shadow-2xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-2">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Award className="w-8 h-8" />
-                        <span className="text-4xl font-bold">Expert</span>
-                      </div>
-                      <div className="text-purple-100 font-medium">
-                        Certified Tech
-                      </div>
-                      <div className="mt-4 text-purple-200 text-sm">
-                        Professional Grade
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+            <div className="lg:col-span-2 space-y-12 flex flex-col h-full min-h-[700px]">
               {/* Service Features */}
               <Card className="shadow-2xl border-0 bg-white rounded-3xl overflow-hidden">
                 <CardContent className="p-10">
@@ -559,193 +744,6 @@ const ServiceDetailPage = () => {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Lead Generation Form */}
-              <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-purple-50 rounded-3xl overflow-hidden">
-                <CardContent className="p-10">
-                  <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                      Request This Service
-                    </h2>
-                    <p className="text-gray-600">
-                      Fill out the form below and we'll get back to you
-                    </p>
-                  </div>
-
-                  <form
-                    onSubmit={handleSubmit}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-8"
-                  >
-                    {/* Left Column */}
-                    <div className="space-y-6">
-                      {/* Name Field */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="name"
-                          className="font-semibold text-gray-700 flex items-center gap-2"
-                        >
-                          <Users className="w-5 h-5 text-blue-500" /> Name
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="Your full name"
-                          className={`w-full p-3 rounded-xl border ${
-                            errors.name ? "border-red-500" : "border-gray-300"
-                          } focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition`}
-                        />
-                        {errors.name && (
-                          <p className="text-red-500 text-sm flex items-center gap-1">
-                            <AlertCircle className="w-4 h-4" />
-                            {errors.name}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Email Field */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="email"
-                          className="font-semibold text-gray-700 flex items-center gap-2"
-                        >
-                          <MessageCircle className="w-5 h-5 text-purple-500" />{" "}
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="your.email@example.com"
-                          className={`w-full p-3 rounded-xl border ${
-                            errors.email ? "border-red-500" : "border-gray-300"
-                          } focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition`}
-                        />
-                        {errors.email && (
-                          <p className="text-red-500 text-sm flex items-center gap-1">
-                            <AlertCircle className="w-4 h-4" />
-                            {errors.email}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Phone Field */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="phone"
-                          className="font-semibold text-gray-700 flex items-center gap-2"
-                        >
-                          <Phone className="w-5 h-5 text-green-500" /> Phone
-                        </label>
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          placeholder="+1 234 567 8900"
-                          className={`w-full p-3 rounded-xl border ${
-                            errors.phone ? "border-red-500" : "border-gray-300"
-                          } focus:ring-2 focus:ring-green-400 focus:border-green-400 transition`}
-                        />
-                        {errors.phone && (
-                          <p className="text-red-500 text-sm flex items-center gap-1">
-                            <AlertCircle className="w-4 h-4" />
-                            {errors.phone}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="space-y-6">
-                      {/* Service Field (Pre-filled) */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="service"
-                          className="font-semibold text-gray-700 flex items-center gap-2"
-                        >
-                          <Wrench className="w-5 h-5 text-yellow-500" /> Service
-                        </label>
-                        <input
-                          type="text"
-                          id="service"
-                          name="service"
-                          value={formData.service}
-                          readOnly
-                          className="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-500"
-                        />
-                      </div>
-
-                      {/* Preferred Date & Time Field */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="preferredDateTime"
-                          className="font-semibold text-gray-700 flex items-center gap-2"
-                        >
-                          <Calendar className="w-5 h-5 text-pink-500" />{" "}
-                          Preferred Date & Time
-                        </label>
-                        <input
-                          type="datetime-local"
-                          id="preferredDateTime"
-                          name="preferredDateTime"
-                          value={formData.preferredDateTime}
-                          onChange={handleInputChange}
-                          min={new Date().toISOString().slice(0, 16)}
-                          step="1"
-                          className={`w-full p-3 rounded-xl border ${
-                            errors.preferredDateTime
-                              ? "border-red-500"
-                              : "border-gray-300"
-                          } focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition`}
-                        />
-                        {errors.preferredDateTime && (
-                          <p className="text-red-500 text-sm flex items-center gap-1">
-                            <AlertCircle className="w-4 h-4" />
-                            {errors.preferredDateTime}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Message Field */}
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="message"
-                          className="font-semibold text-gray-700 flex items-center gap-2"
-                        >
-                          <MessageCircle className="w-5 h-5 text-blue-500" />{" "}
-                          Message
-                        </label>
-                        <textarea
-                          id="message"
-                          name="message"
-                          value={formData.message}
-                          onChange={handleInputChange}
-                          placeholder="Any additional information or requirements..."
-                          rows={4}
-                          className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition resize-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Submit Button - Full Width */}
-                    <div className="md:col-span-2">
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSubmitting ? "Submitting..." : "Submit Request"}
-                      </Button>
-                    </div>
-                  </form>
                 </CardContent>
               </Card>
 
@@ -866,10 +864,9 @@ const ServiceDetailPage = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-8">
+            <div className="flex flex-col gap-8 h-full min-h-[700px]">
               <NeedHelpBox serviceTitle={service.title} />
-
-              {/* Booking Card */}
+              {/* Booking Card (kept as is) */}
               <Card className="relative shadow-2xl border-0 bg-gradient-to-br from-white to-blue-50 rounded-3xl overflow-hidden">
                 <div className="gradient-border">
                   <CardContent className="p-8 relative z-10 bg-gradient-to-br from-white to-blue-50 rounded-3xl">
@@ -881,7 +878,6 @@ const ServiceDetailPage = () => {
                         Professional service at your fingertips
                       </p>
                     </div>
-
                     <div className="space-y-6">
                       <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
                         <div className="flex justify-between items-center mb-4">
@@ -909,7 +905,6 @@ const ServiceDetailPage = () => {
                           </div>
                         </div>
                       </div>
-
                       <div className="space-y-4">
                         <Button
                           onClick={handleAddToCart}
@@ -918,7 +913,6 @@ const ServiceDetailPage = () => {
                           <ShoppingCart className="w-5 h-5 mr-2" />
                           Add to Cart
                         </Button>
-
                         <Button
                           variant="outline"
                           className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold py-4 rounded-2xl transition-all duration-300 transform hover:scale-105"
@@ -933,7 +927,6 @@ const ServiceDetailPage = () => {
                           Call to Book Now
                         </Button>
                       </div>
-
                       <div className="text-center">
                         <div className="text-sm text-gray-500 mb-2">
                           Quick Response
@@ -949,184 +942,126 @@ const ServiceDetailPage = () => {
                   </CardContent>
                 </div>
               </Card>
-
-              {/* Service Statistics */}
-              <Card className="shadow-2xl border-0 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl overflow-hidden">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      Service Statistics
-                    </h3>
-                    <p className="text-gray-600">
-                      Numbers that speak for our quality
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    {[
-                      {
-                        number: "99%",
-                        label: "Success Rate",
-                        icon: TrendingUp,
-                        color: "text-green-600",
-                      },
-                      {
-                        number: "500+",
-                        label: "Happy Customers",
-                        icon: Heart,
-                        color: "text-red-500",
-                      },
-                      {
-                        number: "24/7",
-                        label: "Support Available",
-                        icon: Phone,
-                        color: "text-blue-600",
-                      },
-                      {
-                        number: "30 Day",
-                        label: "Guarantee",
-                        icon: Shield,
-                        color: "text-purple-600",
-                      },
-                    ].map((stat, index) => (
-                      <div key={index} className="text-center group">
-                        <div
-                          className={`${stat.color} mb-4 flex justify-center`}
-                        >
-                          <stat.icon className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" />
-                        </div>
-                        <div className="text-2xl font-bold text-gray-900 mb-1">
-                          {stat.number}
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">
-                          {stat.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Tech Expertise Areas */}
-              <Card className="shadow-2xl border-0 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl overflow-hidden">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      Our Tech Expertise
-                    </h3>
-                    <p className="text-gray-600">
-                      Specialized knowledge across all technology domains
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      {
-                        icon: Laptop,
-                        name: "Laptops",
-                        color: "from-blue-500 to-blue-600",
-                      },
-                      {
-                        icon: Smartphone,
-                        name: "Mobile",
-                        color: "from-green-500 to-emerald-600",
-                      },
-                      {
-                        icon: Monitor,
-                        name: "Desktops",
-                        color: "from-purple-500 to-purple-600",
-                      },
-                      {
-                        icon: HardDrive,
-                        name: "Storage",
-                        color: "from-orange-500 to-red-500",
-                      },
-                    ].map((tech, index) => (
-                      <div key={index} className="text-center group">
-                        <div
-                          className={`w-14 h-14 bg-gradient-to-r ${tech.color} rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
-                        >
-                          <tech.icon className="w-7 h-7 text-white" />
-                        </div>
-                        <p className="font-semibold text-gray-800 text-sm">
-                          {tech.name}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Service Guarantee */}
-              <Card className="shadow-2xl border-0 bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl overflow-hidden">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Shield className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900">
-                      Service Guarantee
-                    </h3>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span className="font-medium text-gray-800 text-sm">
-                        30-day service warranty
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span className="font-medium text-gray-800 text-sm">
-                        100% satisfaction guaranteed
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span className="font-medium text-gray-800 text-sm">
-                        Free follow-up support
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Contact Info */}
-              <Card className="shadow-2xl border-0 bg-gradient-to-br from-gray-900 to-blue-900 text-white rounded-3xl overflow-hidden">
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-bold mb-6 text-center">
-                    Need Help?
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
-                      <Phone className="w-5 h-5 text-blue-300" />
-                      <div>
-                        <div className="font-medium">Call Us</div>
-                        <div className="text-sm text-gray-300">
-                          24/7 Support
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
-                      <MessageCircle className="w-5 h-5 text-green-300" />
-                      <div>
-                        <div className="font-medium">Live Chat</div>
-                        <div className="text-sm text-gray-300">
-                          Instant Response
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
-                      <MapPin className="w-5 h-5 text-purple-300" />
-                      <div>
-                        <div className="font-medium">On-Site Service</div>
-                        <div className="text-sm text-gray-300">
-                          At Your Location
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
+          </div>
+          {/* Bottom Full-Width Row: Tech Expertise, Service Guarantee, Need Help */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            {/* Our Tech Expertise */}
+            <Card className="shadow-2xl border-0 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl overflow-hidden h-full">
+              <CardContent className="p-6">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Our Tech Expertise
+                  </h3>
+                  <p className="text-gray-600 text-xs">
+                    Specialized knowledge across all technology domains
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    {
+                      icon: Laptop,
+                      name: "Laptops",
+                      color: "from-blue-500 to-blue-600",
+                    },
+                    {
+                      icon: Smartphone,
+                      name: "Mobile",
+                      color: "from-green-500 to-emerald-600",
+                    },
+                    {
+                      icon: Monitor,
+                      name: "Desktops",
+                      color: "from-purple-500 to-purple-600",
+                    },
+                    {
+                      icon: HardDrive,
+                      name: "Storage",
+                      color: "from-orange-500 to-red-500",
+                    },
+                  ].map((tech, index) => (
+                    <div key={index} className="text-center group">
+                      <div
+                        className={`w-8 h-8 bg-gradient-to-r ${tech.color} rounded-xl flex items-center justify-center mx-auto mb-1 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
+                      >
+                        <tech.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <p className="font-semibold text-gray-800 text-xs">
+                        {tech.name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            {/* Service Guarantee */}
+            <Card className="shadow-2xl border-0 bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl overflow-hidden h-full">
+              <CardContent className="p-6">
+                <div className="text-center mb-4">
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Service Guarantee
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm">
+                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="font-medium text-gray-800 text-xs">
+                      30-day service warranty
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm">
+                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="font-medium text-gray-800 text-xs">
+                      100% satisfaction guaranteed
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white rounded-xl shadow-sm">
+                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="font-medium text-gray-800 text-xs">
+                      Free follow-up support
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Need Help */}
+            <Card className="shadow-2xl border-0 bg-gradient-to-br from-gray-900 to-blue-900 text-white rounded-3xl overflow-hidden h-full">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4 text-center">
+                  Need Help?
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                    <Phone className="w-4 h-4 text-blue-300" />
+                    <div>
+                      <div className="font-medium text-xs">Call Us</div>
+                      <div className="text-xs text-gray-300">24/7 Support</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                    <MessageCircle className="w-4 h-4 text-green-300" />
+                    <div>
+                      <div className="font-medium text-xs">Live Chat</div>
+                      <div className="text-xs text-gray-300">
+                        Instant Response
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                    <MapPin className="w-4 h-4 text-purple-300" />
+                    <div>
+                      <div className="font-medium text-xs">On-Site Service</div>
+                      <div className="text-xs text-gray-300">
+                        At Your Location
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
