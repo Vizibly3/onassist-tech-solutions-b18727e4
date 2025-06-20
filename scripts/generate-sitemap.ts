@@ -11,6 +11,7 @@ import { countries, usStates } from "../src/data/locations.ts";
 import { serviceCategories, getAllServices } from "../src/config/services.ts";
 
 // "generate-sitemap": "ts-node scripts/generate-sitemap.ts",
+// "generate-sitemap": "tsx scripts/generate-sitemap.ts",
 
 const BASE_URL = "https://onassist.vercel.app";
 const URLS_PER_CHUNK = 10000;
@@ -39,11 +40,29 @@ const generateAllUrls = async (): Promise<SitemapUrl[]> => {
     { url: "/membership", priority: "0.7", changefreq: "weekly" },
     { url: "/partner", priority: "0.7", changefreq: "weekly" },
     { url: "/faq", priority: "0.7", changefreq: "weekly" },
-    { url: "/privacy", priority: "0.3", changefreq: "yearly" },
+    { url: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
     { url: "/terms", priority: "0.3", changefreq: "yearly" },
     { url: "/returns", priority: "0.7", changefreq: "weekly" },
     { url: "/auth/login", priority: "0.5", changefreq: "monthly" },
     { url: "/auth/register", priority: "0.5", changefreq: "monthly" },
+    { url: "/profile", priority: "0.6", changefreq: "monthly" },
+    { url: "/payment-success", priority: "0.4", changefreq: "monthly" },
+    { url: "/payment-cancelled", priority: "0.4", changefreq: "monthly" },
+    { url: "/my-orders", priority: "0.6", changefreq: "monthly" },
+    { url: "/admin", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/dashboard", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/services", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/categories", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/orders", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/users", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/contacts", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/analytics", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/site-settings", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/sitemap", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/add-service", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin/add-category", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin-category-leads", priority: "0.2", changefreq: "monthly" },
+    { url: "/admin-service-leads", priority: "0.2", changefreq: "monthly" },
   ];
 
   staticPages.forEach((page) => {
