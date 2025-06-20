@@ -13,7 +13,7 @@ import type { ServiceCategory, Service } from "@/hooks/useServices";
 const URLS_PER_CHUNK = 10000;
 
 const AdminSitemap = () => {
-  // Compute static stats
+  // Compute static statssss
   const [allUrls, setAllUrls] = useState<string[]>([]);
   const [linksLoading, setLinksLoading] = useState(true);
 
