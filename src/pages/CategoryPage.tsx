@@ -263,63 +263,279 @@ const CategoryPage = () => {
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30"></div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-            {category?.image_url && (
-              <div className="mb-8 flex justify-center">
-                <img
-                  src={category.image_url}
-                  alt={categoryTitle}
-                  className="w-36 h-36 mx-auto rounded-full object-cover border-4 border-white/40 shadow-2xl ring-4 ring-blue-200/30"
-                />
-              </div>
-            )}
-            <h1 className="text-6xl md:text-8xl font-extrabold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent drop-shadow-lg">
-              {categoryTitle}
-            </h1>
-            <p className="text-2xl md:text-3xl mb-10 opacity-95 max-w-3xl mx-auto leading-relaxed font-medium">
-              {category?.description ||
-                `Professional ${categoryTitle.toLowerCase()} services by certified technicians with years of experience`}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
-              <Button
-                size="lg"
-                className="bg-white text-onassist-primary hover:bg-gray-100 text-lg px-10 py-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 font-semibold border-2 border-white"
-                onClick={() =>
-                  window.open(`tel:${siteConfig.contactPhone}`, "_self")
-                }
-              >
-                <Phone className="w-5 h-5 mr-2" />
-                Call Now - Get Instant Help
-              </Button>
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white hover:from-orange-600 hover:to-yellow-500 border-0 text-lg px-10 py-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 font-semibold"
-                onClick={() => window.open("/contact", "_self")}
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Get Free Quote
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {[
-                { icon: Users, label: "50+ Experts", value: "Certified" },
-                {
-                  icon: Star,
-                  label: "4.9/5 Rating",
-                  value: "Customer Satisfaction",
-                },
-                { icon: Award, label: "Licensed", value: "Insured & Bonded" },
-                { icon: Zap, label: "Same Day", value: "Service Available" },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:scale-105 transition-transform duration-300"
-                >
-                  <item.icon className="w-10 h-10 mx-auto mb-2 text-white" />
-                  <div className="text-base font-semibold">{item.label}</div>
-                  <div className="text-xs opacity-80">{item.value}</div>
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_64px_1.2fr] gap-0 lg:gap-0 items-center">
+            {/* Left: Hero Content */}
+            <div className="text-center lg:text-left pr-0 lg:pr-20">
+              {category?.image_url && (
+                <div className="mb-8 flex justify-center lg:justify-start">
+                  <img
+                    src={category.image_url}
+                    alt={categoryTitle}
+                    className="w-36 h-36 rounded-full object-cover border-4 border-white/40 shadow-2xl ring-4 ring-blue-200/30 mx-auto lg:mx-0"
+                  />
                 </div>
-              ))}
+              )}
+              <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent drop-shadow-lg">
+                {categoryTitle}
+              </h1>
+              <p className="text-2xl md:text-3xl mb-10 opacity-95 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                {category?.description ||
+                  `Professional ${categoryTitle.toLowerCase()} services by certified technicians with years of experience`}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
+                <Button
+                  size="lg"
+                  className="bg-white text-onassist-primary hover:bg-gray-100 text-lg px-10 py-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 font-semibold border-2 border-white"
+                  onClick={() =>
+                    window.open(`tel:${siteConfig.contactPhone}`, "_self")
+                  }
+                >
+                  <Phone className="w-5 h-5 mr-2" />
+                  Call Now - Get Instant Help
+                </Button>
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white hover:from-orange-600 hover:to-yellow-500 border-0 text-lg px-10 py-6 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 font-semibold"
+                  onClick={() => window.open("/contact", "_self")}
+                >
+                  <MessageCircle className="w-5 h-5 mr-2" />
+                  Get Free Quote
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center lg:text-left">
+                {[
+                  { icon: Users, label: "50+ Experts", value: "Certified" },
+                  {
+                    icon: Star,
+                    label: "4.9/5 Rating",
+                    value: "Customer Satisfaction",
+                  },
+                  { icon: Award, label: "Licensed", value: "Insured & Bonded" },
+                  { icon: Zap, label: "Same Day", value: "Service Available" },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:scale-105 transition-transform duration-300"
+                  >
+                    <item.icon className="w-10 h-10 mx-auto mb-2 text-white" />
+                    <div className="text-base font-semibold">{item.label}</div>
+                    <div className="text-xs opacity-80">{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Divider for large screens */}
+            <div className="hidden lg:flex justify-center items-center h-full">
+              <div className="w-1 h-[560px] bg-gradient-to-b from-white/10 via-white/40 to-white/10 mx-auto rounded-full"></div>
+            </div>
+            {/* Right: Lead Generation Form */}
+            <div className="relative flex justify-center items-center mt-16 lg:mt-0">
+              <div className="absolute inset-0 blur-xl bg-gradient-to-br from-blue-200/30 via-purple-200/30 to-white/30 rounded-3xl z-0"></div>
+              <div className="relative bg-white/95 p-14 rounded-3xl shadow-2xl border border-blue-100 max-w-xl w-full flex flex-col justify-center min-h-[560px] lg:ml-0 lg:mr-4">
+                <h2 className="text-3xl font-extrabold mb-6 text-center text-onassist-primary drop-shadow">
+                  Request a Service
+                </h2>
+                <form
+                  onSubmit={handleSubmit}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                >
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="name"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <Users className="w-5 h-5 text-blue-500" /> Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Full Name"
+                      className={`p-3 rounded-xl border ${
+                        errors.name ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition`}
+                      required
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="phone"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <Phone className="w-5 h-5 text-green-500" /> Phone
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="+1 234 567 8900 (with country code)"
+                      className={`p-3 rounded-xl border ${
+                        errors.phone ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-green-400 focus:border-green-400 transition`}
+                      required
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="email"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <MessageCircle className="w-5 h-5 text-purple-500" />{" "}
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Email Address"
+                      className={`p-3 rounded-xl border ${
+                        errors.email ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition`}
+                      required
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="address"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <Shield className="w-5 h-5 text-blue-400" /> Address
+                    </label>
+                    <textarea
+                      name="address"
+                      id="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="Your Address"
+                      className={`p-3 rounded-xl border ${
+                        errors.address ? "border-red-500" : "border-gray-300"
+                      } focus:ring-2 focus:ring-blue-200 focus:border-blue-200 transition`}
+                      rows={2}
+                      required
+                    />
+                    {errors.address && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.address}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="category"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <Award className="w-5 h-5 text-yellow-500" /> Service
+                      Category
+                    </label>
+                    <input
+                      type="text"
+                      name="category"
+                      id="category"
+                      value={categoryTitle}
+                      readOnly
+                      className="p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-500"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="preferredTime"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <Zap className="w-5 h-5 text-pink-500" /> Preferred
+                      Date/Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      name="preferredTime"
+                      id="preferredTime"
+                      value={formData.preferredTime}
+                      onChange={handleInputChange}
+                      className={`p-3 rounded-xl border ${
+                        errors.preferredTime
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      } focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition`}
+                      required
+                    />
+                    {errors.preferredTime && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.preferredTime}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2 md:col-span-2">
+                    <label
+                      htmlFor="message"
+                      className="font-semibold text-gray-700 flex items-center gap-2"
+                    >
+                      <MessageCircle className="w-5 h-5 text-blue-500" />{" "}
+                      Message / Description
+                    </label>
+                    <textarea
+                      name="message"
+                      id="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      placeholder="Message / Description"
+                      className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                      rows={4}
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-3 mt-2 md:col-span-2">
+                    <input
+                      type="checkbox"
+                      required
+                      className="w-5 h-5 accent-blue-600"
+                    />
+                    <span className="text-sm text-gray-600">
+                      I consent to the processing of my data for service request
+                      purposes.
+                    </span>
+                  </label>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-blue-700 hover:to-onassist-primary text-white font-bold text-lg shadow-xl py-4 mt-2 md:col-span-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Request"}
+                  </Button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -384,212 +600,6 @@ const CategoryPage = () => {
             </Link>
           </div>
         )}
-      </div>
-
-      {/* Lead Generation Form - Modern, Beautiful */}
-      <div className="py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-white/90 p-8 rounded-3xl shadow-2xl border border-blue-100">
-            <h2 className="text-3xl font-extrabold mb-6 text-center text-onassist-primary drop-shadow">
-              Request a Service
-            </h2>
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-            >
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="name"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Users className="w-5 h-5 text-blue-500" /> Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Full Name"
-                  className={`p-3 rounded-xl border ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  } focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition`}
-                  required
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.name}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="phone"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Phone className="w-5 h-5 text-green-500" /> Phone
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  id="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+1 234 567 8900 (with country code)"
-                  className={`p-3 rounded-xl border ${
-                    errors.phone ? "border-red-500" : "border-gray-300"
-                  } focus:ring-2 focus:ring-green-400 focus:border-green-400 transition`}
-                  required
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="email"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <MessageCircle className="w-5 h-5 text-purple-500" /> Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Email Address"
-                  className={`p-3 rounded-xl border ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  } focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition`}
-                  required
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="address"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Shield className="w-5 h-5 text-blue-400" /> Address
-                </label>
-                <textarea
-                  name="address"
-                  id="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Your Address"
-                  className={`p-3 rounded-xl border ${
-                    errors.address ? "border-red-500" : "border-gray-300"
-                  } focus:ring-2 focus:ring-blue-200 focus:border-blue-200 transition`}
-                  rows={2}
-                  required
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-sm flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.address}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="category"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Award className="w-5 h-5 text-yellow-500" /> Service Category
-                </label>
-                <input
-                  type="text"
-                  name="category"
-                  id="category"
-                  value={categoryTitle}
-                  readOnly
-                  className="p-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-500"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="preferredTime"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <Zap className="w-5 h-5 text-pink-500" /> Preferred Date/Time
-                </label>
-                <input
-                  type="datetime-local"
-                  name="preferredTime"
-                  id="preferredTime"
-                  value={formData.preferredTime}
-                  onChange={handleInputChange}
-                  className={`p-3 rounded-xl border ${
-                    errors.preferredTime ? "border-red-500" : "border-gray-300"
-                  } focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition`}
-                  required
-                />
-                {errors.preferredTime && (
-                  <p className="text-red-500 text-sm flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.preferredTime}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-2 md:col-span-2">
-                <label
-                  htmlFor="message"
-                  className="font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <MessageCircle className="w-5 h-5 text-blue-500" /> Message /
-                  Description
-                </label>
-                <textarea
-                  name="message"
-                  id="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  placeholder="Message / Description"
-                  className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-                  rows={4}
-                />
-              </div>
-
-              <label className="flex items-center gap-3 mt-2 md:col-span-2">
-                <input
-                  type="checkbox"
-                  required
-                  className="w-5 h-5 accent-blue-600"
-                />
-                <span className="text-sm text-gray-600">
-                  I consent to the processing of my data for service request
-                  purposes.
-                </span>
-              </label>
-
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-blue-700 hover:to-onassist-primary text-white font-bold text-lg shadow-xl py-4 mt-2 md:col-span-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Request"}
-              </Button>
-            </form>
-          </div>
-        </div>
       </div>
 
       {/* New Section: How It Works */}
