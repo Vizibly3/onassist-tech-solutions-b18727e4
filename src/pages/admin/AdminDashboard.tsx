@@ -24,6 +24,7 @@ import {
   Zap,
   ClipboardList,
   FileText,
+  Mail,
 } from "lucide-react";
 
 interface Order {
@@ -105,12 +106,12 @@ const AdminDashboard = () => {
         // Fix the totalRevenue calculation
         let totalRevenue = 0;
         if (orders.data && Array.isArray(orders.data)) {
-          totalRevenue = orders.data.reduce(
-            (sum: number, order: { total_amount: number }) => {
-              return sum + (parseFloat(String(order.total_amount)) || 0);
-            },
-            0
-          );
+          totalRevenue = orders.data
+            .map(
+              (order: { total_amount: number }) =>
+                parseFloat(String(order.total_amount)) || 0
+            )
+            .reduce((sum: number, amount: number) => sum + amount, 0);
         }
 
         return {
@@ -208,6 +209,15 @@ const AdminDashboard = () => {
       shadowColor: "shadow-rose-200",
       iconBg: "bg-white/20",
     },
+    {
+      title: "Newsletter Subscribers",
+      description: "View and manage newsletter signups",
+      icon: Mail,
+      href: "/admin/newsletter-subscribers",
+      gradient: "from-cyan-500 to-cyan-600",
+      shadowColor: "shadow-cyan-200",
+      iconBg: "bg-white/20",
+    },
   ];
 
   const managementLinks = [
@@ -270,6 +280,16 @@ const AdminDashboard = () => {
       gradient: "from-rose-50 to-rose-100",
       iconColor: "text-rose-600",
       iconBg: "bg-rose-100",
+    },
+    {
+      title: "Newsletter Subscribers",
+      description: "Manage newsletter signups",
+      icon: Mail,
+      href: "/admin/newsletter-subscribers",
+      count: undefined,
+      gradient: "from-cyan-50 to-cyan-100",
+      iconColor: "text-cyan-600",
+      iconBg: "bg-cyan-100",
     },
   ];
 
