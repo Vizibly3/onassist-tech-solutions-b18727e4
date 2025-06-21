@@ -1,4 +1,3 @@
-
 export const siteConfig = {
   name: "OnAssist",
   description: "Professional tech support services for your home and business",
@@ -18,6 +17,10 @@ export const siteConfig = {
     response: "15-Minute Response Time",
     satisfaction: "100% Satisfaction Guarantee",
   },
-}
+  response_time_stat: "15 Min",
+  rating_stat: "4.9/5",
+  satisfaction_stat: "100%",
+  happy_customers_stat: "10K+",
+};
 
 export type SiteConfig = typeof siteConfig;
