@@ -61,6 +61,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceLead } from "@/types/supabase";
 import { techniciansData } from "@/utils/techniciansData";
+import ReCAPTCHA from "react-google-recaptcha";
 
 // Add this at the top of the file, after imports
 const gradientAnimation = `
@@ -147,6 +148,7 @@ const ServiceDetailPage = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
 
   // Update service field whenever service data changes
   useEffect(() => {
@@ -248,7 +250,13 @@ const ServiceDetailPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!recaptchaToken) {
+      setErrors((prev) => ({
+        ...prev,
+        recaptcha: "Please complete the captcha",
+      }));
+      return;
+    }
     if (!validateForm()) {
       toast.error("Please fix the errors in the form", {
         description: "All fields are required and must be valid",
@@ -256,7 +264,6 @@ const ServiceDetailPage = () => {
       });
       return;
     }
-
     setIsSubmitting(true);
 
     try {
@@ -298,6 +305,7 @@ const ServiceDetailPage = () => {
         message: "",
       });
       setErrors({});
+      setRecaptchaToken("");
     } catch (error: unknown) {
       console.error("Error submitting form:", error);
 
@@ -645,6 +653,20 @@ const ServiceDetailPage = () => {
                         className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition resize-none"
                       />
                     </div>
+                  </div>
+
+                  {/* ReCAPTCHA */}
+                  <div className="md:col-span-2">
+                    <ReCAPTCHA
+                      sitekey="6LdruW4rAAAAAC3sFRlPA4oMsKQi8CQB2ObSPzZa"
+                      onChange={(token) => setRecaptchaToken(token || "")}
+                    />
+                    {errors.recaptcha && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.recaptcha}
+                      </p>
+                    )}
                   </div>
 
                   {/* Submit Button - Full Width */}
