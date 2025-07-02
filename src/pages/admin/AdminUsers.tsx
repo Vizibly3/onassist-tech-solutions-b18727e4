@@ -125,7 +125,7 @@ const AdminUsers = () => {
         return {
           ...profile,
           role: userRole?.role || 'customer',
-          is_banned: false // You can add a banned field to profiles table if needed
+          is_banned: profile.banned || false
         };
       }) || [];
 
@@ -248,16 +248,23 @@ const AdminUsers = () => {
 
   const banUser = async (userId: string, userName: string) => {
     try {
-      // For now, we'll just show a success message
-      // In a real implementation, you might want to add a 'banned' field to the profiles table
-      console.log('Banning user:', userId);
+      // Toggle ban status in the profiles table
+      const currentUser = users.find(u => u.id === userId);
+      const newBanStatus = !currentUser?.is_banned;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ banned: newBanStatus })
+        .eq('id', userId);
+      
+      if (error) throw error;
       
       toast({
         title: 'Success',
-        description: `User ${userName} has been banned`
+        description: `User ${userName} has been ${newBanStatus ? 'banned' : 'unbanned'}`
       });
       
-      // fetchUsers(); // Uncomment when you implement actual ban functionality
+      fetchUsers();
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -484,15 +491,16 @@ const AdminUsers = () => {
                               {userProfile.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
                             </Button>
                             
-                            {/* Ban Button */}
+                            {/* Ban/Unban Button */}
                             <Button
-                              variant="outline"
+                              variant={userProfile.is_banned ? "default" : "outline"}
                               size="sm"
                               onClick={() => banUser(userProfile.id, userName)}
                               disabled={userProfile.id === user?.id}
-                              className="text-orange-600 hover:text-orange-700"
+                              className={userProfile.is_banned ? "bg-green-600 hover:bg-green-700 text-white" : "text-orange-600 hover:text-orange-700"}
                             >
                               <Ban className="h-4 w-4" />
+                              {userProfile.is_banned ? 'Unban' : 'Ban'}
                             </Button>
                             
                             {/* Delete Button */}
