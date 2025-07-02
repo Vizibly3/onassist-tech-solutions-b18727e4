@@ -276,17 +276,17 @@ const AdminUsers = () => {
 
   const deleteUser = async (userId: string, userName: string) => {
     try {
-      // Delete user profile
+      // Soft delete user profile by setting active to false
       const { error } = await supabase
         .from('profiles')
-        .delete()
+        .update({ active: false })
         .eq('id', userId);
       
       if (error) throw error;
       
       toast({
         title: 'Success',
-        description: `User ${userName} has been deleted`
+        description: `User ${userName} has been deactivated`
       });
       
       fetchUsers();
@@ -518,7 +518,7 @@ const AdminUsers = () => {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete the user account for {userName}.
+                                    This action will deactivate the user account for {userName}. The user will not be able to access their account.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -527,7 +527,7 @@ const AdminUsers = () => {
                                     onClick={() => deleteUser(userProfile.id, userName)}
                                     className="bg-red-600 hover:bg-red-700"
                                   >
-                                    Delete
+                                    Deactivate
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>

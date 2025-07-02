@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -106,16 +105,16 @@ const AdminCategories = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+    if (!confirm('Are you sure you want to deactivate this category?')) return;
     
     try {
       const { error } = await supabase
         .from('service_categories')
-        .delete()
+        .update({ active: false })
         .eq('id', id);
       
       if (error) throw error;
-      toast({ title: 'Category deleted successfully!' });
+      toast({ title: 'Category deactivated successfully!' });
       refetch();
     } catch (error: any) {
       toast({

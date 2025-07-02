@@ -56,6 +56,7 @@ export type Database = {
       }
       category_service_leads: {
         Row: {
+          active: boolean | null
           address: string
           category_name: string
           category_slug: string
@@ -71,6 +72,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          active?: boolean | null
           address: string
           category_name: string
           category_slug: string
@@ -86,6 +88,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          active?: boolean | null
           address?: string
           category_name?: string
           category_slug?: string
@@ -104,6 +107,7 @@ export type Database = {
       }
       contact_inquiries: {
         Row: {
+          active: boolean | null
           created_at: string
           email: string
           first_name: string
@@ -117,6 +121,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          active?: boolean | null
           created_at?: string
           email: string
           first_name: string
@@ -130,6 +135,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          active?: boolean | null
           created_at?: string
           email?: string
           first_name?: string
@@ -146,16 +152,19 @@ export type Database = {
       }
       newsletter_subscribers: {
         Row: {
+          active: boolean | null
           email: string
           id: string
           subscribed_at: string
         }
         Insert: {
+          active?: boolean | null
           email: string
           id?: string
           subscribed_at?: string
         }
         Update: {
+          active?: boolean | null
           email?: string
           id?: string
           subscribed_at?: string
@@ -283,6 +292,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active: boolean | null
           address: string | null
           banned: boolean | null
           city: string | null
@@ -296,6 +306,7 @@ export type Database = {
           zip_code: string | null
         }
         Insert: {
+          active?: boolean | null
           address?: string | null
           banned?: boolean | null
           city?: string | null
@@ -309,6 +320,7 @@ export type Database = {
           zip_code?: string | null
         }
         Update: {
+          active?: boolean | null
           address?: string | null
           banned?: boolean | null
           city?: string | null
@@ -325,6 +337,7 @@ export type Database = {
       }
       service_categories: {
         Row: {
+          active: boolean | null
           created_at: string
           description: string | null
           id: string
@@ -333,6 +346,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active?: boolean | null
           created_at?: string
           description?: string | null
           id?: string
@@ -341,6 +355,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active?: boolean | null
           created_at?: string
           description?: string | null
           id?: string
@@ -352,6 +367,7 @@ export type Database = {
       }
       service_leads: {
         Row: {
+          active: boolean | null
           created_at: string | null
           email: string
           id: number
@@ -364,6 +380,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          active?: boolean | null
           created_at?: string | null
           email: string
           id?: number
@@ -376,6 +393,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          active?: boolean | null
           created_at?: string | null
           email?: string
           id?: number
