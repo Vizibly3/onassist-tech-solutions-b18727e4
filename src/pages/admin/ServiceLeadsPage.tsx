@@ -24,7 +24,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 
 type ServiceLead = {
-  id: string;
+  id: number; // Changed from string to number to match database
   name: string;
   email: string;
   phone: string;
@@ -45,7 +45,7 @@ const ServiceLeadsPage = () => {
   const [sortField, setSortField] = useState<keyof ServiceLead>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [expandedLead, setExpandedLead] = useState<number | null>(null); // Changed from string to number
   const [leads, setLeads] = useState<ServiceLead[]>([]);
 
   // Fetch leads with better error handling
@@ -129,7 +129,7 @@ const ServiceLeadsPage = () => {
   );
 
   const handleStatusChange = async (
-    leadId: string,
+    leadId: number, // Changed from string to number
     newStatus: ServiceLead["status"]
   ) => {
     try {
@@ -210,6 +210,10 @@ const ServiceLeadsPage = () => {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const setExpandedLeadHandler = (leadId: number) => {
+    setExpandedLead(expandedLead === leadId ? null : leadId);
   };
 
   return (
@@ -430,9 +434,7 @@ const ServiceLeadsPage = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                setExpandedLead(
-                                  expandedLead === lead.id ? null : lead.id
-                                )
+                                setExpandedLeadHandler(lead.id)
                               }
                             >
                               {expandedLead === lead.id ? (

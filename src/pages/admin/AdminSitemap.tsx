@@ -1,9 +1,9 @@
+
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Globe, Download, RefreshCw, FileText } from "lucide-react";
-import { generateAllUrls } from "@/utils/sitemapIndexGenerator";
 import { usStates, countries } from "@/data/locations";
 import { serviceCategories, getAllServices } from "@/config/services";
 import { supabase } from "@/integrations/supabase/client";
