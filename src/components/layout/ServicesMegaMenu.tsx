@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useServiceCategories } from '@/hooks/useServices';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronRight, Smartphone, Wifi, Shield, Monitor, Speaker, Home, Wrench, Sparkles } from 'lucide-react';
+import { Smartphone, Wifi, Shield, Monitor, Speaker, Home, Wrench, Sparkles } from 'lucide-react';
 import { slugify } from '@/utils/slugify';
 
 interface ServicesMegaMenuProps {
@@ -165,37 +165,6 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                     </div>
                   </div>
                 )}
-              </div>
-
-              {/* Enhanced CTA Section */}
-              <div className="border-t border-gray-200 pt-10 mt-8">
-                <div className="bg-gradient-to-r from-gray-50 via-blue-50 to-indigo-50 p-8 rounded-2xl shadow-inner border border-blue-100">
-                  <div className="flex flex-col lg:flex-row justify-between items-center space-y-8 lg:space-y-0">
-                    <div className="text-center lg:text-left max-w-2xl">
-                      <h3 className="font-bold text-gray-900 mb-3 text-2xl">Need Expert Guidance?</h3>
-                      <p className="text-gray-600 text-lg leading-relaxed">
-                        Our certified technology experts are ready to help you choose the perfect service solution tailored to your specific needs and requirements.
-                      </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-                      <Link
-                        to="/services"
-                        onClick={onClose}
-                        className="inline-flex items-center justify-center gap-3 text-onassist-primary font-bold hover:text-onassist-dark transition-all duration-300 border-2 border-onassist-primary hover:border-onassist-dark px-8 py-4 rounded-xl whitespace-nowrap hover:shadow-lg transform hover:-translate-y-1"
-                      >
-                        Explore All Services
-                        <ChevronRight className="h-5 w-5" />
-                      </Link>
-                      <Link
-                        to="/contact"
-                        onClick={onClose}
-                        className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-onassist-primary to-blue-600 text-white px-8 py-4 rounded-xl hover:from-onassist-dark hover:to-blue-700 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl whitespace-nowrap transform hover:-translate-y-1"
-                      >
-                        Get Free Consultation
-                      </Link>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           )}

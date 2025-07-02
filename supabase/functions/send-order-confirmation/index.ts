@@ -125,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // Send email
+    // Send email regardless of payment status (for testing mode)
     const mailOptions = {
       from: 'OnAssist <vizibly3@gmail.com>',
       to: orderData.email,

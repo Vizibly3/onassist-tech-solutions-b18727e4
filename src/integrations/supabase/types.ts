@@ -442,7 +442,10 @@ export type Database = {
       site_settings: {
         Row: {
           address: string | null
+          certified_experts_stat: string | null
+          cities_covered_stat: string | null
           contactphone: string | null
+          customer_satisfaction_stat: string | null
           description: string | null
           email: string | null
           happy_customers_stat: string | null
@@ -454,7 +457,10 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          certified_experts_stat?: string | null
+          cities_covered_stat?: string | null
           contactphone?: string | null
+          customer_satisfaction_stat?: string | null
           description?: string | null
           email?: string | null
           happy_customers_stat?: string | null
@@ -466,7 +472,10 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          certified_experts_stat?: string | null
+          cities_covered_stat?: string | null
           contactphone?: string | null
+          customer_satisfaction_stat?: string | null
           description?: string | null
           email?: string | null
           happy_customers_stat?: string | null
