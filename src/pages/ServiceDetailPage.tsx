@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -91,7 +92,7 @@ const ServiceDetailPage = () => {
         />
         <meta
           name="keywords"
-          content={`${service.title}, ${service.category?.title}, tech support, professional service`}
+          content={`${service.title}, tech support, professional service`}
         />
       </Helmet>
 
@@ -101,7 +102,7 @@ const ServiceDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <Badge className="bg-white/20 text-white mb-4">
-                {service.category?.title}
+                Professional Service
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                 {service.title}
