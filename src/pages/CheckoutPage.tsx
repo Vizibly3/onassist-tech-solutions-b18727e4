@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -111,6 +112,8 @@ const CheckoutPage = () => {
 
   const sendOrderConfirmationEmail = async (orderData: any, cartItems: any[]) => {
     try {
+      console.log('Sending order confirmation email...');
+      
       const { data, error } = await supabase.functions.invoke('send-order-confirmation', {
         body: {
           customerName: `${orderData.first_name} ${orderData.last_name}`,
@@ -128,13 +131,14 @@ const CheckoutPage = () => {
 
       if (error) {
         console.error('Error sending order confirmation email:', error);
-        // Don't throw error here as payment was successful
+        toast.error('Order placed but failed to send confirmation email');
       } else {
-        console.log('Order confirmation email sent successfully');
+        console.log('Order confirmation email sent successfully:', data);
+        toast.success('Order confirmation email sent!');
       }
     } catch (error) {
       console.error('Error in sendOrderConfirmationEmail:', error);
-      // Don't throw error here as payment was successful
+      toast.error('Order placed but failed to send confirmation email');
     }
   };
 
@@ -199,10 +203,10 @@ const CheckoutPage = () => {
         // Don't throw error here as payment session was successful
       }
 
-      // Send order confirmation email
+      // Send order confirmation email with the order ID from payment response
       await sendOrderConfirmationEmail({
         ...orderData,
-        order_id: data.order_id || 'pending'
+        order_id: data.order_id || data.orderId || 'pending'
       }, cartItems);
 
       // Clear cart before redirect
