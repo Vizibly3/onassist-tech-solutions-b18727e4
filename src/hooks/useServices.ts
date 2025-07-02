@@ -32,6 +32,7 @@ export const useServiceCategories = () => {
       const { data, error } = await supabase
         .from('service_categories')
         .select('*')
+        .eq('active', true)
         .order('title');
       
       if (error) throw error;
@@ -78,6 +79,7 @@ export const useServicesByCategory = (categorySlug: string) => {
       const { data: categories, error: categoryError } = await supabase
         .from('service_categories')
         .select('id, title')
+        .eq('active', true)
         .order('title');
       
       if (categoryError) throw categoryError;
@@ -137,6 +139,7 @@ export const useCategoryBySlug = (categorySlug: string) => {
       const { data, error } = await supabase
         .from('service_categories')
         .select('*')
+        .eq('active', true)
         .order('title');
       
       if (error) throw error;
@@ -161,6 +164,7 @@ export const useCategoriesWithServices = () => {
       const { data: categories, error: categoriesError } = await supabase
         .from('service_categories')
         .select('*')
+        .eq('active', true)
         .order('title');
       
       if (categoriesError) throw categoriesError;
