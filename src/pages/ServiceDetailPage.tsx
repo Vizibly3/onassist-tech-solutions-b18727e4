@@ -1064,9 +1064,9 @@ const ServiceDetailPage = () => {
                 </div>
                 <div className="space-y-3 w-full">
                   {[
-                    "30-day service warranty",
-                    "100% satisfaction guaranteed",
-                    "Free follow-up support",
+                    `${config.service_warranty_days || "30"} day service warranty`,
+                    `${config.satisfaction_guarantee_percent || "100"}% satisfaction guaranteed`,
+                    config.followup_support_text || "Free follow-up support",
                   ].map((guarantee, idx) => (
                     <div
                       key={idx}
