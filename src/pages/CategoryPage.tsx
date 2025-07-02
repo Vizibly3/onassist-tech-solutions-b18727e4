@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Helmet } from "react-helmet-async";
 import { siteConfig } from "@/config/site";
 import { useServicesByCategory, useCategoryBySlug } from "@/hooks/useServices";
+import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,6 +64,7 @@ const CategoryPage = () => {
     error,
   } = useServicesByCategory(categorySlug || "");
   const { data: category } = useCategoryBySlug(categorySlug || "");
+  const { config: dynamicConfig } = useDynamicSiteConfig();
 
   const getRandomTestimonials = () => {
     const arr = [...testimonialsData];
@@ -304,10 +306,10 @@ const CategoryPage = () => {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center lg:text-left">
                 {[
-                  { icon: Users, label: "50+ Experts", value: "Certified" },
+                  { icon: Users, label: dynamicConfig.certified_experts_stat, value: "Certified Experts" },
                   {
                     icon: Star,
-                    label: "4.9/5 Rating",
+                    label: dynamicConfig.customer_satisfaction_stat,
                     value: "Customer Satisfaction",
                   },
                   { icon: Award, label: "Licensed", value: "Insured & Bonded" },
@@ -644,7 +646,7 @@ const CategoryPage = () => {
         </div>
       </div>
 
-      {/* Nationwide Service Coverage - Redesigned */}
+      {/* Nationwide Service Coverage - Updated with dynamic cities covered */}
       <div className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-100">
         <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 mb-10 lg:mb-0">
@@ -660,7 +662,7 @@ const CategoryPage = () => {
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
                 <Users className="w-8 h-8 text-blue-500 mb-2" />
-                <div className="font-bold text-lg">100+ Cities</div>
+                <div className="font-bold text-lg">{dynamicConfig.cities_covered_stat} Cities</div>
                 <div className="text-gray-500 text-sm">Served Nationwide</div>
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
@@ -675,7 +677,7 @@ const CategoryPage = () => {
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
                 <Star className="w-8 h-8 text-purple-500 mb-2" />
-                <div className="font-bold text-lg">4.9/5 Rating</div>
+                <div className="font-bold text-lg">{dynamicConfig.customer_satisfaction_stat}</div>
                 <div className="text-gray-500 text-sm">
                   Customer Satisfaction
                 </div>
