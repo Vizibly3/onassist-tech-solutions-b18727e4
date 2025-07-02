@@ -35,8 +35,8 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
   };
 
   return (
-    <div className="absolute top-full left-0 w-full bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200">
-      <div className="container mx-auto px-4 py-8">
+    <div className="absolute top-full left-0 w-full bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200 min-h-[400px]">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         {error ? (
           <div className="text-center p-6">
             <p className="text-red-500 mb-2">Failed to load services</p>
@@ -55,10 +55,10 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="space-y-3">
-                    <Skeleton className="h-6 w-full" />
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="h-8 w-full" />
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-4 w-1/2" />
                   </div>
@@ -66,7 +66,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
               </div>
             ) : categories && categories.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
                   {categories.map((category) => {
                     const IconComponent = getIconForCategory(category.title);
                     
@@ -75,20 +75,18 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                         <Link
                           to={`/services/${slugify(category.title)}`}
                           onClick={onClose}
-                          className="block p-4 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 hover:shadow-md"
+                          className="block p-6 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-lg group"
                         >
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 bg-onassist-primary/10 rounded-lg flex items-center justify-center group-hover:bg-onassist-primary/20 transition-colors">
-                                <IconComponent className="h-5 w-5 text-onassist-primary" />
-                              </div>
+                          <div className="text-center space-y-4">
+                            <div className="w-16 h-16 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                              <IconComponent className="h-8 w-8 text-white" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900 group-hover:text-onassist-primary transition-colors mb-1 text-sm">
+                            <div>
+                              <h3 className="font-bold text-gray-900 group-hover:text-onassist-primary transition-colors mb-2 text-lg">
                                 {category.title}
                               </h3>
                               {category.description && (
-                                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                                <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
                                   {category.description}
                                 </p>
                               )}
@@ -100,25 +98,25 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                   })}
                 </div>
 
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                <div className="border-t border-gray-200 pt-8 mt-8">
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0 bg-gradient-to-r from-gray-50 to-blue-50 p-6 rounded-xl">
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Need Help Choosing?</h3>
-                      <p className="text-sm text-gray-600">Our experts are here to help you find the right service</p>
+                      <h3 className="font-bold text-gray-900 mb-2 text-xl">Need Help Choosing?</h3>
+                      <p className="text-gray-600">Our certified experts are here to help you find the perfect service for your needs</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                       <Link
                         to="/services"
                         onClick={onClose}
-                        className="inline-flex items-center gap-2 text-onassist-primary font-semibold hover:text-onassist-dark transition-colors text-sm"
+                        className="inline-flex items-center gap-2 text-onassist-primary font-bold hover:text-onassist-dark transition-colors border-2 border-onassist-primary hover:border-onassist-dark px-6 py-3 rounded-lg"
                       >
                         View All Services
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-5 w-5" />
                       </Link>
                       <Link
                         to="/contact"
                         onClick={onClose}
-                        className="inline-flex items-center gap-2 bg-onassist-primary text-white px-4 py-2 rounded-lg hover:bg-onassist-dark transition-colors text-sm font-medium"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-onassist-primary to-blue-600 text-white px-6 py-3 rounded-lg hover:from-onassist-dark hover:to-blue-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl"
                       >
                         Get Free Consultation
                       </Link>

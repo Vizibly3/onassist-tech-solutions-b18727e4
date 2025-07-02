@@ -32,7 +32,7 @@ const ServiceDetailPage = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const navigate = useNavigate();
   const { data: services, isLoading, error } = useServices();
-  const { addItemToCart } = useCart();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +43,7 @@ const ServiceDetailPage = () => {
     preferred_datetime: '',
     message: ''
   });
-  const toast = useToast();
+  const { toast } = useToast();
 
   const service = services?.find((service) => service.id === serviceId);
 
@@ -94,10 +94,10 @@ const ServiceDetailPage = () => {
   };
 
   const handleAddToCart = () => {
-    addItemToCart(service, quantity);
+    addToCart(service);
     toast({
       title: "Added to Cart",
-      description: `${quantity} ${service.title}(s) added to your cart.`,
+      description: `${service.title} added to your cart.`,
     });
   };
 
@@ -187,7 +187,7 @@ const ServiceDetailPage = () => {
                   <h3 className="text-lg font-semibold">Details</h3>
                   <ul className="list-disc pl-5 text-gray-600">
                     <li>Duration: {service.duration} <Clock className="inline-block w-4 h-4 ml-1" /></li>
-                    <li>Rating: {service.rating} <Star className="inline-block w-4 h-4 ml-1" /></li>
+                    <li>Available: 24/7 <Star className="inline-block w-4 h-4 ml-1" /></li>
                   </ul>
                 </div>
               </div>
