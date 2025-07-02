@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -285,6 +286,7 @@ const ServiceDetailPage = () => {
         preferred_datetime: formData.preferredDateTime,
         message: formData.message.trim() || null,
         status: "pending",
+        active: true,
       };
 
       // Insert into Supabase
