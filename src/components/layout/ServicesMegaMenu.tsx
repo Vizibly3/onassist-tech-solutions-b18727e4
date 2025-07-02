@@ -35,8 +35,8 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
   };
 
   return (
-    <div className="absolute top-full left-0 w-full bg-white shadow-2xl border-t z-50 animate-in slide-in-from-top-2 duration-200 min-h-[400px]">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="fixed top-16 left-0 right-0 w-full bg-white shadow-2xl border-t z-[60] animate-in slide-in-from-top-2 duration-200">
+      <div className="w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error ? (
           <div className="text-center p-6">
             <p className="text-red-500 mb-2">Failed to load services</p>
@@ -48,25 +48,25 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
             </button>
           </div>
         ) : (
-          <>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Our Services</h2>
-              <p className="text-gray-600">Professional tech support for your home and business</p>
+          <div className="w-full">
+            <div className="mb-8 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Our Services</h2>
+              <p className="text-lg text-gray-600">Professional tech support for your home and business</p>
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                {Array.from({ length: 10 }).map((_, i) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                {Array.from({ length: 12 }).map((_, i) => (
                   <div key={i} className="space-y-4">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-16 w-16 mx-auto rounded-2xl" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-4 w-3/4 mx-auto" />
                   </div>
                 ))}
               </div>
             ) : categories && categories.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
+              <div className="w-full">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-10">
                   {categories.map((category) => {
                     const IconComponent = getIconForCategory(category.title);
                     
@@ -75,18 +75,18 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                         <Link
                           to={`/services/${slugify(category.title)}`}
                           onClick={onClose}
-                          className="block p-6 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-lg group"
+                          className="block p-4 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-lg group text-center"
                         >
-                          <div className="text-center space-y-4">
+                          <div className="space-y-3">
                             <div className="w-16 h-16 bg-gradient-to-br from-onassist-primary to-blue-600 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300 shadow-lg">
                               <IconComponent className="h-8 w-8 text-white" />
                             </div>
                             <div>
-                              <h3 className="font-bold text-gray-900 group-hover:text-onassist-primary transition-colors mb-2 text-lg">
+                              <h3 className="font-bold text-gray-900 group-hover:text-onassist-primary transition-colors mb-2 text-base line-clamp-2">
                                 {category.title}
                               </h3>
                               {category.description && (
-                                <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
+                                <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                   {category.description}
                                 </p>
                               )}
@@ -98,38 +98,40 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                   })}
                 </div>
 
-                <div className="border-t border-gray-200 pt-8 mt-8">
-                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0 bg-gradient-to-r from-gray-50 to-blue-50 p-6 rounded-xl">
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-2 text-xl">Need Help Choosing?</h3>
-                      <p className="text-gray-600">Our certified experts are here to help you find the perfect service for your needs</p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                      <Link
-                        to="/services"
-                        onClick={onClose}
-                        className="inline-flex items-center gap-2 text-onassist-primary font-bold hover:text-onassist-dark transition-colors border-2 border-onassist-primary hover:border-onassist-dark px-6 py-3 rounded-lg"
-                      >
-                        View All Services
-                        <ChevronRight className="h-5 w-5" />
-                      </Link>
-                      <Link
-                        to="/contact"
-                        onClick={onClose}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-onassist-primary to-blue-600 text-white px-6 py-3 rounded-lg hover:from-onassist-dark hover:to-blue-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl"
-                      >
-                        Get Free Consultation
-                      </Link>
+                <div className="border-t border-gray-200 pt-8">
+                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-6 rounded-xl">
+                    <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
+                      <div className="text-center lg:text-left">
+                        <h3 className="font-bold text-gray-900 mb-2 text-xl">Need Help Choosing?</h3>
+                        <p className="text-gray-600">Our certified experts are here to help you find the perfect service for your needs</p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                        <Link
+                          to="/services"
+                          onClick={onClose}
+                          className="inline-flex items-center justify-center gap-2 text-onassist-primary font-bold hover:text-onassist-dark transition-colors border-2 border-onassist-primary hover:border-onassist-dark px-6 py-3 rounded-lg whitespace-nowrap"
+                        >
+                          View All Services
+                          <ChevronRight className="h-5 w-5" />
+                        </Link>
+                        <Link
+                          to="/contact"
+                          onClick={onClose}
+                          className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-onassist-primary to-blue-600 text-white px-6 py-3 rounded-lg hover:from-onassist-dark hover:to-blue-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl whitespace-nowrap"
+                        >
+                          Get Free Consultation
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
               <div className="text-center p-8">
                 <p className="text-gray-500">No service categories available</p>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
