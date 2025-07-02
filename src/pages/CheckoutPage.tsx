@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 const CheckoutPage = () => {
-  const { items, getTotalPrice, clearCart } = useCart();
+  const { cart, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -40,7 +40,7 @@ const CheckoutPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!items.length) {
+    if (!cart.length) {
       toast.error('Your cart is empty');
       return;
     }
@@ -61,7 +61,7 @@ const CheckoutPage = () => {
           city: formData.city,
           state: formData.state,
           zip_code: formData.zipCode,
-          total_amount: getTotalPrice(),
+          total_amount: totalPrice,
           payment_status: 'pending',
           status: 'pending'
         })
@@ -71,11 +71,11 @@ const CheckoutPage = () => {
       if (orderError) throw orderError;
 
       // Create order items
-      const orderItems = items.map(item => ({
+      const orderItems = cart.map(item => ({
         order_id: order.id,
-        service_id: item.id,
-        service_title: item.title,
-        service_price: item.price,
+        service_id: item.service_id,
+        service_title: item.service.title,
+        service_price: item.service.price,
         quantity: item.quantity
       }));
 
@@ -95,12 +95,12 @@ const CheckoutPage = () => {
             customerName: `${formData.firstName} ${formData.lastName}`,
             customerEmail: formData.email,
             orderId: order.id,
-            orderItems: items.map(item => ({
-              title: item.title,
+            orderItems: cart.map(item => ({
+              title: item.service.title,
               quantity: item.quantity,
-              price: item.price
+              price: item.service.price
             })),
-            totalAmount: getTotalPrice(),
+            totalAmount: totalPrice,
             orderDate: order.created_at
           }
         }
@@ -120,7 +120,7 @@ const CheckoutPage = () => {
         state: { 
           orderId: order.id,
           customerName: `${formData.firstName} ${formData.lastName}`,
-          totalAmount: getTotalPrice()
+          totalAmount: totalPrice
         }
       });
       
@@ -132,7 +132,7 @@ const CheckoutPage = () => {
     }
   };
 
-  if (!items.length) {
+  if (!cart.length) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card>
@@ -256,7 +256,7 @@ const CheckoutPage = () => {
                   className="w-full" 
                   disabled={isProcessing}
                 >
-                  {isProcessing ? 'Processing...' : `Place Order - $${getTotalPrice().toFixed(2)}`}
+                  {isProcessing ? 'Processing...' : `Place Order - $${totalPrice.toFixed(2)}`}
                 </Button>
               </form>
             </CardContent>
@@ -269,13 +269,13 @@ const CheckoutPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {items.map((item) => (
+                {cart.map((item) => (
                   <div key={item.id} className="flex justify-between items-center">
                     <div>
-                      <h4 className="font-medium">{item.title}</h4>
+                      <h4 className="font-medium">{item.service.title}</h4>
                       <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-medium">${(item.service.price * item.quantity).toFixed(2)}</p>
                   </div>
                 ))}
                 
@@ -283,7 +283,7 @@ const CheckoutPage = () => {
                 
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span>Total</span>
-                  <span>${getTotalPrice().toFixed(2)}</span>
+                  <span>${totalPrice.toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>
