@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, User, Menu, X, ChevronDown, LayoutDashboard } from 'lucide-react';
-import ServicesDropdown from './ServicesDropdown';
+import ServicesMegaMenu from './ServicesMegaMenu';
 
 const DynamicHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -72,7 +72,7 @@ const DynamicHeader = () => {
                     Services
                     <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
-                  <ServicesDropdown isOpen={isServicesDropdownOpen} onClose={closeDropdown} />
+                  <ServicesMegaMenu isOpen={isServicesDropdownOpen} onClose={closeDropdown} />
                 </div>
                 
                 <Link 

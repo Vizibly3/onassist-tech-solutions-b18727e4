@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -110,6 +109,35 @@ const CheckoutPage = () => {
     }
   };
 
+  const sendOrderConfirmationEmail = async (orderData: any, cartItems: any[]) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-order-confirmation', {
+        body: {
+          customerName: `${orderData.first_name} ${orderData.last_name}`,
+          customerEmail: orderData.email,
+          orderId: orderData.order_id || 'pending',
+          orderItems: cartItems.map(item => ({
+            title: item.service.title,
+            quantity: item.quantity,
+            price: item.service.price
+          })),
+          totalAmount: orderData.total_amount,
+          orderDate: new Date().toISOString()
+        }
+      });
+
+      if (error) {
+        console.error('Error sending order confirmation email:', error);
+        // Don't throw error here as payment was successful
+      } else {
+        console.log('Order confirmation email sent successfully');
+      }
+    } catch (error) {
+      console.error('Error in sendOrderConfirmationEmail:', error);
+      // Don't throw error here as payment was successful
+    }
+  };
+
   const onSubmit = async (values: CheckoutFormValues) => {
     if (!user || cart.length === 0) return;
 
@@ -170,6 +198,12 @@ const CheckoutPage = () => {
         console.error('Error updating profile:', profileError);
         // Don't throw error here as payment session was successful
       }
+
+      // Send order confirmation email
+      await sendOrderConfirmationEmail({
+        ...orderData,
+        order_id: data.order_id || 'pending'
+      }, cartItems);
 
       // Clear cart before redirect
       await clearCart();
