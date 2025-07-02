@@ -18,6 +18,9 @@ export type SiteSettings = {
   certified_experts_stat?: string | null;
   customer_satisfaction_stat?: string | null;
   cities_covered_stat?: string | null;
+  service_warranty_days?: string | null;
+  satisfaction_guarantee_percent?: string | null;
+  followup_support_text?: string | null;
 };
 
 export const fetchSiteSettings = async (): Promise<SiteSettings> => {
@@ -53,6 +56,9 @@ export const fetchSiteSettings = async (): Promise<SiteSettings> => {
         certified_experts_stat: "50+",
         customer_satisfaction_stat: "4.9/5",
         cities_covered_stat: "100+",
+        service_warranty_days: "30",
+        satisfaction_guarantee_percent: "100",
+        followup_support_text: "Free follow-up support",
       };
       console.log("No settings found, returning defaults:", defaultSettings);
       return defaultSettings;

@@ -448,12 +448,15 @@ export type Database = {
           customer_satisfaction_stat: string | null
           description: string | null
           email: string | null
+          followup_support_text: string | null
           happy_customers_stat: string | null
           id: number
           name: string
           rating_stat: string | null
           response_time_stat: string | null
+          satisfaction_guarantee_percent: string | null
           satisfaction_stat: string | null
+          service_warranty_days: string | null
         }
         Insert: {
           address?: string | null
@@ -463,12 +466,15 @@ export type Database = {
           customer_satisfaction_stat?: string | null
           description?: string | null
           email?: string | null
+          followup_support_text?: string | null
           happy_customers_stat?: string | null
           id?: number
           name: string
           rating_stat?: string | null
           response_time_stat?: string | null
+          satisfaction_guarantee_percent?: string | null
           satisfaction_stat?: string | null
+          service_warranty_days?: string | null
         }
         Update: {
           address?: string | null
@@ -478,12 +484,15 @@ export type Database = {
           customer_satisfaction_stat?: string | null
           description?: string | null
           email?: string | null
+          followup_support_text?: string | null
           happy_customers_stat?: string | null
           id?: number
           name?: string
           rating_stat?: string | null
           response_time_stat?: string | null
+          satisfaction_guarantee_percent?: string | null
           satisfaction_stat?: string | null
+          service_warranty_days?: string | null
         }
         Relationships: []
       }

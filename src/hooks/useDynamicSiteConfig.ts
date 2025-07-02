@@ -31,6 +31,12 @@ export const useDynamicSiteConfig = () => {
       dbSettings?.customer_satisfaction_stat || "4.9/5",
     cities_covered_stat:
       dbSettings?.cities_covered_stat || "100+",
+    service_warranty_days:
+      dbSettings?.service_warranty_days || "30",
+    satisfaction_guarantee_percent:
+      dbSettings?.satisfaction_guarantee_percent || "100",
+    followup_support_text:
+      dbSettings?.followup_support_text || "Free follow-up support",
   };
 
   return {

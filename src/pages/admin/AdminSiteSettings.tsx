@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import Layout from "@/components/layout/Layout";
@@ -21,6 +20,9 @@ import {
   Users as UsersIcon,
   Award,
   MapPin,
+  Calendar,
+  Percent,
+  HeadphonesIcon,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -44,6 +46,9 @@ const AdminSiteSettings = () => {
     certified_experts_stat: "",
     customer_satisfaction_stat: "",
     cities_covered_stat: "",
+    service_warranty_days: "",
+    satisfaction_guarantee_percent: "",
+    followup_support_text: "",
   });
 
   useEffect(() => {
@@ -62,6 +67,9 @@ const AdminSiteSettings = () => {
         certified_experts_stat: siteSettings.certified_experts_stat || "",
         customer_satisfaction_stat: siteSettings.customer_satisfaction_stat || "",
         cities_covered_stat: siteSettings.cities_covered_stat || "",
+        service_warranty_days: siteSettings.service_warranty_days || "",
+        satisfaction_guarantee_percent: siteSettings.satisfaction_guarantee_percent || "",
+        followup_support_text: siteSettings.followup_support_text || "",
       });
     }
   }, [siteSettings]);
@@ -141,6 +149,10 @@ const AdminSiteSettings = () => {
                   <TabsTrigger value="category" className="flex-1 text-sm gap-2">
                     <Award className="w-4 h-4 text-green-500" />
                     Category Stats
+                  </TabsTrigger>
+                  <TabsTrigger value="service" className="flex-1 text-sm gap-2">
+                    <ShieldCheck className="w-4 h-4 text-purple-500" />
+                    Service Stats
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
@@ -384,6 +396,69 @@ const AdminSiteSettings = () => {
                         onChange={handleChange}
                         placeholder="100+"
                         className="focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="service">
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ShieldCheck className="w-5 h-5 text-purple-500" />
+                      <span className="font-semibold text-lg">
+                        Service Guarantee Section
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="service_warranty_days"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
+                          <Calendar className="w-4 h-4 text-blue-500" /> Service
+                          Warranty (Days)
+                        </Label>
+                        <Input
+                          id="service_warranty_days"
+                          name="service_warranty_days"
+                          value={formData.service_warranty_days}
+                          onChange={handleChange}
+                          placeholder="30"
+                          className="focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="satisfaction_guarantee_percent"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
+                          <Percent className="w-4 h-4 text-green-500" /> Satisfaction
+                          Guarantee (%)
+                        </Label>
+                        <Input
+                          id="satisfaction_guarantee_percent"
+                          name="satisfaction_guarantee_percent"
+                          value={formData.satisfaction_guarantee_percent}
+                          onChange={handleChange}
+                          placeholder="100"
+                          className="focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="followup_support_text"
+                        className="text-base font-medium flex items-center gap-2"
+                      >
+                        <HeadphonesIcon className="w-4 h-4 text-purple-500" /> Follow-up
+                        Support Text
+                      </Label>
+                      <Input
+                        id="followup_support_text"
+                        name="followup_support_text"
+                        value={formData.followup_support_text}
+                        onChange={handleChange}
+                        placeholder="Free follow-up support"
+                        className="focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all"
                       />
                     </div>
                   </div>
