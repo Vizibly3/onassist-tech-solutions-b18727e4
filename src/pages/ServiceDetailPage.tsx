@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useServices } from '@/hooks/useServices';
+import { useServiceBySlug } from '@/hooks/useServices';
 import { useCart } from '@/contexts/CartContext';
 import { ServiceLeadInsert } from '@/types/supabase';
 import { 
@@ -26,12 +27,11 @@ import {
   CheckCircle,
   ArrowLeft
 } from 'lucide-react';
-import { format } from 'date-fns';
 
 const ServiceDetailPage = () => {
-  const { serviceId } = useParams<{ serviceId: string }>();
+  const { serviceSlug } = useParams<{ serviceSlug: string }>();
   const navigate = useNavigate();
-  const { data: services, isLoading, error } = useServices();
+  const { data: service, isLoading, error } = useServiceBySlug(serviceSlug || '');
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [showForm, setShowForm] = useState(false);
@@ -44,8 +44,6 @@ const ServiceDetailPage = () => {
     message: ''
   });
   const { toast } = useToast();
-
-  const service = services?.find((service) => service.id === serviceId);
 
   useEffect(() => {
     if (error) {
@@ -283,7 +281,7 @@ const ServiceDetailPage = () => {
                             </>
                           ) : (
                             <>
-                              Submit Request <CheckCircle className="w-4 h-4 ml-2" />
+                              Submit Request <CheckCircle className="w-4 w-4 ml-2" />
                             </>
                           )}
                         </Button>

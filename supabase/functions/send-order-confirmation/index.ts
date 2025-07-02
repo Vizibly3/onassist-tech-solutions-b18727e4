@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import * as nodemailer from "npm:nodemailer@6.9.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,6 +32,15 @@ const handler = async (req: Request): Promise<Response> => {
     const { customerName, customerEmail, orderId, orderItems, totalAmount, orderDate }: OrderConfirmationRequest = await req.json();
 
     console.log('Order details:', { customerName, customerEmail, orderId, totalAmount });
+
+    // Create transporter with Gmail configuration
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: 'vizibly3@gmail.com',
+        pass: 'ibkh fupf fouc ghem'
+      }
+    });
 
     const itemsHtml = orderItems.map(item => `
       <tr style="border-bottom: 1px solid #e5e7eb;">
@@ -139,36 +149,23 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Sending email to:', customerEmail);
 
-    // Using fetch to send email through Gmail SMTP via a third-party service
-    const emailData = {
+    // Send email using nodemailer
+    const mailOptions = {
+      from: '"OnAssist" <vizibly3@gmail.com>',
       to: customerEmail,
-      from: 'vizibly3@gmail.com',
       subject: `✅ Your OnAssist Order is Confirmed - Order #${orderId.slice(0, 8).toUpperCase()}`,
-      html: emailHtml,
-      // Using Gmail credentials for authentication
-      auth: {
-        user: 'vizibly3@gmail.com',
-        pass: 'ibkh fupf fouc ghem'
-      }
+      html: emailHtml
     };
 
-    // For now, we'll simulate email sending since Deno edge functions have limitations with SMTP
-    // In production, you might want to use a service like EmailJS or similar
-    console.log("Email would be sent with data:", { 
-      to: emailData.to, 
-      from: emailData.from, 
-      subject: emailData.subject 
-    });
+    const emailResult = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', emailResult);
 
-    const emailResponse = { 
+    return new Response(JSON.stringify({ 
       success: true, 
       message: "Order confirmation email sent successfully",
-      recipient: customerEmail 
-    };
-
-    console.log("Order confirmation email sent successfully:", emailResponse);
-
-    return new Response(JSON.stringify({ success: true, emailResponse }), {
+      recipient: customerEmail,
+      messageId: emailResult.messageId
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
