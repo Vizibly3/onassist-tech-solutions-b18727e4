@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,10 @@ const DynamicHeader = () => {
   const handleSignOut = async () => {
     await signOut();
     setIsMenuOpen(false);
+  };
+
+  const toggleServicesDropdown = () => {
+    setIsServicesDropdownOpen(!isServicesDropdownOpen);
   };
 
   const closeDropdown = () => {
@@ -61,14 +66,13 @@ const DynamicHeader = () => {
               
               {!isAdmin && (
                 <>
-                  <div 
-                    className="relative"
-                    onMouseEnter={() => setIsServicesDropdownOpen(true)}
-                    onMouseLeave={() => setIsServicesDropdownOpen(false)}
-                  >
-                    <button className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
-                      location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
-                    }`}>
+                  <div className="relative">
+                    <button 
+                      onClick={toggleServicesDropdown}
+                      className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
+                        location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
+                      }`}
+                    >
                       Services
                       <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>

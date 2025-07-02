@@ -29,7 +29,11 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log('Processing order confirmation email request...');
+    
     const { customerName, customerEmail, orderId, orderItems, totalAmount, orderDate }: OrderConfirmationRequest = await req.json();
+
+    console.log('Order details:', { customerName, customerEmail, orderId, totalAmount });
 
     const itemsHtml = orderItems.map(item => `
       <tr style="border-bottom: 1px solid #e5e7eb;">
@@ -135,6 +139,8 @@ const handler = async (req: Request): Promise<Response> => {
         </body>
       </html>
     `;
+
+    console.log('Sending email to:', customerEmail);
 
     const emailResponse = await resend.emails.send({
       from: "OnAssist <orders@onassist.com>",
