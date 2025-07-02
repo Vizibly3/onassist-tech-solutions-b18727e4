@@ -22,33 +22,9 @@ const DynamicHeader = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mega menu when clicking outside or navigating
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.services-dropdown-container')) {
-        setIsServicesDropdownOpen(false);
-      }
-    };
-
-    if (isServicesDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isServicesDropdownOpen]);
-
-  // Close mega menu on route change
-  useEffect(() => {
-    setIsServicesDropdownOpen(false);
-  }, [location.pathname]);
-
   const handleSignOut = async () => {
     await signOut();
     setIsMenuOpen(false);
-  };
-
-  const toggleServicesDropdown = () => {
-    setIsServicesDropdownOpen(!isServicesDropdownOpen);
   };
 
   const closeDropdown = () => {
@@ -85,13 +61,14 @@ const DynamicHeader = () => {
               
               {!isAdmin && (
                 <>
-                  <div className="relative services-dropdown-container">
-                    <button 
-                      onClick={toggleServicesDropdown}
-                      className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
-                        location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
-                      }`}
-                    >
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => setIsServicesDropdownOpen(true)}
+                    onMouseLeave={() => setIsServicesDropdownOpen(false)}
+                  >
+                    <button className={`flex items-center gap-1 font-medium transition-colors hover:text-onassist-primary ${
+                      location.pathname.startsWith('/services') ? 'text-onassist-primary' : 'text-gray-700'
+                    }`}>
                       Services
                       <ChevronDown className={`h-4 w-4 transition-transform ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -117,7 +94,6 @@ const DynamicHeader = () => {
                 </>
               )}
               
-              {/* ... keep existing code for admin links the same ... */}
               {isAdmin && (
                 <>
                   <Link 
@@ -233,7 +209,6 @@ const DynamicHeader = () => {
           {/* Mobile Menu */}
           {isMenuOpen && (
             <div className="lg:hidden bg-white border-t border-gray-200 py-4 space-y-4">
-              {/* ... keep existing code for mobile menu the same ... */}
               <Link 
                 to={isAdmin ? "/admin/dashboard" : "/"} 
                 onClick={() => setIsMenuOpen(false)}
