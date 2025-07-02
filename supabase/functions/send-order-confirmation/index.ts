@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import * as nodemailer from "npm:nodemailer@6.9.7";
+import nodemailer from "npm:nodemailer@6.9.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,31 +9,37 @@ const corsHeaders = {
 };
 
 interface OrderConfirmationRequest {
-  customerName: string;
-  customerEmail: string;
-  orderId: string;
-  orderItems: Array<{
-    title: string;
-    quantity: number;
-    price: number;
-  }>;
-  totalAmount: number;
-  orderDate: string;
+  orderData: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    address: string;
+    city: string;
+    state: string;
+    zip_code: string;
+    total_amount: number;
+    payment_status: string;
+    items: Array<{
+      service_title: string;
+      service_price: number;
+      quantity: number;
+    }>;
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Processing order confirmation email request...');
-    
-    const { customerName, customerEmail, orderId, orderItems, totalAmount, orderDate }: OrderConfirmationRequest = await req.json();
+    const { orderData }: OrderConfirmationRequest = await req.json();
+    console.log("Received order data:", orderData);
 
-    console.log('Order details:', { customerName, customerEmail, orderId, totalAmount });
-
-    // Create transporter with Gmail configuration
+    // Create transporter using Gmail
     const transporter = nodemailer.createTransporter({
       service: 'gmail',
       auth: {
@@ -42,140 +48,116 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    const itemsHtml = orderItems.map(item => `
-      <tr style="border-bottom: 1px solid #e5e7eb;">
-        <td style="padding: 12px 0; color: #374151;">${item.title}</td>
-        <td style="padding: 12px 0; text-align: center; color: #374151;">${item.quantity}</td>
-        <td style="padding: 12px 0; text-align: right; color: #374151;">$${(item.price * item.quantity).toFixed(2)}</td>
-      </tr>
-    `).join('');
+    // Calculate total items
+    const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
 
-    const emailHtml = `
+    // Create HTML email content
+    const htmlContent = `
       <!DOCTYPE html>
       <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Order Confirmation</title>
-        </head>
-        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f9fafb;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Order Confirmation</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #0056b3, #67b2e8); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .order-details { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .item { border-bottom: 1px solid #eee; padding: 15px 0; }
+          .item:last-child { border-bottom: none; }
+          .total { font-size: 18px; font-weight: bold; color: #0056b3; text-align: right; margin-top: 20px; }
+          .contact-info { background: #e8f4fd; padding: 20px; border-radius: 8px; margin-top: 20px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Order Confirmation</h1>
+            <p style="margin: 0; font-size: 18px;">Thank you for your order!</p>
+          </div>
+          
+          <div class="content">
+            <h2>Hi ${orderData.first_name},</h2>
+            <p>We're excited to confirm that we've received your order. Our team will be in touch soon to schedule your service.</p>
             
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #0056b3 0%, #67b2e8 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Order Confirmed!</h1>
-              <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.9;">Thank you for choosing OnAssist</p>
-            </div>
-
-            <!-- Content -->
-            <div style="padding: 40px 30px;">
-              <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 20px;">Hello ${customerName},</h2>
+            <div class="order-details">
+              <h3 style="color: #0056b3; margin-top: 0;">Order Details</h3>
+              <p><strong>Order ID:</strong> ${orderData.id}</p>
+              <p><strong>Total Items:</strong> ${totalItems}</p>
+              <p><strong>Payment Status:</strong> ${orderData.payment_status}</p>
               
-              <p style="margin: 0 0 30px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                We're excited to confirm that your order has been successfully placed! Our team will contact you soon to schedule your services.
-              </p>
-
-              <!-- Order Details -->
-              <div style="background-color: #f8fafc; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
-                <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 18px;">Order Details</h3>
-                
-                <div style="margin-bottom: 20px;">
-                  <p style="margin: 0; color: #6b7280; font-size: 14px;">Order ID</p>
-                  <p style="margin: 5px 0 0 0; color: #1f2937; font-weight: 600; font-family: monospace;">#${orderId.slice(0, 8).toUpperCase()}</p>
+              <h4>Services Ordered:</h4>
+              ${orderData.items.map(item => `
+                <div class="item">
+                  <strong>${item.service_title}</strong><br>
+                  Quantity: ${item.quantity} × $${item.service_price.toFixed(2)} = $${(item.quantity * item.service_price).toFixed(2)}
                 </div>
-                
-                <div>
-                  <p style="margin: 0; color: #6b7280; font-size: 14px;">Order Date</p>
-                  <p style="margin: 5px 0 0 0; color: #1f2937; font-weight: 600;">${new Date(orderDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                </div>
-              </div>
-
-              <!-- Order Items -->
-              <div style="margin-bottom: 30px;">
-                <h3 style="margin: 0 0 20px 0; color: #1f2937; font-size: 18px;">Services Ordered</h3>
-                
-                <table style="width: 100%; border-collapse: collapse;">
-                  <thead>
-                    <tr style="background-color: #f3f4f6;">
-                      <th style="padding: 15px 0; text-align: left; color: #374151; font-weight: 600; font-size: 14px;">Service</th>
-                      <th style="padding: 15px 0; text-align: center; color: #374151; font-weight: 600; font-size: 14px;">Qty</th>
-                      <th style="padding: 15px 0; text-align: right; color: #374151; font-weight: 600; font-size: 14px;">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${itemsHtml}
-                  </tbody>
-                </table>
-                
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: #1f2937; font-size: 18px; font-weight: bold;">Total Amount:</span>
-                    <span style="color: #0056b3; font-size: 24px; font-weight: bold;">$${totalAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Next Steps -->
-              <div style="background-color: #eff6ff; border-left: 4px solid #0056b3; padding: 20px; margin-bottom: 30px;">
-                <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">What's Next?</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #1e40af;">
-                  <li style="margin-bottom: 8px;">Our team will contact you within 24 hours to schedule your services</li>
-                  <li style="margin-bottom: 8px;">We'll confirm the appointment date and time that works best for you</li>
-                  <li>Our certified technicians will arrive ready to provide excellent service</li>
-                </ul>
-              </div>
-
-              <p style="margin: 0 0 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                If you have any questions about your order, please don't hesitate to contact our customer support team.
-              </p>
-
-              <div style="text-align: center; margin-top: 30px;">
-                <a href="tel:(555) 123-4567" style="display: inline-block; background-color: #0056b3; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: 600; margin-right: 15px;">Call Us</a>
-                <a href="mailto:support@onassist.com" style="display: inline-block; background-color: #6b7280; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: 600;">Email Support</a>
+              `).join('')}
+              
+              <div class="total">
+                Total Amount: $${orderData.total_amount.toFixed(2)}
               </div>
             </div>
-
-            <!-- Footer -->
-            <div style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">Thank you for choosing OnAssist!</p>
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                This email was sent regarding your order. If you have any questions, please contact our support team.
+            
+            <div class="contact-info">
+              <h3 style="color: #0056b3; margin-top: 0;">Service Address</h3>
+              <p>
+                ${orderData.address}<br>
+                ${orderData.city}, ${orderData.state} ${orderData.zip_code}
               </p>
+              <p><strong>Phone:</strong> ${orderData.phone_number}</p>
+            </div>
+            
+            <p>Our certified technicians will contact you within 24 hours to schedule your service at a time that's convenient for you.</p>
+            
+            <p>If you have any questions or need to make changes to your order, please don't hesitate to contact us.</p>
+            
+            <div class="footer">
+              <p>Thank you for choosing OnAssist!</p>
+              <p>Best regards,<br>The OnAssist Team</p>
             </div>
           </div>
-        </body>
+        </div>
+      </body>
       </html>
     `;
 
-    console.log('Sending email to:', customerEmail);
-
-    // Send email using nodemailer
+    // Send email
     const mailOptions = {
-      from: '"OnAssist" <vizibly3@gmail.com>',
-      to: customerEmail,
-      subject: `✅ Your OnAssist Order is Confirmed - Order #${orderId.slice(0, 8).toUpperCase()}`,
-      html: emailHtml
+      from: 'OnAssist <vizibly3@gmail.com>',
+      to: orderData.email,
+      subject: `Order Confirmation - ${orderData.id}`,
+      html: htmlContent
     };
 
-    const emailResult = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', emailResult);
+    console.log("Sending email to:", orderData.email);
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully:", result.messageId);
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: "Order confirmation email sent successfully",
-      recipient: customerEmail,
-      messageId: emailResult.messageId
-    }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
-    });
-  } catch (error: any) {
-    console.error("Error sending order confirmation email:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: true, 
+        messageId: result.messageId,
+        message: "Order confirmation email sent successfully" 
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      }
+    );
+  } catch (error: any) {
+    console.error("Error in send-order-confirmation function:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

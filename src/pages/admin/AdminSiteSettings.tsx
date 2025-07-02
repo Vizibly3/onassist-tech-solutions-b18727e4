@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import Layout from "@/components/layout/Layout";
@@ -10,12 +11,6 @@ import { toast } from "sonner";
 import {
   Loader2,
   Settings,
-  Phone,
-  Mail,
-  MapPin,
-  Building,
-  Smile,
-  Sparkles,
   Building2,
   Mail as MailIcon,
   Phone as PhoneIcon,
@@ -24,6 +19,8 @@ import {
   Star,
   ShieldCheck,
   Users as UsersIcon,
+  Award,
+  MapPin,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -44,6 +41,9 @@ const AdminSiteSettings = () => {
     rating_stat: "",
     satisfaction_stat: "",
     happy_customers_stat: "",
+    certified_experts_stat: "",
+    customer_satisfaction_stat: "",
+    cities_covered_stat: "",
   });
 
   useEffect(() => {
@@ -59,6 +59,9 @@ const AdminSiteSettings = () => {
         rating_stat: siteSettings.rating_stat || "",
         satisfaction_stat: siteSettings.satisfaction_stat || "",
         happy_customers_stat: siteSettings.happy_customers_stat || "",
+        certified_experts_stat: siteSettings.certified_experts_stat || "",
+        customer_satisfaction_stat: siteSettings.customer_satisfaction_stat || "",
+        cities_covered_stat: siteSettings.cities_covered_stat || "",
       });
     }
   }, [siteSettings]);
@@ -126,14 +129,18 @@ const AdminSiteSettings = () => {
                 <TabsList className="mb-6 w-full bg-gray-50">
                   <TabsTrigger
                     value="general"
-                    className="flex-1 text-base gap-2"
+                    className="flex-1 text-sm gap-2"
                   >
-                    <Building2 className="w-5 h-5 text-blue-500" />
-                    General Settings
+                    <Building2 className="w-4 h-4 text-blue-500" />
+                    General
                   </TabsTrigger>
-                  <TabsTrigger value="stats" className="flex-1 text-base gap-2">
-                    <UsersIcon className="w-5 h-5 text-yellow-500" />
-                    Happy Customer Stats
+                  <TabsTrigger value="stats" className="flex-1 text-sm gap-2">
+                    <UsersIcon className="w-4 h-4 text-yellow-500" />
+                    Customer Stats
+                  </TabsTrigger>
+                  <TabsTrigger value="category" className="flex-1 text-sm gap-2">
+                    <Award className="w-4 h-4 text-green-500" />
+                    Category Stats
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="general">
@@ -241,7 +248,7 @@ const AdminSiteSettings = () => {
                     <div className="flex items-center gap-2 mb-2">
                       <UsersIcon className="w-5 h-5 text-yellow-500" />
                       <span className="font-semibold text-lg">
-                        Happy Customer Stats
+                        Customer Stats
                       </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -315,6 +322,69 @@ const AdminSiteSettings = () => {
                           className="focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition-all"
                         />
                       </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="category">
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Award className="w-5 h-5 text-green-500" />
+                      <span className="font-semibold text-lg">
+                        Category Page Stats
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="certified_experts_stat"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
+                          <Award className="w-4 h-4 text-blue-500" /> Certified
+                          Experts
+                        </Label>
+                        <Input
+                          id="certified_experts_stat"
+                          name="certified_experts_stat"
+                          value={formData.certified_experts_stat}
+                          onChange={handleChange}
+                          placeholder="50+"
+                          className="focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="customer_satisfaction_stat"
+                          className="text-base font-medium flex items-center gap-2"
+                        >
+                          <Star className="w-4 h-4 text-yellow-500" /> Customer
+                          Satisfaction
+                        </Label>
+                        <Input
+                          id="customer_satisfaction_stat"
+                          name="customer_satisfaction_stat"
+                          value={formData.customer_satisfaction_stat}
+                          onChange={handleChange}
+                          placeholder="4.9/5"
+                          className="focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="cities_covered_stat"
+                        className="text-base font-medium flex items-center gap-2"
+                      >
+                        <MapPin className="w-4 h-4 text-green-500" /> Cities
+                        Covered
+                      </Label>
+                      <Input
+                        id="cities_covered_stat"
+                        name="cities_covered_stat"
+                        value={formData.cities_covered_stat}
+                        onChange={handleChange}
+                        placeholder="100+"
+                        className="focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all"
+                      />
                     </div>
                   </div>
                 </TabsContent>

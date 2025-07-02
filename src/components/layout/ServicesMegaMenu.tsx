@@ -35,8 +35,8 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
   };
 
   return (
-    <div className="fixed top-16 left-0 right-0 w-full bg-white shadow-2xl border-t z-[60] animate-in slide-in-from-top-2 duration-200">
-      <div className="w-full max-w-none mx-auto px-4 sm:px-6 lg:px-8 py-12 max-h-[80vh] overflow-hidden">
+    <div className="fixed top-16 left-0 right-0 w-full h-[calc(100vh-4rem)] bg-white shadow-2xl border-t z-[60] animate-in slide-in-from-top-2 duration-200">
+      <div className="w-full h-full max-w-none mx-auto px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
         {error ? (
           <div className="text-center p-8">
             <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md mx-auto">
@@ -50,7 +50,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
             </div>
           </div>
         ) : (
-          <div className="w-full">
+          <div className="w-full h-full flex flex-col">
             <div className="mb-12 text-center">
               <h2 className="text-4xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-onassist-primary to-blue-600 bg-clip-text text-transparent">
                 Our Premium Services
@@ -61,7 +61,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
             </div>
 
             {/* Scrollable container with beautiful scrollbar */}
-            <div className="max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
               {isLoading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
                   {Array.from({ length: 12 }).map((_, i) => (

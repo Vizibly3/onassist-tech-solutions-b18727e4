@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +15,9 @@ export type SiteSettings = {
   rating_stat?: string | null;
   satisfaction_stat?: string | null;
   happy_customers_stat?: string | null;
+  certified_experts_stat?: string | null;
+  customer_satisfaction_stat?: string | null;
+  cities_covered_stat?: string | null;
 };
 
 export const fetchSiteSettings = async (): Promise<SiteSettings> => {
@@ -46,6 +50,9 @@ export const fetchSiteSettings = async (): Promise<SiteSettings> => {
         rating_stat: "4.9/5",
         satisfaction_stat: "100%",
         happy_customers_stat: "10K+",
+        certified_experts_stat: "50+",
+        customer_satisfaction_stat: "4.9/5",
+        cities_covered_stat: "100+",
       };
       console.log("No settings found, returning defaults:", defaultSettings);
       return defaultSettings;

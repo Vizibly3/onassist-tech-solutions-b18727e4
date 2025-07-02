@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { fetchSiteSettings } from "./useSiteSettings";
 import { siteConfig } from "@/config/site";
@@ -24,6 +25,12 @@ export const useDynamicSiteConfig = () => {
       dbSettings?.satisfaction_stat || siteConfig.satisfaction_stat,
     happy_customers_stat:
       dbSettings?.happy_customers_stat || siteConfig.happy_customers_stat,
+    certified_experts_stat:
+      dbSettings?.certified_experts_stat || "50+",
+    customer_satisfaction_stat:
+      dbSettings?.customer_satisfaction_stat || "4.9/5",
+    cities_covered_stat:
+      dbSettings?.cities_covered_stat || "100+",
   };
 
   return {
