@@ -23,7 +23,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Eye, Edit, Trash, Search, Filter, User } from 'lucide-react';
+import { Eye, Edit, Trash, Search, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
@@ -77,22 +77,14 @@ const AdminUsers = () => {
   const { data: users = [], isLoading: usersLoading, error, refetch } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('active', true)
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          console.error('Error fetching users:', error);
-          throw error;
-        }
-        return data as UserProfile[] || [];
-      } catch (error) {
-        console.error('Error fetching users:', error);
-        return [];
-      }
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as UserProfile[] || [];
     },
     retry: 1,
     refetchOnWindowFocus: false,

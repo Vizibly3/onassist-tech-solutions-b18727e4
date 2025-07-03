@@ -25,9 +25,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Mail, Phone, Eye, Search, Filter, Calendar, User, Edit, Trash } from 'lucide-react';
+import { Mail, Phone, Eye, Search, Filter, User, Edit, Trash } from 'lucide-react';
 import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 
 interface ContactInquiry {
@@ -58,7 +58,6 @@ const AdminContacts = () => {
     message: '',
     status: 'new'
   });
-  const { toast } = useToast();
 
   if (isLoading) {
     return (
@@ -77,22 +76,14 @@ const AdminContacts = () => {
   const { data: contacts = [], isLoading: contactsLoading, error, refetch } = useQuery({
     queryKey: ['admin-contacts'],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('contact_inquiries')
-          .select('*')
-          .eq('active', true)
-          .order('created_at', { ascending: false });
-        
-        if (error) {
-          console.error('Error fetching contacts:', error);
-          throw error;
-        }
-        return data as ContactInquiry[] || [];
-      } catch (error) {
-        console.error('Error fetching contacts:', error);
-        return [];
-      }
+      const { data, error } = await supabase
+        .from('contact_inquiries')
+        .select('*')
+        .eq('active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as ContactInquiry[] || [];
     },
     retry: 1,
     refetchOnWindowFocus: false,
@@ -195,7 +186,7 @@ const AdminContacts = () => {
   };
 
   const filteredContacts = contacts.filter(contact => {
-    const matchesSearch = 
+    const matchesSearch = searchTerm === '' ||
       contact.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||

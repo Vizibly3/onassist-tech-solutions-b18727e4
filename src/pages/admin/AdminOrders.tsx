@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -52,14 +53,44 @@ interface Order {
 
 const AdminOrders = () => {
   const { user, isAdmin, isLoading } = useAuth();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+
+  const { data: orders = [], isLoading: ordersLoading, error, refetch } = useQuery({
+    queryKey: ['admin-orders'],
+    queryFn: async () => {
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (ordersError) throw ordersError;
+
+      if (!orders) return [];
+
+      const ordersWithItems = await Promise.all(
+        orders.map(async (order) => {
+          const { data: orderItems, error: itemsError } = await supabase
+            .from('order_items')
+            .select('id, service_title, service_price, quantity')
+            .eq('order_id', order.id);
+
+          if (itemsError) {
+            console.error('Error fetching order items:', itemsError);
+            return { ...order, order_items: [] };
+          }
+
+          return { ...order, order_items: orderItems || [] };
+        })
+      );
+
+      return ordersWithItems as Order[];
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
   if (isLoading) {
     return (
@@ -75,83 +106,6 @@ const AdminOrders = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  useEffect(() => {
-    filterOrders();
-  }, [orders, searchTerm, statusFilter, paymentFilter]);
-
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { data: orders, error: ordersError } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (ordersError) {
-        console.error('Error fetching orders:', ordersError);
-        setError('Failed to fetch orders');
-        setOrders([]);
-        return;
-      }
-
-      const ordersWithItems = await Promise.all(
-        (orders || []).map(async (order) => {
-          const { data: orderItems, error: itemsError } = await supabase
-            .from('order_items')
-            .select('id, service_title, service_price, quantity')
-            .eq('order_id', order.id);
-
-          if (itemsError) {
-            console.error('Error fetching order items:', itemsError);
-            return { ...order, order_items: [] };
-          }
-
-          return { ...order, order_items: orderItems || [] };
-        })
-      );
-
-      setOrders(ordersWithItems);
-    } catch (error: any) {
-      console.error('Error fetching orders:', error);
-      setError('Failed to fetch orders: ' + error.message);
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterOrders = () => {
-    let filtered = orders;
-
-    if (searchTerm) {
-      filtered = filtered.filter(order => {
-        const customerName = `${order.first_name} ${order.last_name}`.toLowerCase();
-        const orderId = order.id.toLowerCase();
-        const email = order.email.toLowerCase();
-        
-        return customerName.includes(searchTerm.toLowerCase()) ||
-               orderId.includes(searchTerm.toLowerCase()) ||
-               email.includes(searchTerm.toLowerCase());
-      });
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
-    }
-
-    if (paymentFilter !== 'all') {
-      filtered = filtered.filter(order => order.payment_status === paymentFilter);
-    }
-
-    setFilteredOrders(filtered);
-  };
-
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
       const { error } = await supabase
@@ -166,7 +120,7 @@ const AdminOrders = () => {
         description: 'Order status updated successfully'
       });
       
-      fetchOrders();
+      refetch();
     } catch (error: any) {
       console.error('Error updating order status:', error);
       toast({
@@ -191,7 +145,7 @@ const AdminOrders = () => {
         description: 'Payment status updated successfully'
       });
       
-      fetchOrders();
+      refetch();
     } catch (error: any) {
       console.error('Error updating payment status:', error);
       toast({
@@ -233,21 +187,37 @@ const AdminOrders = () => {
     );
   };
 
+  const filteredOrders = orders.filter(order => {
+    const customerName = `${order.first_name} ${order.last_name}`.toLowerCase();
+    const orderId = order.id.toLowerCase();
+    const email = order.email.toLowerCase();
+    
+    const matchesSearch = searchTerm === '' || 
+      customerName.includes(searchTerm.toLowerCase()) ||
+      orderId.includes(searchTerm.toLowerCase()) ||
+      email.includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
+
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
+
   if (error) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-8">
             <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Orders</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={fetchOrders}>Try Again</Button>
+            <p className="text-gray-600 mb-4">There was an error loading the orders.</p>
+            <Button onClick={() => refetch()}>Try Again</Button>
           </div>
         </div>
       </Layout>
     );
   }
 
-  if (loading) {
+  if (ordersLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">

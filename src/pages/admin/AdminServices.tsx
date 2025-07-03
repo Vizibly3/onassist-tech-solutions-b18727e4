@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -28,6 +29,7 @@ import {
 import { Plus, Edit, Trash } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { slugify } from '@/utils/slugify';
 
 const AdminServices = () => {
   const { user, isAdmin, isLoading } = useAuth();
@@ -43,7 +45,8 @@ const AdminServices = () => {
     image_url: '',
     category_id: '',
     popular: false,
-    active: true
+    active: true,
+    slug: ''
   });
 
   if (isLoading) {
@@ -66,7 +69,8 @@ const AdminServices = () => {
     try {
       const serviceData = {
         ...formData,
-        price: parseFloat(formData.price)
+        price: parseFloat(formData.price),
+        slug: formData.slug || slugify(formData.title)
       };
 
       if (editingService) {
@@ -96,7 +100,8 @@ const AdminServices = () => {
         image_url: '',
         category_id: '',
         popular: false,
-        active: true
+        active: true,
+        slug: ''
       });
       refetch();
     } catch (error: any) {
@@ -118,7 +123,8 @@ const AdminServices = () => {
       image_url: service.image_url,
       category_id: service.category_id,
       popular: service.popular,
-      active: service.active
+      active: service.active,
+      slug: service.slug || ''
     });
     setIsDialogOpen(true);
   };
@@ -154,7 +160,8 @@ const AdminServices = () => {
       image_url: '',
       category_id: '',
       popular: false,
-      active: true
+      active: true,
+      slug: ''
     });
     setIsDialogOpen(true);
   };
@@ -214,6 +221,16 @@ const AdminServices = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="slug">Slug</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="Auto-generated from title if left empty"
+                  />
                 </div>
                 
                 <div>
@@ -311,6 +328,7 @@ const AdminServices = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
+                    <TableHead>Slug</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Duration</TableHead>
@@ -322,6 +340,7 @@ const AdminServices = () => {
                   {services?.map((service) => (
                     <TableRow key={service.id}>
                       <TableCell className="font-medium">{service.title}</TableCell>
+                      <TableCell>{service.slug || slugify(service.title)}</TableCell>
                       <TableCell>{getCategoryName(service.category_id)}</TableCell>
                       <TableCell>${service.price}</TableCell>
                       <TableCell>{service.duration}</TableCell>

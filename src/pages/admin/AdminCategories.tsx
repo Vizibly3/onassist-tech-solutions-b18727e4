@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -26,12 +27,14 @@ import {
 } from '@/components/ui/dialog';
 import { Plus, Edit, Trash } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { slugify } from '@/utils/slugify';
 
 interface CategoryWithTimestamp {
   id: string;
   title: string;
   description: string;
   image_url: string;
+  slug?: string;
   created_at: string;
 }
 
@@ -43,7 +46,8 @@ const AdminCategories = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    image_url: ''
+    image_url: '',
+    slug: ''
   });
 
   if (isLoading) {
@@ -64,10 +68,15 @@ const AdminCategories = () => {
     e.preventDefault();
     
     try {
+      const categoryData = {
+        ...formData,
+        slug: formData.slug || slugify(formData.title)
+      };
+
       if (editingCategory) {
         const { error } = await supabase
           .from('service_categories')
-          .update(formData)
+          .update(categoryData)
           .eq('id', editingCategory.id);
         
         if (error) throw error;
@@ -75,7 +84,7 @@ const AdminCategories = () => {
       } else {
         const { error } = await supabase
           .from('service_categories')
-          .insert([formData]);
+          .insert([categoryData]);
         
         if (error) throw error;
         toast({ title: 'Category created successfully!' });
@@ -83,7 +92,7 @@ const AdminCategories = () => {
       
       setIsDialogOpen(false);
       setEditingCategory(null);
-      setFormData({ title: '', description: '', image_url: '' });
+      setFormData({ title: '', description: '', image_url: '', slug: '' });
       refetch();
     } catch (error: any) {
       toast({
@@ -99,7 +108,8 @@ const AdminCategories = () => {
     setFormData({
       title: category.title,
       description: category.description || '',
-      image_url: category.image_url || ''
+      image_url: category.image_url || '',
+      slug: category.slug || ''
     });
     setIsDialogOpen(true);
   };
@@ -127,7 +137,7 @@ const AdminCategories = () => {
 
   const openCreateDialog = () => {
     setEditingCategory(null);
-    setFormData({ title: '', description: '', image_url: '' });
+    setFormData({ title: '', description: '', image_url: '', slug: '' });
     setIsDialogOpen(true);
   };
 
@@ -160,6 +170,15 @@ const AdminCategories = () => {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="slug">Slug</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="Auto-generated from title if left empty"
                   />
                 </div>
                 <div>
@@ -206,6 +225,7 @@ const AdminCategories = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
+                    <TableHead>Slug</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Image</TableHead>
                     <TableHead>Created At</TableHead>
@@ -216,6 +236,7 @@ const AdminCategories = () => {
                   {categories?.map((category) => (
                     <TableRow key={category.id}>
                       <TableCell className="font-medium">{category.title}</TableCell>
+                      <TableCell>{category.slug || slugify(category.title)}</TableCell>
                       <TableCell>{category.description}</TableCell>
                       <TableCell>
                         {category.image_url && (

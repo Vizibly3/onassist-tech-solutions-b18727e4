@@ -45,6 +45,22 @@ const NewsletterSubscribersPage = () => {
     email: ''
   });
 
+  const { data: subscribers = [], isLoading: subscribersLoading, error, refetch } = useQuery({
+    queryKey: ['newsletter-subscribers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('newsletter_subscribers')
+        .select('*')
+        .eq('active', true)
+        .order('subscribed_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as NewsletterSubscriber[] || [];
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
   if (isLoading) {
     return (
       <Layout>
@@ -58,30 +74,6 @@ const NewsletterSubscribersPage = () => {
   if (!user || !isAdmin) {
     return <Navigate to="/auth/login" replace />;
   }
-
-  const { data: subscribers = [], isLoading: subscribersLoading, error, refetch } = useQuery({
-    queryKey: ['newsletter-subscribers'],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from('newsletter_subscribers')
-          .select('*')
-          .eq('active', true)
-          .order('subscribed_at', { ascending: false });
-        
-        if (error) {
-          console.error('Error fetching newsletter subscribers:', error);
-          throw error;
-        }
-        return data as NewsletterSubscriber[] || [];
-      } catch (error) {
-        console.error('Error fetching newsletter subscribers:', error);
-        return [];
-      }
-    },
-    retry: 1,
-    refetchOnWindowFocus: false,
-  });
 
   const handleEdit = (subscriber: NewsletterSubscriber) => {
     setEditingSubscriber(subscriber);
