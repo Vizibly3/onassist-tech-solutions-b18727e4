@@ -196,8 +196,7 @@ const AdminUsers = () => {
     return (
       (user.first_name?.toLowerCase().includes(searchLower)) ||
       (user.last_name?.toLowerCase().includes(searchLower)) ||
-      (user.phone_number?.toLowerCase().includes(searchLower)) ||
-      (user.email?.toLowerCase().includes(searchLower))
+      (user.phone_number?.toLowerCase().includes(searchLower))
     );
   }) || [];
 
@@ -228,7 +227,7 @@ const AdminUsers = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search by name, phone, or email..."
+                placeholder="Search by name or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
