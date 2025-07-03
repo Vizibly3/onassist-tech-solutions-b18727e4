@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Table, 
@@ -25,9 +26,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Mail, Phone, Eye, Search, Filter, Calendar, User } from 'lucide-react';
+import { Mail, Phone, Eye, Search, Filter, Calendar, User, Edit, Trash } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
 
 interface ContactInquiry {
   id: string;
@@ -46,6 +48,17 @@ const AdminContacts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedContact, setSelectedContact] = useState<ContactInquiry | null>(null);
+  const [editingContact, setEditingContact] = useState<ContactInquiry | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone_number: '',
+    subject: '',
+    message: '',
+    status: 'new'
+  });
   const { toast } = useToast();
 
   if (isLoading) {
@@ -65,13 +78,19 @@ const AdminContacts = () => {
   const { data: contacts, isLoading: contactsLoading, refetch } = useQuery({
     queryKey: ['admin-contacts'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('contact_inquiries')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as ContactInquiry[];
+      try {
+        const { data, error } = await supabase
+          .from('contact_inquiries')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data as ContactInquiry[];
+      } catch (error) {
+        console.error('Error fetching contacts:', error);
+        return [];
+      }
     },
   });
 
@@ -95,6 +114,77 @@ const AdminContacts = () => {
       toast({
         title: "Error",
         description: "Failed to update contact status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (contact: ContactInquiry) => {
+    setEditingContact(contact);
+    setEditFormData({
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      email: contact.email,
+      phone_number: contact.phone_number || '',
+      subject: contact.subject,
+      message: contact.message,
+      status: contact.status
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingContact) return;
+
+    try {
+      const { error } = await supabase
+        .from('contact_inquiries')
+        .update(editFormData)
+        .eq('id', editingContact.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Contact updated",
+        description: "Contact inquiry has been updated successfully.",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingContact(null);
+      refetch();
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update contact inquiry.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (contactId: string) => {
+    if (!confirm('Are you sure you want to delete this contact inquiry?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('contact_inquiries')
+        .update({ active: false })
+        .eq('id', contactId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Contact deleted",
+        description: "Contact inquiry has been deleted successfully.",
+      });
+
+      refetch();
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete contact inquiry.",
         variant: "destructive",
       });
     }
@@ -338,6 +428,20 @@ const AdminContacts = () => {
                               )}
                             </DialogContent>
                           </Dialog>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(contact)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(contact.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -359,6 +463,98 @@ const AdminContacts = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Contact Inquiry</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="first_name">First Name</Label>
+                  <Input
+                    id="first_name"
+                    value={editFormData.first_name}
+                    onChange={(e) => setEditFormData({ ...editFormData, first_name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="last_name">Last Name</Label>
+                  <Input
+                    id="last_name"
+                    value={editFormData.last_name}
+                    onChange={(e) => setEditFormData({ ...editFormData, last_name: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone_number">Phone Number</Label>
+                <Input
+                  id="phone_number"
+                  value={editFormData.phone_number}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  value={editFormData.subject}
+                  onChange={(e) => setEditFormData({ ...editFormData, subject: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="message">Message</Label>
+                <Textarea
+                  id="message"
+                  value={editFormData.message}
+                  onChange={(e) => setEditFormData({ ...editFormData, message: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={editFormData.status}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Update Contact
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

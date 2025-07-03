@@ -1,14 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -17,32 +17,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Shield, ShieldCheck, Search, Filter, Edit, Ban, Trash2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-
-interface UserRole {
-  user_id: string;
-  role: string;
-}
+} from '@/components/ui/dialog';
+import { Eye, Edit, Trash, Search, Filter, User } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
 
 interface UserProfile {
   id: string;
@@ -53,27 +38,27 @@ interface UserProfile {
   city: string | null;
   state: string | null;
   zip_code: string | null;
+  banned: boolean;
+  active: boolean;
   created_at: string;
-  role?: string;
-  is_banned?: boolean;
+  updated_at: string;
 }
 
 const AdminUsers = () => {
   const { user, isAdmin, isLoading } = useAuth();
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-  const [editForm, setEditForm] = useState({
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
     first_name: '',
     last_name: '',
     phone_number: '',
     address: '',
     city: '',
     state: '',
-    zip_code: ''
+    zip_code: '',
+    banned: false
   });
 
   if (isLoading) {
@@ -90,458 +75,453 @@ const AdminUsers = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    filterUsers();
-  }, [users, searchTerm, roleFilter]);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      // Fetch user roles separately
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) {
-        console.error('Error fetching user roles:', rolesError);
-      }
-
-      const usersWithRole = profiles?.map(profile => {
-        const userRole = userRoles?.find((ur: UserRole) => ur.user_id === profile.id);
-        
-        return {
-          ...profile,
-          role: userRole?.role || 'customer',
-          is_banned: profile.banned || false
-        };
-      }) || [];
-
-      setUsers(usersWithRole);
-    } catch (error: any) {
-      console.error('Fetch users error:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch users: ' + error.message,
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterUsers = () => {
-    let filtered = users;
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(userProfile => {
-        const fullName = `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.toLowerCase();
-        const phone = userProfile.phone_number || '';
-        const location = `${userProfile.city || ''} ${userProfile.state || ''}`.toLowerCase();
-        
-        return fullName.includes(searchTerm.toLowerCase()) ||
-               phone.includes(searchTerm) ||
-               location.includes(searchTerm.toLowerCase());
-      });
-    }
-
-    // Filter by role
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(userProfile => userProfile.role === roleFilter);
-    }
-
-    setFilteredUsers(filtered);
-  };
-
-  const toggleUserRole = async (userId: string, currentRole: string) => {
-    try {
-      const newRole = currentRole === 'admin' ? 'customer' : 'admin';
-      
-      if (newRole === 'admin') {
-        // Add admin role
-        const { error } = await supabase
-          .from('user_roles')
-          .upsert({
-            user_id: userId,
-            role: 'admin'
-          });
+  const { data: users, isLoading: usersLoading, refetch } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: false });
         
         if (error) throw error;
-      } else {
-        // Remove admin role
-        const { error } = await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', userId)
-          .eq('role', 'admin');
-        
-        if (error) throw error;
+        return data as UserProfile[];
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        return [];
       }
-      
-      toast({
-        title: 'Success',
-        description: `User role updated to ${newRole}`
-      });
-      
-      fetchUsers();
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
-  };
+    },
+  });
 
-  const openEditDialog = (userProfile: UserProfile) => {
-    setEditingUser(userProfile);
-    setEditForm({
-      first_name: userProfile.first_name || '',
-      last_name: userProfile.last_name || '',
-      phone_number: userProfile.phone_number || '',
-      address: userProfile.address || '',
-      city: userProfile.city || '',
-      state: userProfile.state || '',
-      zip_code: userProfile.zip_code || ''
+  const handleEdit = (user: UserProfile) => {
+    setEditingUser(user);
+    setEditFormData({
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      phone_number: user.phone_number || '',
+      address: user.address || '',
+      city: user.city || '',
+      state: user.state || '',
+      zip_code: user.zip_code || '',
+      banned: user.banned
     });
+    setIsEditDialogOpen(true);
   };
 
-  const updateUser = async () => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!editingUser) return;
 
     try {
       const { error } = await supabase
         .from('profiles')
-        .update(editForm)
+        .update(editFormData)
         .eq('id', editingUser.id);
 
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'User updated successfully'
+        title: "User updated",
+        description: "User profile has been updated successfully.",
       });
 
+      setIsEditDialogOpen(false);
       setEditingUser(null);
-      fetchUsers();
-    } catch (error: any) {
+      refetch();
+    } catch (error) {
+      console.error('Error updating user:', error);
       toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to update user profile.",
+        variant: "destructive",
       });
     }
   };
 
-  const banUser = async (userId: string, userName: string) => {
-    try {
-      // Toggle ban status in the profiles table
-      const currentUser = users.find(u => u.id === userId);
-      const newBanStatus = !currentUser?.is_banned;
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ banned: newBanStatus })
-        .eq('id', userId);
-      
-      if (error) throw error;
-      
-      toast({
-        title: 'Success',
-        description: `User ${userName} has been ${newBanStatus ? 'banned' : 'unbanned'}`
-      });
-      
-      fetchUsers();
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
-  };
+  const handleDelete = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
 
-  const deleteUser = async (userId: string, userName: string) => {
     try {
-      // Soft delete user profile by setting active to false
       const { error } = await supabase
         .from('profiles')
         .update({ active: false })
         .eq('id', userId);
-      
+
       if (error) throw error;
-      
+
       toast({
-        title: 'Success',
-        description: `User ${userName} has been deactivated`
+        title: "User deleted",
+        description: "User has been deleted successfully.",
       });
-      
-      fetchUsers();
-    } catch (error: any) {
+
+      refetch();
+    } catch (error) {
+      console.error('Error deleting user:', error);
       toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to delete user.",
+        variant: "destructive",
       });
     }
   };
+
+  const toggleBanStatus = async (userId: string, currentBanStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ banned: !currentBanStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: currentBanStatus ? "User unbanned" : "User banned",
+        description: `User has been ${currentBanStatus ? 'unbanned' : 'banned'} successfully.`,
+      });
+
+      refetch();
+    } catch (error) {
+      console.error('Error updating ban status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user ban status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredUsers = users?.filter(user => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (user.first_name?.toLowerCase().includes(searchLower)) ||
+      (user.last_name?.toLowerCase().includes(searchLower)) ||
+      (user.phone_number?.toLowerCase().includes(searchLower)) ||
+      (user.email?.toLowerCase().includes(searchLower))
+    );
+  }) || [];
+
+  if (usersLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-64"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-          <p className="text-gray-600">Manage user accounts and roles</p>
+          <h1 className="text-3xl font-bold mb-2">User Management</h1>
+          <p className="text-gray-600">Manage registered users and their profiles.</p>
         </div>
 
-        {/* Search and Filter */}
+        {/* Search */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search by name, phone, or location..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-full md:w-48">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter by role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="customer">Customer</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search by name, phone, or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </CardContent>
         </Card>
 
+        {/* Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-blue-600">
+                {users?.length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Total Users</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-green-600">
+                {users?.filter(u => !u.banned).length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Active Users</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-red-600">
+                {users?.filter(u => u.banned).length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Banned Users</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Users Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Users List ({filteredUsers.length} users)</CardTitle>
+            <CardTitle>Users ({filteredUsers.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-onassist-primary"></div>
-              </div>
-            ) : (
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Phone</TableHead>
+                    <TableHead>Contact</TableHead>
                     <TableHead>Location</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Join Date</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((userProfile) => {
-                    const userName = userProfile.first_name && userProfile.last_name
-                      ? `${userProfile.first_name} ${userProfile.last_name}`
-                      : 'N/A';
-                    
-                    return (
-                      <TableRow key={userProfile.id}>
-                        <TableCell className="font-medium">{userName}</TableCell>
-                        <TableCell>{userProfile.phone_number || 'N/A'}</TableCell>
-                        <TableCell>
-                          {userProfile.city && userProfile.state
-                            ? `${userProfile.city}, ${userProfile.state}`
-                            : 'N/A'}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={userProfile.role === 'admin' ? 'default' : 'secondary'}>
-                            {userProfile.role === 'admin' ? (
-                              <>
-                                <ShieldCheck className="h-3 w-3 mr-1" />
-                                Admin
-                              </>
-                            ) : (
-                              <>
-                                <Shield className="h-3 w-3 mr-1" />
-                                Customer
-                              </>
-                            )}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(userProfile.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            {/* Edit Button */}
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openEditDialog(userProfile)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Edit User</DialogTitle>
-                                  <DialogDescription>
-                                    Make changes to {userName}'s profile here.
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <label className="text-sm font-medium">First Name</label>
-                                      <Input
-                                        value={editForm.first_name}
-                                        onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
-                                        placeholder="First name"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium">Last Name</label>
-                                      <Input
-                                        value={editForm.last_name}
-                                        onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
-                                        placeholder="Last name"
-                                      />
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Phone Number</label>
-                                    <Input
-                                      value={editForm.phone_number}
-                                      onChange={(e) => setEditForm({ ...editForm, phone_number: e.target.value })}
-                                      placeholder="Phone number"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Address</label>
-                                    <Input
-                                      value={editForm.address}
-                                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                                      placeholder="Address"
-                                    />
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <label className="text-sm font-medium">City</label>
-                                      <Input
-                                        value={editForm.city}
-                                        onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
-                                        placeholder="City"
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium">State</label>
-                                      <Input
-                                        value={editForm.state}
-                                        onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
-                                        placeholder="State"
-                                      />
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Zip Code</label>
-                                    <Input
-                                      value={editForm.zip_code}
-                                      onChange={(e) => setEditForm({ ...editForm, zip_code: e.target.value })}
-                                      placeholder="Zip code"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                  <Button variant="outline" onClick={() => setEditingUser(null)}>
-                                    Cancel
-                                  </Button>
-                                  <Button onClick={updateUser}>
-                                    Save Changes
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                            
-                            <Button
-                              variant={userProfile.role === 'admin' ? 'destructive' : 'default'}
-                              size="sm"
-                              onClick={() => toggleUserRole(userProfile.id, userProfile.role || 'customer')}
-                              disabled={userProfile.id === user?.id}
-                            >
-                              {userProfile.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
-                            </Button>
-                            
-                            {/* Ban/Unban Button */}
-                            <Button
-                              variant={userProfile.is_banned ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => banUser(userProfile.id, userName)}
-                              disabled={userProfile.id === user?.id}
-                              className={userProfile.is_banned ? "bg-green-600 hover:bg-green-700 text-white" : "text-orange-600 hover:text-orange-700"}
-                            >
-                              <Ban className="h-4 w-4" />
-                              {userProfile.is_banned ? 'Unban' : 'Ban'}
-                            </Button>
-                            
-                            {/* Delete Button */}
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  disabled={userProfile.id === user?.id}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This action will deactivate the user account for {userName}. The user will not be able to access their account.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => deleteUser(userProfile.id, userName)}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    Deactivate
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                  {filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">
+                            {user.first_name} {user.last_name}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                          <div className="text-xs text-gray-500">
+                            ID: {user.id.slice(0, 8)}...
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {user.phone_number && (
+                            <div>{user.phone_number}</div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {user.city && user.state ? (
+                            <div>{user.city}, {user.state}</div>
+                          ) : user.city || user.state || 'N/A'}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {user.banned ? (
+                            <Badge className="bg-red-100 text-red-800">
+                              Banned
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-green-100 text-green-800">
+                              Active
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {format(new Date(user.created_at), 'MMM dd, yyyy')}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedUser(user)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>User Details</DialogTitle>
+                              </DialogHeader>
+                              {selectedUser && (
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">First Name</label>
+                                      <p>{selectedUser.first_name || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Last Name</label>
+                                      <p>{selectedUser.last_name || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Phone</label>
+                                      <p>{selectedUser.phone_number || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Status</label>
+                                      <p>
+                                        <Badge className={selectedUser.banned ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}>
+                                          {selectedUser.banned ? 'Banned' : 'Active'}
+                                        </Badge>
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-500">Address</label>
+                                    <p>{selectedUser.address || 'N/A'}</p>
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">City</label>
+                                      <p>{selectedUser.city || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">State</label>
+                                      <p>{selectedUser.state || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">ZIP Code</label>
+                                      <p>{selectedUser.zip_code || 'N/A'}</p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Created</label>
+                                      <p>{format(new Date(selectedUser.created_at), 'PPP')}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Updated</label>
+                                      <p>{format(new Date(selectedUser.updated_at), 'PPP')}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 pt-4">
+                                    <Button
+                                      variant={selectedUser.banned ? "default" : "destructive"}
+                                      onClick={() => toggleBanStatus(selectedUser.id, selectedUser.banned)}
+                                    >
+                                      {selectedUser.banned ? 'Unban User' : 'Ban User'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(user)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(user.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
+            </div>
+            
+            {filteredUsers.length === 0 && (
+              <div className="text-center py-8">
+                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+                <p className="text-gray-500">
+                  {searchTerm 
+                    ? 'Try adjusting your search criteria.' 
+                    : 'Users will appear here when they register.'}
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="first_name">First Name</Label>
+                  <Input
+                    id="first_name"
+                    value={editFormData.first_name}
+                    onChange={(e) => setEditFormData({ ...editFormData, first_name: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="last_name">Last Name</Label>
+                  <Input
+                    id="last_name"
+                    value={editFormData.last_name}
+                    onChange={(e) => setEditFormData({ ...editFormData, last_name: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="phone_number">Phone Number</Label>
+                <Input
+                  id="phone_number"
+                  value={editFormData.phone_number}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone_number: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={editFormData.address}
+                  onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    value={editFormData.city}
+                    onChange={(e) => setEditFormData({ ...editFormData, city: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">State</Label>
+                  <Input
+                    id="state"
+                    value={editFormData.state}
+                    onChange={(e) => setEditFormData({ ...editFormData, state: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zip_code">ZIP Code</Label>
+                  <Input
+                    id="zip_code"
+                    value={editFormData.zip_code}
+                    onChange={(e) => setEditFormData({ ...editFormData, zip_code: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Update User
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

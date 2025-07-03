@@ -1,10 +1,22 @@
+
 import React, { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 import Layout from "@/components/layout/Layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Search, Filter } from "lucide-react";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Download, Search, Filter, Eye, Edit, Trash } from "lucide-react";
+import { toast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
 
 interface Subscriber {
   id: string;
@@ -15,27 +27,135 @@ interface Subscriber {
 const PAGE_SIZE = 10;
 
 const NewsletterSubscribersPage: React.FC = () => {
+  const { user, isAdmin, isLoading } = useAuth();
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState("");
+  const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
+  const [editingSubscriber, setEditingSubscriber] = useState<Subscriber | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    email: ''
+  });
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 flex justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth/login" replace />;
+  }
 
   useEffect(() => {
     const fetchSubscribers = async () => {
       setLoading(true);
-      const query = supabase
-        .from("newsletter_subscribers")
-        .select("*")
-        .order("subscribed_at", { ascending: false });
-      const { data, error } = await query;
-      if (!error && data) {
-        setSubscribers(data as Subscriber[]);
+      try {
+        const query = supabase
+          .from("newsletter_subscribers")
+          .select("*")
+          .eq('active', true)
+          .order("subscribed_at", { ascending: false });
+        const { data, error } = await query;
+        if (!error && data) {
+          setSubscribers(data as Subscriber[]);
+        } else {
+          console.error('Error fetching subscribers:', error);
+          setSubscribers([]);
+        }
+      } catch (error) {
+        console.error('Error fetching subscribers:', error);
+        setSubscribers([]);
       }
       setLoading(false);
     };
     fetchSubscribers();
   }, []);
+
+  const handleEdit = (subscriber: Subscriber) => {
+    setEditingSubscriber(subscriber);
+    setEditFormData({
+      email: subscriber.email
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSubscriber) return;
+
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .update(editFormData)
+        .eq('id', editingSubscriber.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Subscriber updated",
+        description: "Newsletter subscriber has been updated successfully.",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingSubscriber(null);
+      
+      // Refresh the data
+      const { data } = await supabase
+        .from("newsletter_subscribers")
+        .select("*")
+        .eq('active', true)
+        .order("subscribed_at", { ascending: false });
+      if (data) setSubscribers(data);
+    } catch (error) {
+      console.error('Error updating subscriber:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update newsletter subscriber.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (subscriberId: string) => {
+    if (!confirm('Are you sure you want to delete this newsletter subscriber?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .update({ active: false })
+        .eq('id', subscriberId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Subscriber deleted",
+        description: "Newsletter subscriber has been deleted successfully.",
+      });
+
+      // Refresh the data
+      const { data } = await supabase
+        .from("newsletter_subscribers")
+        .select("*")
+        .eq('active', true)
+        .order("subscribed_at", { ascending: false });
+      if (data) setSubscribers(data);
+    } catch (error) {
+      console.error('Error deleting subscriber:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete newsletter subscriber.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Filter and search logic
   const filteredSubscribers = useMemo(() => {
@@ -132,13 +252,16 @@ const NewsletterSubscribersPage: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Subscribed At
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {loading ? (
                     <tr>
                       <td
-                        colSpan={3}
+                        colSpan={4}
                         className="text-center py-8 text-gray-400"
                       >
                         Loading subscribers...
@@ -147,7 +270,7 @@ const NewsletterSubscribersPage: React.FC = () => {
                   ) : paginatedSubscribers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={3}
+                        colSpan={4}
                         className="text-center py-8 text-gray-400"
                       >
                         No subscribers found.
@@ -164,6 +287,52 @@ const NewsletterSubscribersPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(s.subscribed_at).toLocaleString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex gap-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setSelectedSubscriber(s)}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Subscriber Details</DialogTitle>
+                                </DialogHeader>
+                                {selectedSubscriber && (
+                                  <div className="space-y-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Email</label>
+                                      <p>{selectedSubscriber.email}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Subscribed At</label>
+                                      <p>{new Date(selectedSubscriber.subscribed_at).toLocaleString()}</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(s)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDelete(s.id)}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -202,6 +371,35 @@ const NewsletterSubscribersPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Newsletter Subscriber</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Update Subscriber
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

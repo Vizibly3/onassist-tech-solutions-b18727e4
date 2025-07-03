@@ -1,87 +1,65 @@
-import React, { useState, useEffect } from "react";
-import Layout from "@/components/layout/Layout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
-import {
-  FileText,
-  Search,
-  Download,
-  Mail,
-  Phone,
-  Calendar,
-  MessageSquare,
-  ArrowLeft,
-  ChevronUp,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "sonner";
 
-type ServiceLead = {
-  id: number; // Changed from string to number to match database
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
+import Layout from '@/components/layout/Layout';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Eye, Search, Filter, Edit, Trash, Calendar, Phone, Mail, User } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
+
+interface ServiceLead {
+  id: number;
   name: string;
   email: string;
   phone: string;
   service: string;
   preferred_datetime: string;
-  message: string | null;
-  status: "pending" | "contacted" | "completed" | "cancelled";
+  message?: string;
+  status: string;
   created_at: string;
-  updated_at: string;
-};
-
-const ITEMS_PER_PAGE = 10;
+}
 
 const ServiceLeadsPage = () => {
   const { user, isAdmin, isLoading } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [sortField, setSortField] = useState<keyof ServiceLead>("created_at");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [expandedLead, setExpandedLead] = useState<number | null>(null); // Changed from string to number
-  const [leads, setLeads] = useState<ServiceLead[]>([]);
-
-  // Fetch leads with better error handling
-  const {
-    data: leadsData,
-    isLoading: leadsLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["service-leads"],
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("service_leads")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) throw error;
-        setLeads(data as ServiceLead[]);
-        return data as ServiceLead[];
-      } catch (error) {
-        console.error("Error fetching leads:", error);
-        toast.error("Failed to fetch leads");
-        return [];
-      }
-    },
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedLead, setSelectedLead] = useState<ServiceLead | null>(null);
+  const [editingLead, setEditingLead] = useState<ServiceLead | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    service: '',
+    preferred_datetime: '',
+    message: '',
+    status: 'pending'
   });
 
-  // Update leads when data changes
-  useEffect(() => {
-    if (leadsData) {
-      setLeads(leadsData);
-    }
-  }, [leadsData]);
-
-  // Check authentication
   if (isLoading) {
     return (
       <Layout>
@@ -96,433 +74,490 @@ const ServiceLeadsPage = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Filter and sort leads
-  const filteredLeads = leads?.filter((lead) => {
-    const matchesSearch =
-      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.phone.includes(searchTerm) ||
-      lead.service.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "all" || lead.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+  const { data: leads, isLoading: leadsLoading, refetch } = useQuery({
+    queryKey: ['service-leads'],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('service_leads')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return data as ServiceLead[];
+      } catch (error) {
+        console.error('Error fetching service leads:', error);
+        return [];
+      }
+    },
   });
 
-  const sortedLeads = [...(filteredLeads || [])].sort((a, b) => {
-    const aValue = a[sortField];
-    const bValue = b[sortField];
-
-    if (sortDirection === "asc") {
-      return aValue > bValue ? 1 : -1;
-    }
-    return aValue < bValue ? 1 : -1;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil((sortedLeads?.length || 0) / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedLeads = sortedLeads?.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
-
-  const handleStatusChange = async (
-    leadId: number, // Changed from string to number
-    newStatus: ServiceLead["status"]
-  ) => {
+  const updateLeadStatus = async (leadId: number, newStatus: string) => {
     try {
       const { error } = await supabase
-        .from("service_leads")
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq("id", leadId);
+        .from('service_leads')
+        .update({ status: newStatus })
+        .eq('id', leadId);
 
       if (error) throw error;
 
-      // Update the local state immediately
-      setLeads((prevLeads) =>
-        prevLeads.map((lead) =>
-          lead.id === leadId
-            ? {
-                ...lead,
-                status: newStatus,
-                updated_at: new Date().toISOString(),
-              }
-            : lead
-        )
-      );
+      toast({
+        title: "Status updated",
+        description: "Lead status has been updated successfully.",
+      });
 
-      toast.success("Status updated successfully");
+      refetch();
     } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status");
+      console.error('Error updating lead status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update lead status.",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleExport = () => {
-    if (!sortedLeads) return;
-
-    const csvContent = [
-      [
-        "Name",
-        "Email",
-        "Phone",
-        "Service",
-        "Preferred Date/Time",
-        "Message",
-        "Status",
-        "Created At",
-        "Updated At",
-      ],
-      ...sortedLeads.map((lead) => [
-        lead.name,
-        lead.email,
-        lead.phone,
-        lead.service,
-        format(new Date(lead.preferred_datetime), "yyyy-MM-dd HH:mm:ss"),
-        lead.message || "",
-        lead.status,
-        format(new Date(lead.created_at), "yyyy-MM-dd HH:mm:ss"),
-        format(new Date(lead.updated_at), "yyyy-MM-dd HH:mm:ss"),
-      ]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `service-leads-${format(new Date(), "yyyy-MM-dd")}.csv`;
-    link.click();
+  const handleEdit = (lead: ServiceLead) => {
+    setEditingLead(lead);
+    setEditFormData({
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      service: lead.service,
+      preferred_datetime: lead.preferred_datetime,
+      message: lead.message || '',
+      status: lead.status
+    });
+    setIsEditDialogOpen(true);
   };
 
-  const getStatusColor = (status: ServiceLead["status"]) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLead) return;
+
+    try {
+      const { error } = await supabase
+        .from('service_leads')
+        .update(editFormData)
+        .eq('id', editingLead.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Lead updated",
+        description: "Service lead has been updated successfully.",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingLead(null);
+      refetch();
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update service lead.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (leadId: number) => {
+    if (!confirm('Are you sure you want to delete this service lead?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('service_leads')
+        .update({ active: false })
+        .eq('id', leadId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Lead deleted",
+        description: "Service lead has been deleted successfully.",
+      });
+
+      refetch();
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete service lead.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredLeads = leads?.filter(lead => {
+    const matchesSearch = 
+      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.service.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  }) || [];
+
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "contacted":
-        return "bg-blue-100 text-blue-800";
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'contacted':
+        return 'bg-blue-100 text-blue-800';
+      case 'converted':
+        return 'bg-green-100 text-green-800';
+      case 'closed':
+        return 'bg-gray-100 text-gray-800';
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const setExpandedLeadHandler = (leadId: number) => {
-    setExpandedLead(expandedLead === leadId ? null : leadId);
-  };
+  if (leadsLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-64"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
-      <div className="p-8 space-y-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              className="hover:bg-gray-200"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Service Leads
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Manage and track service inquiries
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={handleExport}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export CSV
-          </Button>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Service Leads</h1>
+          <p className="text-gray-600">Manage service inquiry leads.</p>
         </div>
 
         {/* Filters */}
-        <Card className="shadow-lg border-0">
+        <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search leads..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-                  />
-                </div>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by name, email, or service..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-              <div className="flex gap-4">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-                >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-                <select
-                  value={`${sortField}-${sortDirection}`}
-                  onChange={(e) => {
-                    const [field, direction] = e.target.value.split("-");
-                    setSortField(field as keyof ServiceLead);
-                    setSortDirection(direction as "asc" | "desc");
-                  }}
-                  className="px-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-                >
-                  <option value="created_at-desc">Newest First</option>
-                  <option value="created_at-asc">Oldest First</option>
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="status-asc">Status (A-Z)</option>
-                  <option value="status-desc">Status (Z-A)</option>
-                </select>
-              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="contacted">Contacted</SelectItem>
+                  <SelectItem value="converted">Converted</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
 
-        {/* Table */}
-        <Card className="shadow-lg border-0 overflow-hidden">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Name
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Contact
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Service
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Preferred Time
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Created
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {leadsLoading ? (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-4">
-                        <div className="animate-pulse space-y-4">
-                          {[...Array(5)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="h-12 bg-gray-200 rounded"
-                            ></div>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                  ) : error ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-6 py-4 text-center text-red-500"
-                      >
-                        Failed to load leads. Please try again.
-                      </td>
-                    </tr>
-                  ) : paginatedLeads?.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-6 py-4 text-center text-gray-500"
-                      >
-                        No leads found matching your criteria.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedLeads?.map((lead) => (
-                      <React.Fragment key={lead.id}>
-                        <tr className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white mr-3">
-                                <FileText className="w-5 h-5" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {lead.name}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {lead.email}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">
-                              {lead.phone}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">
-                              {lead.service}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">
-                              {format(
-                                new Date(lead.preferred_datetime),
-                                "MMM d, yyyy"
-                              )}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {format(
-                                new Date(lead.preferred_datetime),
-                                "h:mm a"
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <select
-                              value={lead.status}
-                              onChange={(e) =>
-                                handleStatusChange(
-                                  lead.id,
-                                  e.target.value as ServiceLead["status"]
-                                )
-                              }
-                              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                                lead.status
-                              )} border-0 focus:ring-2 focus:ring-blue-400`}
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="contacted">Contacted</option>
-                              <option value="completed">Completed</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">
-                              {format(new Date(lead.created_at), "MMM d, yyyy")}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {format(new Date(lead.created_at), "h:mm a")}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                setExpandedLeadHandler(lead.id)
-                              }
-                            >
-                              {expandedLead === lead.id ? (
-                                <ChevronUp className="w-5 h-5" />
-                              ) : (
-                                <ChevronDown className="w-5 h-5" />
-                              )}
-                            </Button>
-                          </td>
-                        </tr>
-                        {expandedLead === lead.id && (
-                          <tr>
-                            <td colSpan={7} className="bg-gray-50 p-6">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                  <h4 className="font-semibold text-gray-900 mb-2">
-                                    Message
-                                  </h4>
-                                  <p className="text-gray-600">
-                                    {lead.message || "No message provided"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-gray-900 mb-2">
-                                    Last Updated
-                                  </h4>
-                                  <p className="text-gray-600">
-                                    {format(
-                                      new Date(
-                                        lead.updated_at || lead.created_at
-                                      ),
-                                      "MMM d, yyyy 'at' h:mm a"
-                                    )}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+        {/* Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-yellow-600">
+                {leads?.filter(l => l.status === 'pending').length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Pending</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-blue-600">
+                {leads?.filter(l => l.status === 'contacted').length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Contacted</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-green-600">
+                {leads?.filter(l => l.status === 'converted').length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Converted</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-gray-600">
+                {leads?.length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Total Leads</div>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-700">
-                    Showing {startIndex + 1} to{" "}
-                    {Math.min(
-                      startIndex + ITEMS_PER_PAGE,
-                      sortedLeads?.length || 0
-                    )}{" "}
-                    of {sortedLeads?.length || 0} results
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
-                      Previous
-                    </Button>
-                    <div className="text-sm text-gray-700">
-                      Page {currentPage} of {totalPages}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                </div>
+        {/* Leads Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Service Leads ({filteredLeads.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Preferred Time</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredLeads.map((lead) => (
+                    <TableRow key={lead.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{lead.name}</div>
+                          <div className="text-sm text-gray-600 flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {lead.email}
+                          </div>
+                          <div className="text-sm text-gray-600 flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {lead.phone}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{lead.service}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(lead.status)}>
+                          {lead.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {format(new Date(lead.preferred_datetime), 'MMM dd, yyyy')}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {format(new Date(lead.preferred_datetime), 'hh:mm a')}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {format(new Date(lead.created_at), 'MMM dd, yyyy')}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedLead(lead)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Service Lead Details</DialogTitle>
+                              </DialogHeader>
+                              {selectedLead && (
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Name</label>
+                                      <p>{selectedLead.name}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Email</label>
+                                      <p>{selectedLead.email}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Phone</label>
+                                      <p>{selectedLead.phone}</p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Service</label>
+                                      <p>{selectedLead.service}</p>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-500">Preferred Time</label>
+                                    <p>{format(new Date(selectedLead.preferred_datetime), 'PPP p')}</p>
+                                  </div>
+                                  {selectedLead.message && (
+                                    <div>
+                                      <label className="text-sm font-medium text-gray-500">Message</label>
+                                      <p className="whitespace-pre-wrap bg-gray-50 p-3 rounded">
+                                        {selectedLead.message}
+                                      </p>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-500">Status</label>
+                                    <div className="mt-2">
+                                      <Select
+                                        value={selectedLead.status}
+                                        onValueChange={(value) => updateLeadStatus(selectedLead.id, value)}
+                                      >
+                                        <SelectTrigger className="w-48">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="pending">Pending</SelectItem>
+                                          <SelectItem value="contacted">Contacted</SelectItem>
+                                          <SelectItem value="converted">Converted</SelectItem>
+                                          <SelectItem value="closed">Closed</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(lead)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(lead.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            
+            {filteredLeads.length === 0 && (
+              <div className="text-center py-8">
+                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No service leads found</h3>
+                <p className="text-gray-500">
+                  {searchTerm || statusFilter !== 'all' 
+                    ? 'Try adjusting your search criteria.' 
+                    : 'Service leads will appear here when customers submit inquiries.'}
+                </p>
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Edit Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Service Lead</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={editFormData.email}
+                    onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={editFormData.phone}
+                    onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="service">Service</Label>
+                  <Input
+                    id="service"
+                    value={editFormData.service}
+                    onChange={(e) => setEditFormData({ ...editFormData, service: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="preferred_datetime">Preferred Time</Label>
+                <Input
+                  id="preferred_datetime"
+                  type="datetime-local"
+                  value={editFormData.preferred_datetime}
+                  onChange={(e) => setEditFormData({ ...editFormData, preferred_datetime: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="message">Message</Label>
+                <Textarea
+                  id="message"
+                  value={editFormData.message}
+                  onChange={(e) => setEditFormData({ ...editFormData, message: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={editFormData.status}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="converted">Converted</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Update Lead
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
