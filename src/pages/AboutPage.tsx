@@ -97,25 +97,25 @@ const AboutPage = () => {
               {
                 name: "Michael Johnson",
                 position: "Founder & CEO",
-                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 bio: "With over 15 years in IT solutions, Michael founded OnAssist to make tech support accessible to everyone."
               },
               {
                 name: "Sarah Chen",
                 position: "Technical Director",
-                image: "https://images.unsplash.com/photo-1494790108755-2616b812b6aa?w=400&h=400&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 bio: "Sarah leads our technical team, ensuring our technicians have the skills and tools to solve any tech problem."
               },
               {
                 name: "David Rodriguez",
                 position: "Customer Experience Manager",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 bio: "David ensures every customer interaction exceeds expectations and builds lasting relationships."
               },
               {
                 name: "Emily Wilson",
                 position: "Training Specialist",
-                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 bio: "Emily develops our training programs, keeping our team updated on the latest technology solutions."
               }
             ].map((member, index) => (
