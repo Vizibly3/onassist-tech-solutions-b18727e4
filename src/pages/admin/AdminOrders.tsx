@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -56,6 +55,7 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -86,16 +86,20 @@ const AdminOrders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // Fetch orders first - no filtering by active status as orders don't have active column
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (ordersError) throw ordersError;
+      if (ordersError) {
+        console.error('Error fetching orders:', ordersError);
+        setError('Failed to fetch orders');
+        setOrders([]);
+        return;
+      }
 
-      // Fetch order items separately for each order
       const ordersWithItems = await Promise.all(
         (orders || []).map(async (order) => {
           const { data: orderItems, error: itemsError } = await supabase
@@ -115,11 +119,7 @@ const AdminOrders = () => {
       setOrders(ordersWithItems);
     } catch (error: any) {
       console.error('Error fetching orders:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch orders: ' + error.message,
-        variant: 'destructive'
-      });
+      setError('Failed to fetch orders: ' + error.message);
       setOrders([]);
     } finally {
       setLoading(false);
@@ -129,7 +129,6 @@ const AdminOrders = () => {
   const filterOrders = () => {
     let filtered = orders;
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(order => {
         const customerName = `${order.first_name} ${order.last_name}`.toLowerCase();
@@ -142,12 +141,10 @@ const AdminOrders = () => {
       });
     }
 
-    // Filter by status
     if (statusFilter !== 'all') {
       filtered = filtered.filter(order => order.status === statusFilter);
     }
 
-    // Filter by payment status
     if (paymentFilter !== 'all') {
       filtered = filtered.filter(order => order.payment_status === paymentFilter);
     }
@@ -235,6 +232,20 @@ const AdminOrders = () => {
       </Badge>
     );
   };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Orders</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={fetchOrders}>Try Again</Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (loading) {
     return (
@@ -440,6 +451,17 @@ const AdminOrders = () => {
                 ))}
               </TableBody>
             </Table>
+            
+            {filteredOrders.length === 0 && (
+              <div className="text-center py-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+                <p className="text-gray-500">
+                  {searchTerm || statusFilter !== 'all' || paymentFilter !== 'all'
+                    ? 'Try adjusting your search criteria.' 
+                    : 'Orders will appear here when customers place them.'}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

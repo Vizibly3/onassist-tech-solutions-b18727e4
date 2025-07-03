@@ -1,40 +1,45 @@
 
-import React, { useEffect, useState, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import Layout from "@/components/layout/Layout";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
+import Layout from '@/components/layout/Layout';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Download, Search, Filter, Eye, Edit, Trash } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Mail, Search, Eye, Edit, Trash } from 'lucide-react';
+import { format } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 
-interface Subscriber {
+interface NewsletterSubscriber {
   id: string;
   email: string;
   subscribed_at: string;
+  active: boolean;
 }
 
-const PAGE_SIZE = 10;
-
-const NewsletterSubscribersPage: React.FC = () => {
+const NewsletterSubscribersPage = () => {
   const { user, isAdmin, isLoading } = useAuth();
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState("");
-  const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
-  const [editingSubscriber, setEditingSubscriber] = useState<Subscriber | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSubscriber, setSelectedSubscriber] = useState<NewsletterSubscriber | null>(null);
+  const [editingSubscriber, setEditingSubscriber] = useState<NewsletterSubscriber | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     email: ''
@@ -54,32 +59,31 @@ const NewsletterSubscribersPage: React.FC = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  useEffect(() => {
-    const fetchSubscribers = async () => {
-      setLoading(true);
+  const { data: subscribers = [], isLoading: subscribersLoading, error, refetch } = useQuery({
+    queryKey: ['newsletter-subscribers'],
+    queryFn: async () => {
       try {
-        const query = supabase
-          .from("newsletter_subscribers")
-          .select("*")
+        const { data, error } = await supabase
+          .from('newsletter_subscribers')
+          .select('*')
           .eq('active', true)
-          .order("subscribed_at", { ascending: false });
-        const { data, error } = await query;
-        if (!error && data) {
-          setSubscribers(data as Subscriber[]);
-        } else {
-          console.error('Error fetching subscribers:', error);
-          setSubscribers([]);
+          .order('subscribed_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error fetching newsletter subscribers:', error);
+          throw error;
         }
+        return data as NewsletterSubscriber[] || [];
       } catch (error) {
-        console.error('Error fetching subscribers:', error);
-        setSubscribers([]);
+        console.error('Error fetching newsletter subscribers:', error);
+        return [];
       }
-      setLoading(false);
-    };
-    fetchSubscribers();
-  }, []);
+    },
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
-  const handleEdit = (subscriber: Subscriber) => {
+  const handleEdit = (subscriber: NewsletterSubscriber) => {
     setEditingSubscriber(subscriber);
     setEditFormData({
       email: subscriber.email
@@ -94,7 +98,7 @@ const NewsletterSubscribersPage: React.FC = () => {
     try {
       const { error } = await supabase
         .from('newsletter_subscribers')
-        .update(editFormData)
+        .update({ email: editFormData.email })
         .eq('id', editingSubscriber.id);
 
       if (error) throw error;
@@ -106,14 +110,7 @@ const NewsletterSubscribersPage: React.FC = () => {
 
       setIsEditDialogOpen(false);
       setEditingSubscriber(null);
-      
-      // Refresh the data
-      const { data } = await supabase
-        .from("newsletter_subscribers")
-        .select("*")
-        .eq('active', true)
-        .order("subscribed_at", { ascending: false });
-      if (data) setSubscribers(data);
+      refetch();
     } catch (error) {
       console.error('Error updating subscriber:', error);
       toast({
@@ -140,13 +137,7 @@ const NewsletterSubscribersPage: React.FC = () => {
         description: "Newsletter subscriber has been deleted successfully.",
       });
 
-      // Refresh the data
-      const { data } = await supabase
-        .from("newsletter_subscribers")
-        .select("*")
-        .eq('active', true)
-        .order("subscribed_at", { ascending: false });
-      if (data) setSubscribers(data);
+      refetch();
     } catch (error) {
       console.error('Error deleting subscriber:', error);
       toast({
@@ -157,218 +148,179 @@ const NewsletterSubscribersPage: React.FC = () => {
     }
   };
 
-  // Filter and search logic
-  const filteredSubscribers = useMemo(() => {
-    let filtered = subscribers;
-    if (search) {
-      filtered = filtered.filter((s) =>
-        s.email.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    if (filter) {
-      // Add more filter logic here if needed
-      filtered = filtered.filter((s) => s.email.endsWith(filter));
-    }
-    return filtered;
-  }, [subscribers, search, filter]);
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredSubscribers.length / PAGE_SIZE);
-  const paginatedSubscribers = filteredSubscribers.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
+  const filteredSubscribers = subscribers.filter(subscriber =>
+    subscriber.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Download as Excel
-  const handleDownload = () => {
-    const header = ["Email", "Subscribed At"];
-    const rows = filteredSubscribers.map((s) => [s.email, s.subscribed_at]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [header, ...rows].map((e) => e.join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "newsletter_subscribers.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Subscribers</h2>
+            <p className="text-gray-600 mb-4">There was an error loading the newsletter subscribers.</p>
+            <Button onClick={() => refetch()}>Try Again</Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (subscribersLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-64"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-10">
-        <Card className="shadow-xl border-0">
-          <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4">
-            <div>
-              <CardTitle className="text-2xl font-bold text-onassist-primary">
-                Newsletter Subscribers
-              </CardTitle>
-              <p className="text-gray-500 text-sm mt-1">
-                All users who have subscribed to your newsletter.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 items-center">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Newsletter Subscribers</h1>
+          <p className="text-gray-600">Manage newsletter subscribers and their information.</p>
+        </div>
+
+        {/* Search */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                type="text"
                 placeholder="Search by email..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="w-56"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
-              <Input
-                type="text"
-                placeholder="Filter by domain (e.g. gmail.com)"
-                value={filter}
-                onChange={(e) => {
-                  setFilter(e.target.value);
-                  setPage(1);
-                }}
-                className="w-56"
-              />
-              <Button
-                onClick={handleDownload}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" /> Download Excel
-              </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-blue-600">
+                {subscribers.length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Total Subscribers</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-green-600">
+                {subscribers.filter(s => s.active).length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Active Subscribers</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Subscribers Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Newsletter Subscribers ({filteredSubscribers.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      #
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Subscribed At
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
-                  {loading ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="text-center py-8 text-gray-400"
-                      >
-                        Loading subscribers...
-                      </td>
-                    </tr>
-                  ) : paginatedSubscribers.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="text-center py-8 text-gray-400"
-                      >
-                        No subscribers found.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedSubscribers.map((s, idx) => (
-                      <tr key={s.id} className="hover:bg-gray-50 transition">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(page - 1) * PAGE_SIZE + idx + 1}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {s.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(s.subscribed_at).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex gap-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setSelectedSubscriber(s)}
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Subscriber Details</DialogTitle>
-                                </DialogHeader>
-                                {selectedSubscriber && (
-                                  <div className="space-y-4">
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-500">Email</label>
-                                      <p>{selectedSubscriber.email}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-500">Subscribed At</label>
-                                      <p>{new Date(selectedSubscriber.subscribed_at).toLocaleString()}</p>
-                                    </div>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Subscription Date</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSubscribers.map((subscriber) => (
+                    <TableRow key={subscriber.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-gray-400" />
+                          {subscriber.email}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {format(new Date(subscriber.subscribed_at), 'MMM dd, yyyy')}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {format(new Date(subscriber.subscribed_at), 'hh:mm a')}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedSubscriber(subscriber)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Subscriber Details</DialogTitle>
+                              </DialogHeader>
+                              {selectedSubscriber && (
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-500">Email</label>
+                                    <p>{selectedSubscriber.email}</p>
                                   </div>
-                                )}
-                              </DialogContent>
-                            </Dialog>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(s)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleDelete(s.id)}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-500">Subscribed Date</label>
+                                    <p>{format(new Date(selectedSubscriber.subscribed_at), 'PPP pp')}</p>
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium text-gray-500">ID</label>
+                                    <p className="text-xs text-gray-600">{selectedSubscriber.id}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(subscriber)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(subscriber.id)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-            {/* Pagination */}
-            <div className="flex justify-between items-center mt-6">
-              <div className="text-sm text-gray-600">
-                Showing {(page - 1) * PAGE_SIZE + 1} -{" "}
-                {Math.min(page * PAGE_SIZE, filteredSubscribers.length)} of{" "}
-                {filteredSubscribers.length} subscribers
+            
+            {filteredSubscribers.length === 0 && (
+              <div className="text-center py-8">
+                <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No subscribers found</h3>
+                <p className="text-gray-500">
+                  {searchTerm 
+                    ? 'Try adjusting your search criteria.' 
+                    : 'Newsletter subscribers will appear here when users sign up.'}
+                </p>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  Previous
-                </Button>
-                <span className="px-2 py-1 text-gray-700 bg-gray-100 rounded">
-                  Page {page} of {totalPages || 1}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === totalPages || totalPages === 0}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 

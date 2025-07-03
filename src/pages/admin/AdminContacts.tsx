@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,7 +74,7 @@ const AdminContacts = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  const { data: contacts, isLoading: contactsLoading, refetch } = useQuery({
+  const { data: contacts = [], isLoading: contactsLoading, error, refetch } = useQuery({
     queryKey: ['admin-contacts'],
     queryFn: async () => {
       try {
@@ -85,13 +84,18 @@ const AdminContacts = () => {
           .eq('active', true)
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
-        return data as ContactInquiry[];
+        if (error) {
+          console.error('Error fetching contacts:', error);
+          throw error;
+        }
+        return data as ContactInquiry[] || [];
       } catch (error) {
         console.error('Error fetching contacts:', error);
         return [];
       }
     },
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   const updateContactStatus = async (contactId: string, newStatus: string) => {
@@ -190,7 +194,7 @@ const AdminContacts = () => {
     }
   };
 
-  const filteredContacts = contacts?.filter(contact => {
+  const filteredContacts = contacts.filter(contact => {
     const matchesSearch = 
       contact.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -200,7 +204,7 @@ const AdminContacts = () => {
     const matchesStatus = statusFilter === 'all' || contact.status === statusFilter;
     
     return matchesSearch && matchesStatus;
-  }) || [];
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -216,6 +220,20 @@ const AdminContacts = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Contacts</h2>
+            <p className="text-gray-600 mb-4">There was an error loading the contact inquiries.</p>
+            <Button onClick={() => refetch()}>Try Again</Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (contactsLoading) {
     return (
@@ -273,7 +291,7 @@ const AdminContacts = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-blue-600">
-                {contacts?.filter(c => c.status === 'new').length || 0}
+                {contacts.filter(c => c.status === 'new').length || 0}
               </div>
               <div className="text-sm text-gray-600">New Inquiries</div>
             </CardContent>
@@ -281,7 +299,7 @@ const AdminContacts = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-yellow-600">
-                {contacts?.filter(c => c.status === 'in_progress').length || 0}
+                {contacts.filter(c => c.status === 'in_progress').length || 0}
               </div>
               <div className="text-sm text-gray-600">In Progress</div>
             </CardContent>
@@ -289,7 +307,7 @@ const AdminContacts = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-green-600">
-                {contacts?.filter(c => c.status === 'resolved').length || 0}
+                {contacts.filter(c => c.status === 'resolved').length || 0}
               </div>
               <div className="text-sm text-gray-600">Resolved</div>
             </CardContent>
@@ -297,7 +315,7 @@ const AdminContacts = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-gray-600">
-                {contacts?.length || 0}
+                {contacts.length || 0}
               </div>
               <div className="text-sm text-gray-600">Total Inquiries</div>
             </CardContent>

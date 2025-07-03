@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,7 +74,7 @@ const AdminUsers = () => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  const { data: users, isLoading: usersLoading, refetch } = useQuery({
+  const { data: users = [], isLoading: usersLoading, error, refetch } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
       try {
@@ -85,13 +84,18 @@ const AdminUsers = () => {
           .eq('active', true)
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
-        return data as UserProfile[];
+        if (error) {
+          console.error('Error fetching users:', error);
+          throw error;
+        }
+        return data as UserProfile[] || [];
       } catch (error) {
         console.error('Error fetching users:', error);
         return [];
       }
     },
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   const handleEdit = (user: UserProfile) => {
@@ -191,14 +195,28 @@ const AdminUsers = () => {
     }
   };
 
-  const filteredUsers = users?.filter(user => {
+  const filteredUsers = users.filter(user => {
     const searchLower = searchTerm.toLowerCase();
     return (
       (user.first_name?.toLowerCase().includes(searchLower)) ||
       (user.last_name?.toLowerCase().includes(searchLower)) ||
       (user.phone_number?.toLowerCase().includes(searchLower))
     );
-  }) || [];
+  });
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Users</h2>
+            <p className="text-gray-600 mb-4">There was an error loading the users data.</p>
+            <Button onClick={() => refetch()}>Try Again</Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (usersLoading) {
     return (
@@ -241,7 +259,7 @@ const AdminUsers = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-blue-600">
-                {users?.length || 0}
+                {users.length || 0}
               </div>
               <div className="text-sm text-gray-600">Total Users</div>
             </CardContent>
@@ -249,7 +267,7 @@ const AdminUsers = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-green-600">
-                {users?.filter(u => !u.banned).length || 0}
+                {users.filter(u => !u.banned).length || 0}
               </div>
               <div className="text-sm text-gray-600">Active Users</div>
             </CardContent>
@@ -257,7 +275,7 @@ const AdminUsers = () => {
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-red-600">
-                {users?.filter(u => u.banned).length || 0}
+                {users.filter(u => u.banned).length || 0}
               </div>
               <div className="text-sm text-gray-600">Banned Users</div>
             </CardContent>
