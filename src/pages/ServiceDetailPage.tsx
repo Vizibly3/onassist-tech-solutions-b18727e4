@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
@@ -414,7 +413,7 @@ const ServiceDetailPage = () => {
         <div className="absolute top-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
-        <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="container mx-auto px-4 py-4 relative z-10">
           <Breadcrumb className="mb-4">
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -448,7 +447,7 @@ const ServiceDetailPage = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-2">
             <Button
               onClick={handleGoBack}
               variant="ghost"
@@ -1066,8 +1065,12 @@ const ServiceDetailPage = () => {
                 </div>
                 <div className="space-y-3 w-full">
                   {[
-                    `${config.service_warranty_days || "30"} day service warranty`,
-                    `${config.satisfaction_guarantee_percent || "100"}% satisfaction guaranteed`,
+                    `${
+                      config.service_warranty_days || "30"
+                    } day service warranty`,
+                    `${
+                      config.satisfaction_guarantee_percent || "100"
+                    }% satisfaction guaranteed`,
                     config.followup_support_text || "Free follow-up support",
                   ].map((guarantee, idx) => (
                     <div

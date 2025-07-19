@@ -261,7 +261,7 @@ const CategoryPage = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white py-28 overflow-hidden shadow-2xl">
+      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white py-12 overflow-hidden shadow-2xl">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30"></div>
         <div className="container mx-auto px-4 relative z-10">
@@ -306,7 +306,11 @@ const CategoryPage = () => {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center lg:text-left">
                 {[
-                  { icon: Users, label: dynamicConfig.certified_experts_stat, value: "Certified Experts" },
+                  {
+                    icon: Users,
+                    label: dynamicConfig.certified_experts_stat,
+                    value: "Certified Experts",
+                  },
                   {
                     icon: Star,
                     label: dynamicConfig.customer_satisfaction_stat,
@@ -662,7 +666,9 @@ const CategoryPage = () => {
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
                 <Users className="w-8 h-8 text-blue-500 mb-2" />
-                <div className="font-bold text-lg">{dynamicConfig.cities_covered_stat} Cities</div>
+                <div className="font-bold text-lg">
+                  {dynamicConfig.cities_covered_stat} Cities
+                </div>
                 <div className="text-gray-500 text-sm">Served Nationwide</div>
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
@@ -677,7 +683,9 @@ const CategoryPage = () => {
               </div>
               <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
                 <Star className="w-8 h-8 text-purple-500 mb-2" />
-                <div className="font-bold text-lg">{dynamicConfig.customer_satisfaction_stat}</div>
+                <div className="font-bold text-lg">
+                  {dynamicConfig.customer_satisfaction_stat}
+                </div>
                 <div className="text-gray-500 text-sm">
                   Customer Satisfaction
                 </div>
