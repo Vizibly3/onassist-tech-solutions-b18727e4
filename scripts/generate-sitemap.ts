@@ -13,7 +13,7 @@ import { serviceCategories, getAllServices } from "../src/config/services.ts";
 // "generate-sitemap": "ts-node scripts/generate-sitemap.ts",
 // "generate-sitemap": "tsx scripts/generate-sitemap.ts",
 
-const BASE_URL = "https://onassist.vercel.app";
+const BASE_URL = "https://www.smartdoorstep.com/sitemap.xml";
 const URLS_PER_CHUNK = 10000;
 
 interface SitemapUrl {
