@@ -26,6 +26,198 @@
     content="On-demand tech support for homes and offices. Get help with setup, repairs, software, and more." />
   <meta name="twitter:image"
     content="https://images.unsplash.com/photo-1581090700227-1e8e0f0f3c3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630&q=80" />
+
+  <script>
+    (function () {
+      // TrackWiser Analytics - Self-contained tracking script
+      var tw = window.tw = window.tw || [];
+      if (tw.initialized) return;
+
+      tw.initialized = true;
+      tw.config = {
+        trackingCode: 'TW_1753636643460_ymmdlaj3c',
+        apiUrl: 'https://ltluebewuhheisbbjcss.supabase.co/functions/v1/track-event',
+        domain: 'https://www.smartdoorstep.com/',
+        debug: false
+      };
+
+      // Generate unique visitor ID (persists across sessions)
+      tw.visitorId = localStorage.getItem('tw_visitor_id') || 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+      localStorage.setItem('tw_visitor_id', tw.visitorId);
+
+      // Generate session ID (new for each session)
+      tw.sessionId = sessionStorage.getItem('tw_session_id') || 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+      sessionStorage.setItem('tw_session_id', tw.sessionId);
+
+      // Main tracking function
+      tw.track = function (eventType, data) {
+        if (!tw.config.trackingCode) return;
+
+        var payload = {
+          tracking_code: tw.config.trackingCode,
+          event_type: eventType || 'page_view',
+          visitor_id: tw.visitorId,
+          session_id: tw.sessionId,
+          page_url: window.location.href,
+          referrer: document.referrer || '',
+          user_agent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          data: data || {}
+        };
+
+        // Add screen resolution
+        if (screen.width && screen.height) {
+          payload.data.screen_resolution = screen.width + 'x' + screen.height;
+        }
+
+        // Add viewport size
+        if (window.innerWidth && window.innerHeight) {
+          payload.data.viewport_size = window.innerWidth + 'x' + window.innerHeight;
+        }
+
+        // Add language
+        payload.data.language = navigator.language || 'unknown';
+
+        // Send to TrackWiser API
+        fetch(tw.config.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        }).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          if (tw.config.debug) {
+            if (result.blocked) {
+              console.log('TrackWiser: Bot detected and blocked', result);
+            } else {
+              console.log('TrackWiser: Event tracked successfully', result);
+            }
+          }
+        }).catch(function (error) {
+          if (tw.config.debug) {
+            console.error('TrackWiser: Error tracking event:', error);
+          }
+        });
+      };
+
+      // Auto-track page view on load
+      tw.track('page_view', {
+        title: document.title,
+        url: window.location.href,
+        referrer: document.referrer,
+        loaded_at: new Date().toISOString()
+      });
+
+      // Track clicks on important elements
+      document.addEventListener('click', function (e) {
+        var element = e.target;
+        var elementType = element.tagName.toLowerCase();
+
+        // Track button clicks
+        if (elementType === 'button' || element.type === 'submit') {
+          tw.track('button_click', {
+            button_text: element.textContent ? element.textContent.substring(0, 50) : '',
+            button_id: element.id || 'no-id',
+            button_class: element.className || 'no-class',
+            url: window.location.href
+          });
+        }
+
+        // Track link clicks
+        if (elementType === 'a' && element.href) {
+          tw.track('link_click', {
+            link_url: element.href,
+            link_text: element.textContent ? element.textContent.substring(0, 50) : '',
+            is_external: element.hostname !== window.location.hostname,
+            url: window.location.href
+          });
+        }
+
+        // Track form submissions
+        if (elementType === 'form' || element.type === 'submit') {
+          tw.track('form_interaction', {
+            form_id: element.id || 'no-id',
+            form_action: element.action || 'no-action',
+            url: window.location.href
+          });
+        }
+      });
+
+      // Track scroll depth
+      var maxScroll = 0;
+      var scrollTimer = null;
+
+      window.addEventListener('scroll', function () {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function () {
+          var scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+
+          if (scrollPercent > maxScroll && scrollPercent >= 25 && scrollPercent % 25 === 0) {
+            maxScroll = scrollPercent;
+            tw.track('scroll_depth', {
+              depth_percent: scrollPercent,
+              url: window.location.href
+            });
+          }
+        }, 100);
+      });
+
+      // Track time on page before leaving
+      var startTime = Date.now();
+      var heartbeatInterval = setInterval(function () {
+        var timeOnPage = Math.round((Date.now() - startTime) / 1000);
+
+        // Send heartbeat every 30 seconds
+        if (timeOnPage > 0 && timeOnPage % 30 === 0) {
+          tw.track('heartbeat', {
+            time_on_page: timeOnPage,
+            url: window.location.href
+          });
+        }
+      }, 30000);
+
+      // Track page exit
+      window.addEventListener('beforeunload', function () {
+        clearInterval(heartbeatInterval);
+        var timeOnPage = Math.round((Date.now() - startTime) / 1000);
+
+        // Use sendBeacon for reliable exit tracking
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(tw.config.apiUrl, JSON.stringify({
+            tracking_code: tw.config.trackingCode,
+            event_type: 'page_exit',
+            visitor_id: tw.visitorId,
+            session_id: tw.sessionId,
+            page_url: window.location.href,
+            referrer: document.referrer || '',
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            data: {
+              time_on_page: timeOnPage,
+              exit_type: 'beforeunload'
+            }
+          }));
+        }
+      });
+
+      // Track page visibility changes
+      document.addEventListener('visibilitychange', function () {
+        tw.track('visibility_change', {
+          visibility_state: document.visibilityState,
+          url: window.location.href
+        });
+      });
+
+      if (tw.config.debug) {
+        console.log('TrackWiser Analytics loaded successfully for: ' + tw.config.domain);
+        console.log('Tracking Code: ' + tw.config.trackingCode);
+        console.log('Visitor ID: ' + tw.visitorId);
+        console.log('Session ID: ' + tw.sessionId);
+      }
+    })();
+  </script>
 </head>
 
 <body>
