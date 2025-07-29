@@ -19,7 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { siteConfig } from '@/config/site';
+import { siteConfig } from "@/config/site";
 
 const registerFormSchema = z
   .object({
@@ -101,7 +101,7 @@ const Register = () => {
                 Create Account
               </CardTitle>
               <p className="text-gray-600">
-                Join Smart Doorstep for expert tech support
+                Join Smart Doorstep for expert Smart Doorstep support services
               </p>
             </CardHeader>
             <CardContent>
