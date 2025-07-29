@@ -13,7 +13,9 @@ import {
   ArrowRight,
   Target,
   Lightbulb,
-  Heart
+  Heart,
+  Star,
+  Building
 } from 'lucide-react';
 
 const AboutPage = () => {
