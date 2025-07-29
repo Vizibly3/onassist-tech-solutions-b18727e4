@@ -1,285 +1,341 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Users, Star, Shield, Clock, ArrowRight } from 'lucide-react';
+import Layout from '@/components/layout/Layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useDynamicSiteConfig } from '@/hooks/useDynamicSiteConfig';
+import { 
+  Handshake, 
+  TrendingUp, 
+  Users, 
+  Award, 
+  Phone, 
+  Mail, 
+  MapPin,
+  CheckCircle,
+  Star,
+  DollarSign,
+  Shield,
+  Clock
+} from 'lucide-react';
 
 const PartnerPage = () => {
   const { config } = useDynamicSiteConfig();
 
-  const benefits = [
-    {
-      title: "Guaranteed Income",
-      description: "Steady stream of customers with competitive compensation rates",
-      icon: <CheckCircle className="w-6 h-6 text-green-500" />
-    },
-    {
-      title: "Flexible Schedule",
-      description: "Work when you want, where you want. Perfect for freelancers",
-      icon: <Clock className="w-6 h-6 text-blue-500" />
-    },
-    {
-      title: "Professional Support",
-      description: "24/7 technical and business support from our team",
-      icon: <Shield className="w-6 h-6 text-purple-500" />
-    },
-    {
-      title: "Growing Network",
-      description: "Join thousands of certified technicians in our network",
-      icon: <Users className="w-6 h-6 text-orange-500" />
-    }
-  ];
-
-  const requirements = [
-    "2+ years of tech support experience",
-    "Valid certification in relevant technologies",
-    "Excellent communication skills",
-    "Own transportation and basic tools",
-    "Background check clearance",
-    "Customer service orientation"
-  ];
-
-  const stats = [
-    { number: "500+", label: "Partner Technicians" },
-    { number: "4.8/5", label: "Average Rating" },
-    { number: "95%", label: "Customer Satisfaction" },
-    { number: "24/7", label: "Support Available" }
-  ];
-
   return (
-    <>
+    <Layout>
       <Helmet>
-        <title>Partner With Us - Join {config.name} Network</title>
-        <meta name="description" content={`Join the ${config.name} network of certified technicians. Flexible work, guaranteed income, and professional support.`} />
+        <title>Partner With Us | {config.name}</title>
+        <meta name="description" content={`Join our partner network and grow your business with ${config.name}. Exclusive benefits, training, and support for qualified partners.`} />
       </Helmet>
       
-      <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-onassist-primary to-blue-600 text-white py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Partner With {config.name}
-              </h1>
-              <p className="text-xl md:text-2xl mb-8 opacity-90">
-                Join our network of certified technicians and grow your business with guaranteed customers
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-onassist-primary hover:bg-gray-100 text-lg px-8 py-3">
-                  Apply Now
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-white text-white hover:bg-white hover:text-onassist-primary text-lg px-8 py-3"
-                >
-                  Learn More
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: "url('data:image/svg+xml;utf8,<svg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"%23ffffff\" fill-opacity=\"0.3\"><circle cx=\"30\" cy=\"30\" r=\"8\"/><circle cx=\"10\" cy=\"10\" r=\"4\"/><circle cx=\"50\" cy=\"50\" r=\"6\"/></g></svg>')"
+          }}></div>
+        </div>
 
-        {/* Stats Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-onassist-primary mb-2">
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-600">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits Section */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Why Partner With Us?
-              </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Join a network that values your expertise and helps you grow your business
-              </p>
-            </div>
+        <div className="relative container mx-auto px-4 py-20">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="bg-white/20 text-white mb-6 px-6 py-2 backdrop-blur-sm">
+              <Handshake className="w-4 h-4 mr-2" />
+              Partnership Opportunities
+            </Badge>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {benefits.map((benefit, index) => (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-center mb-4">
-                      {benefit.icon}
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              Partner with <span className="text-yellow-300">{config.name}</span>
+            </h1>
+            <p className="text-2xl opacity-90 mb-8 leading-relaxed">
+              Join our growing network of trusted partners and expand your business opportunities in the tech support industry.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Button size="lg" className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-8 py-4 rounded-full shadow-2xl">
+                <Phone className="w-5 h-5 mr-2" />
+                Become a Partner
+              </Button>
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-bold px-8 py-4 rounded-full backdrop-blur-sm">
+                Learn More
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Partnership Benefits */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              Why Partner with <span className="text-onassist-primary">{config.name}</span>?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              We provide everything you need to succeed as our partner
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: TrendingUp,
+                title: "Growing Market",
+                description: "Tech support industry is expanding rapidly with increasing demand for professional services"
+              },
+              {
+                icon: DollarSign,
+                title: "Competitive Revenue",
+                description: "Attractive commission structure with performance bonuses and recurring revenue opportunities"
+              },
+              {
+                icon: Award,
+                title: "Brand Recognition",
+                description: `Leverage the trusted ${config.name} brand to attract more customers and build credibility`
+              },
+              {
+                icon: Users,
+                title: "Training & Support",
+                description: "Comprehensive training programs and ongoing support to ensure your success"
+              },
+              {
+                icon: Shield,
+                title: "Marketing Resources",
+                description: "Access to professional marketing materials, campaigns, and lead generation tools"
+              },
+              {
+                icon: Clock,
+                title: "Flexible Partnership",
+                description: "Multiple partnership models to fit your business needs and growth objectives"
+              }
+            ].map((benefit, index) => {
+              const BenefitIcon = benefit.icon;
+              return (
+                <Card key={index} className="shadow-lg hover:shadow-2xl transition-all duration-300 border-0 bg-white hover:-translate-y-2">
+                  <CardContent className="p-8 text-center">
+                    <div className="bg-gradient-to-br from-onassist-primary to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <BenefitIcon className="w-8 h-8 text-white" />
                     </div>
-                    <CardTitle className="text-xl">{benefit.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-gray-600">
-                      {benefit.description}
-                    </CardDescription>
+                    <h3 className="font-bold text-xl mb-4">{benefit.title}</h3>
+                    <p className="text-gray-600">{benefit.description}</p>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Requirements Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  Partner Requirements
-                </h2>
-                <p className="text-xl text-gray-600">
-                  We maintain high standards to ensure excellent service for our customers
-                </p>
+      {/* Partnership Types */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">Partnership Programs</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Choose the partnership model that best fits your business
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                title: "Referral Partner",
+                subtitle: "Earn commissions",
+                features: [
+                  "Earn up to 15% commission",
+                  "No upfront investment",
+                  "Marketing support included",
+                  "Online tracking dashboard",
+                  "Quick approval process"
+                ],
+                popular: false,
+                color: "from-blue-500 to-blue-600"
+              },
+              {
+                title: "Authorized Reseller",
+                subtitle: "Sell our services",
+                features: [
+                  "Up to 25% profit margins",
+                  "Exclusive territory rights",
+                  "Complete training program",
+                  "Technical support included",
+                  "Co-branded materials",
+                  "Lead generation support"
+                ],
+                popular: true,
+                color: "from-purple-600 to-purple-700"
+              },
+              {
+                title: "Franchise Partner",
+                subtitle: "Own your market",
+                features: [
+                  "Protected territory",
+                  "Full business model",
+                  "Ongoing operational support",
+                  "National advertising benefits",
+                  "Established brand recognition",
+                  "Comprehensive training"
+                ],
+                popular: false,
+                color: "from-green-500 to-green-600"
+              }
+            ].map((program, index) => (
+              <Card key={index} className={`relative overflow-hidden shadow-2xl border-0 ${program.popular ? 'transform scale-105' : ''} hover:shadow-3xl transition-all duration-300`}>
+                {program.popular && (
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-400 text-center py-3">
+                    <span className="text-yellow-900 font-bold text-sm uppercase tracking-wide">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                
+                <CardHeader className={`bg-gradient-to-br ${program.color} text-white ${program.popular ? 'pt-16' : 'pt-8'} pb-8`}>
+                  <div className="text-center">
+                    <CardTitle className="text-3xl font-bold mb-2">{program.title}</CardTitle>
+                    <p className="text-white/90 text-lg">{program.subtitle}</p>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-8">
+                  <div className="space-y-4 mb-8">
+                    {program.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center gap-3">
+                        <div className={`bg-gradient-to-br ${program.color} w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0`}>
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button 
+                    className={`w-full py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 ${
+                      program.popular 
+                        ? 'bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-yellow-900' 
+                        : `bg-gradient-to-br ${program.color} hover:opacity-90 text-white`
+                    }`}
+                  >
+                    {program.popular ? 'Get Started' : 'Learn More'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">What Our Partners Say</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Hear from successful partners who've grown their business with us
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Mike Johnson",
+                role: "Authorized Reseller",
+                company: "Tech Solutions Pro",
+                content: `Partnering with ${config.name} has been the best business decision I've made. The support and training they provide is exceptional.`,
+                rating: 5
+              },
+              {
+                name: "Sarah Williams",
+                role: "Franchise Partner",
+                company: "Bay Area Tech Support",
+                content: "The franchise model gave me everything I needed to start and grow my business. Revenue has increased 300% in just 18 months.",
+                rating: 5
+              },
+              {
+                name: "David Chen",
+                role: "Referral Partner",
+                company: "Digital Marketing Agency",
+                content: "The referral program is fantastic. Easy to implement and the commissions are paid on time, every time.",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <Card key={index} className="shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-white">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-1 mb-4">
+                    {Array.from({ length: testimonial.rating }, (_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <blockquote className="text-gray-700 mb-6 italic">
+                    "{testimonial.content}"
+                  </blockquote>
+                  <div>
+                    <div className="font-bold text-lg">{testimonial.name}</div>
+                    <div className="text-onassist-primary font-medium">{testimonial.role}</div>
+                    <div className="text-gray-500 text-sm">{testimonial.company}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 via-onassist-dark to-blue-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: "url('data:image/svg+xml;utf8,<svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"%23ffffff\" fill-opacity=\"0.3\"><path d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/></g></svg>')"
+          }}></div>
+        </div>
+        
+        <div className="relative container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Ready to <span className="text-yellow-300">Partner</span> with Us?
+            </h2>
+            <p className="text-xl md:text-2xl opacity-90 mb-12 leading-relaxed">
+              Let's discuss how we can grow together and create a successful partnership.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                  <Phone className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Call Us</h3>
+                <p className="opacity-90">{config.contactPhone}</p>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Basic Requirements</h3>
-                  <ul className="space-y-4">
-                    {requirements.map((requirement, index) => (
-                      <li key={index} className="flex items-start">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{requirement}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                  <Mail className="w-8 h-8 text-white" />
                 </div>
-                
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Application Process</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <Badge className="bg-onassist-primary text-white mr-3">1</Badge>
-                      <span className="text-gray-700">Submit application with credentials</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Badge className="bg-onassist-primary text-white mr-3">2</Badge>
-                      <span className="text-gray-700">Technical skills assessment</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Badge className="bg-onassist-primary text-white mr-3">3</Badge>
-                      <span className="text-gray-700">Background check and verification</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Badge className="bg-onassist-primary text-white mr-3">4</Badge>
-                      <span className="text-gray-700">Onboarding and training</span>
-                    </div>
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold mb-2">Email Us</h3>
+                <p className="opacity-90">{config.email}</p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                What Our Partners Say
-              </h2>
+              
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                  <MapPin className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Visit Us</h3>
+                <p className="opacity-90">{config.address}</p>
+              </div>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <Card className="text-center">
-                <CardHeader>
-                  <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <Users className="w-8 h-8 text-gray-600" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg">John Smith</CardTitle>
-                  <CardDescription>IT Support Specialist</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 italic">
-                    "Working with {config.name} has been amazing. Steady income and great support!"
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center">
-                <CardHeader>
-                  <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <Users className="w-8 h-8 text-gray-600" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg">Sarah Johnson</CardTitle>
-                  <CardDescription>Network Technician</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 italic">
-                    "The flexibility and professional support make this the perfect partnership."
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center">
-                <CardHeader>
-                  <div className="flex justify-center mb-4">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <Users className="w-8 h-8 text-gray-600" />
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg">Mike Chen</CardTitle>
-                  <CardDescription>Computer Repair Expert</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 italic">
-                    "Best decision I made for my business. Highly recommend partnering with them."
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16 bg-onassist-primary text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to Join Our Network?
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Start your journey with {config.name} today and grow your business with us
-            </p>
-            <Button size="lg" className="bg-white text-onassist-primary hover:bg-gray-100 text-lg px-8 py-3">
-              Apply Now
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Button 
+              size="lg" 
+              className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-12 py-6 rounded-full shadow-2xl text-xl"
+            >
+              <Handshake className="w-6 h-6 mr-3" />
+              Start Your Partnership Journey
             </Button>
           </div>
-        </section>
-      </div>
-    </>
+        </div>
+      </section>
+    </Layout>
   );
 };
 

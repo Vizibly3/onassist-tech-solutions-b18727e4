@@ -1,9 +1,7 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 
 export type Profile = {
   id: string;
@@ -37,7 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { config } = useDynamicSiteConfig();
 
   // Check if user has admin role
   const checkAdminRole = async (userId: string) => {
@@ -203,7 +200,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         toast({
           title: "Account created successfully!",
-          description: `Welcome to ${config.name}. You can now start using our services.`,
+          description: "Welcome to OnAssist. You can now start using our services.",
         });
       } else if (error) {
         console.error('Signup error:', error);
