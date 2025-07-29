@@ -45,7 +45,7 @@ export const fetchSiteSettings = async (): Promise<SiteSettings> => {
         id: 1,
         name: "Smart Doorstep",
         description:
-          "Professional tech support services for your home and business",
+          "Professional Smart Doorstep services for your home and business",
         email: "support@smartdoorstep.com",
         contactphone: "+1 (888) 970-1698",
         address: "123 Tech Avenue, Suite 100, San Francisco, CA 94107",

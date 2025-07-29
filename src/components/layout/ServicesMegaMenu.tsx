@@ -82,7 +82,7 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = ({ isOpen, onClose }) 
                   Our Premium Services
                 </h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  Professional tech support solutions designed to make your life easier with cutting-edge technology
+                  Professional Smart Doorstep solutions designed to make your life easier with cutting-edge technology
                 </p>
               </div>
 

@@ -84,19 +84,19 @@ const CountryPage = () => {
       name: `Michael R.`,
       location: `${countryData.name}`,
       rating: 5,
-      text: `Exceptional tech support nationwide. Professional service and expert technicians across ${countryData.name}.`
+      text: `Exceptional Smart Doorstep support nationwide. Professional service and expert technicians across ${countryData.name}.`
     },
     {
       name: `Sarah Johnson`,
       location: `${countryData.name}`,
       rating: 5,
-      text: `Outstanding customer service! They've been our go-to tech support provider across multiple states.`
+      text: `Outstanding customer service! They've been our go-to Smart Doorstep support provider across multiple states.`
     },
     {
       name: `David Wilson`,
       location: `${countryData.name}`,
       rating: 5,
-      text: `Reliable, professional, and always available. Best tech support service in ${countryData.name}!`
+      text: `Reliable, professional, and always available. Best Smart Doorstep support service in ${countryData.name}!`
     }
   ];
 
@@ -144,9 +144,9 @@ const CountryPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>Professional Tech Support Services in {countryData.name} | {siteConfig.name}</title>
-        <meta name="description" content={`Leading tech support services across ${countryData.name}. Expert technicians providing computer repair, smart home setup, and IT support in all states. Nationwide coverage with local expertise.`} />
-        <meta name="keywords" content={`tech support ${countryData.name}, computer repair nationwide, IT services ${countryData.name}, smart home setup`} />
+        <title>Professional Smart Doorstep Support Services in {countryData.name} | {siteConfig.name}</title>
+        <meta name="description" content={`Leading Smart Doorstep support services across ${countryData.name}. Expert technicians providing computer repair, smart home setup, and IT support in all states. Nationwide coverage with local expertise.`} />
+        <meta name="keywords" content={`Smart Doorstep support ${countryData.name}, computer repair nationwide, IT services ${countryData.name}, smart home setup`} />
       </Helmet>
 
       {/* Breadcrumb */}
@@ -196,7 +196,7 @@ const CountryPage = () => {
             
             <h1 className="text-6xl md:text-8xl font-bold mb-8 leading-tight">
               <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                Tech Support
+                Smart Doorstep Support
               </span>
               <br />
               <span className="text-yellow-300">Across {countryData.name}</span>
@@ -255,7 +255,7 @@ const CountryPage = () => {
               <span className="font-medium text-lg">Why Choose Us</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-bold mb-8">
-              Leading Tech Support in <span className="text-onassist-primary">{countryData.name}</span>
+              Leading Smart Doorstep Support in <span className="text-onassist-primary">{countryData.name}</span>
             </h2>
             <p className="text-2xl text-gray-600 max-w-4xl mx-auto">
               Trusted by customers nationwide for reliable, professional technology solutions
@@ -270,7 +270,7 @@ const CountryPage = () => {
                 </div>
                 <h3 className="font-bold text-2xl mb-4">Nationwide Coverage</h3>
                 <p className="text-gray-600 text-lg leading-relaxed">
-                  Professional tech support available in all 50 states across {countryData.name}
+                  Professional Smart Doorstep support available in all 50 states across {countryData.name}
                 </p>
               </CardContent>
             </Card>
@@ -350,7 +350,7 @@ const CountryPage = () => {
               States We Serve in <span className="text-onassist-primary">{countryData.name}</span>
             </h2>
             <p className="text-2xl text-gray-600">
-              Professional tech support available in all major states
+              Professional Smart Doorstep support available in all major states
             </p>
           </div>
 

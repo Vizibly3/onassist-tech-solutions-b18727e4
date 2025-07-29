@@ -221,7 +221,7 @@ const PartnerPage = () => {
           </h2>
           <p className="text-xl mb-12">
             Join the {config.name} partner program today and start offering
-            top-notch tech support services to your clients.
+            top-notch Smart Doorstep support services to your clients.
           </p>
           <Button
             size="lg"

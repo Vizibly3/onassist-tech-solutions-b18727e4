@@ -170,7 +170,7 @@ export const techniciansData: Technician[] = [
   {
     id: 15,
     name: "Carmen Diaz",
-    title: "Tech Support Specialist",
+    title: "Smart Doorstep Support Specialist",
     image: "https://randomuser.me/api/portraits/women/45.jpg",
     experience: "5+ Years",
     specialties: ["Tech Support", "Device Setup", "Customer Service"],

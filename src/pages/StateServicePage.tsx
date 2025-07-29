@@ -137,15 +137,16 @@ const StateServicePage = () => {
     <Layout>
       <Helmet>
         <title>
-          Best Tech Support Services in {stateData.name} | {siteConfig.name}
+          Best Smart Doorstep Support Services in {stateData.name} |{" "}
+          {siteConfig.name}
         </title>
         <meta
           name="description"
-          content={`Professional tech support services throughout ${stateData.name}. Expert technicians providing computer repair, smart home setup, and IT support in all cities across ${stateData.name}.`}
+          content={`Professional Smart Doorstep support services throughout ${stateData.name}. Expert technicians providing computer repair, smart home setup, and IT support in all cities across ${stateData.name}.`}
         />
         <meta
           name="keywords"
-          content={`tech support ${stateData.name}, computer repair ${stateData.abbreviation}, IT services ${stateData.name}`}
+          content={`Smart Doorstep support ${stateData.name}, computer repair ${stateData.abbreviation}, IT services ${stateData.name}`}
         />
       </Helmet>
 
@@ -210,7 +211,7 @@ const StateServicePage = () => {
 
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                Tech Support in
+                Smart Doorstep Support in
               </span>
               <br />
               <span className="text-yellow-300">{stateData.name}</span>
@@ -276,8 +277,8 @@ const StateServicePage = () => {
               <span className="text-onassist-primary">{stateData.name}</span>
             </h2>
             <p className="text-xl text-gray-600">
-              Professional tech support available in all major cities across{" "}
-              {stateData.name}
+              Professional Smart Doorstep support available in all major cities
+              across {stateData.name}
             </p>
           </div>
 
@@ -565,7 +566,7 @@ const StateServicePage = () => {
                 </span>
               </div>
               <h2 className="text-4xl md:text-5xl font-extrabold mb-3 leading-tight text-white drop-shadow-lg">
-                Ready for Tech Support in{" "}
+                Ready for Smart Doorstep Support in{" "}
                 <span className="text-yellow-300 drop-shadow">
                   {stateData.name}
                 </span>

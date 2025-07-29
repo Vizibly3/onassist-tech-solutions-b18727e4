@@ -578,7 +578,7 @@ const LocationServiceDetailPage = () => {
                       </div>
                       <p className="text-gray-600">
                         Serving {cityData.name} residents and businesses with
-                        personalized, reliable tech support.
+                        personalized, reliable Smart Doorstep support.
                       </p>
                     </div>
 

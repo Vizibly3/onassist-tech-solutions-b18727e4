@@ -202,7 +202,8 @@ const WhyChooseUs = () => {
           {/* Call to Action */}
           <div className="text-center mt-12 pt-8 border-t border-gray-200">
             <p className="text-gray-600 mb-4">
-              Ready to experience certified excellence in tech support?
+              Ready to experience certified excellence in Smart Doorstep
+              Support?
             </p>
             <button className="bg-gradient-to-r from-onassist-primary to-onassist-secondary text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
               Get Started Today
