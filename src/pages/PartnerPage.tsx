@@ -1,148 +1,36 @@
-import React, { useState } from 'react';
+
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Helmet } from 'react-helmet-async';
-import { siteConfig } from '@/config/site';
+import { Badge } from '@/components/ui/badge';
+import { useDynamicSiteConfig } from '@/hooks/useDynamicSiteConfig';
 import { 
   Handshake, 
   TrendingUp, 
   Users, 
   Award, 
-  DollarSign, 
-  Globe, 
   Phone, 
   Mail, 
-  MapPin, 
+  MapPin,
   CheckCircle,
   Star,
-  Zap,
+  DollarSign,
   Shield,
-  Target,
-  Briefcase,
-  Send
+  Clock
 } from 'lucide-react';
-import { useForm, Controller } from 'react-hook-form';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-
-interface PartnerFormData {
-  companyName: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  website?: string;
-  partnershipType: string;
-  companySize: string;
-  experience: string;
-  message: string;
-}
 
 const PartnerPage = () => {
-  const { toast } = useToast();
-  const [showThankYou, setShowThankYou] = useState(false);
-  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<PartnerFormData>({
-    defaultValues: {
-      companyName: '',
-      contactName: '',
-      email: '',
-      phone: '',
-      website: '',
-      partnershipType: '',
-      companySize: '',
-      experience: '',
-      message: ''
-    }
-  });
-
-  const onSubmit = async (data: PartnerFormData) => {
-    try {
-      console.log('Submitting partnership form with data:', data);
-      
-      // Ensure all required fields have values
-      if (!data.partnershipType || !data.companySize || !data.experience) {
-        toast({
-          title: "❌ Missing Information",
-          description: "Please fill in all required fields including Partnership Type, Company Size, and Experience.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      const { error } = await supabase
-        .from('contact_inquiries')
-        .insert([{
-          first_name: data.contactName.split(' ')[0] || data.contactName,
-          last_name: data.contactName.split(' ').slice(1).join(' ') || '',
-          email: data.email,
-          phone_number: data.phone,
-          subject: `Partnership Inquiry - ${data.partnershipType}`,
-          message: `
-Company: ${data.companyName}
-Website: ${data.website || 'Not provided'}
-Partnership Type: ${data.partnershipType}
-Company Size: ${data.companySize}
-Experience: ${data.experience}
-
-Message:
-${data.message}
-          `.trim(),
-          status: 'new'
-        }]);
-      
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      // Show success message
-      toast({
-        title: "🎉 Thank You for Your Partnership Interest!",
-        description: "Your partnership application has been submitted successfully! Our partnership team will review your application and get back to you within 48 hours with next steps.",
-      });
-
-      // Show thank you section
-      setShowThankYou(true);
-
-      // Reset form
-      reset({
-        companyName: '',
-        contactName: '',
-        email: '',
-        phone: '',
-        website: '',
-        partnershipType: '',
-        companySize: '',
-        experience: '',
-        message: ''
-      });
-
-      // Hide thank you message after 7 seconds
-      setTimeout(() => {
-        setShowThankYou(false);
-      }, 7000);
-
-    } catch (error) {
-      console.error('Error submitting partnership form:', error);
-      toast({
-        title: "❌ Error Sending Application",
-        description: "We're sorry, there was an issue submitting your application. Please try again or contact us directly at partnerships@onassist.com",
-        variant: "destructive",
-      });
-    }
-  };
+  const { config } = useDynamicSiteConfig();
 
   return (
     <Layout>
       <Helmet>
-        <title>Partner With Us | {siteConfig.name}</title>
-        <meta name="description" content="Join our partner network and grow your business with OnAssist. Explore partnership opportunities and benefits." />
+        <title>Partner With Us | {config.name}</title>
+        <meta name="description" content={`Join our partner network and grow your business with ${config.name}. Exclusive benefits, training, and support for qualified partners.`} />
       </Helmet>
-
+      
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-onassist-primary via-blue-600 to-purple-700 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-20">
@@ -152,161 +40,86 @@ ${data.message}
         </div>
 
         <div className="relative container mx-auto px-4 py-20">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8">
-              <Handshake className="w-5 h-5" />
-              <span className="font-medium">Partnership Program</span>
-            </div>
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="bg-white/20 text-white mb-6 px-6 py-2 backdrop-blur-sm">
+              <Handshake className="w-4 h-4 mr-2" />
+              Partnership Opportunities
+            </Badge>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Partner With <span className="text-yellow-300">OnAssist</span>
+              Partner with <span className="text-yellow-300">{config.name}</span>
             </h1>
-            <p className="text-2xl opacity-90 mb-12 leading-relaxed">
-              Join our growing network of tech partners and unlock new revenue opportunities while delivering exceptional service to your customers.
+            <p className="text-2xl opacity-90 mb-8 leading-relaxed">
+              Join our growing network of trusted partners and expand your business opportunities in the tech support industry.
             </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">500+</div>
-                <div className="text-lg opacity-80">Active Partners</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">50%</div>
-                <div className="text-lg opacity-80">Revenue Share</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
-                <div className="text-3xl font-bold mb-2">24/7</div>
-                <div className="text-lg opacity-80">Partner Support</div>
-              </div>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Button size="lg" className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-8 py-4 rounded-full shadow-2xl">
+                <Phone className="w-5 h-5 mr-2" />
+                Become a Partner
+              </Button>
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-bold px-8 py-4 rounded-full backdrop-blur-sm">
+                Learn More
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Partnership Types Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      {/* Partnership Benefits */}
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-6 py-2 mb-4">
-              <Target className="w-5 h-5" />
-              <span className="font-medium">Partnership Opportunities</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Multiple Ways to <span className="text-onassist-primary">Partner</span>
+            <h2 className="text-4xl font-bold mb-6">
+              Why Partner with <span className="text-onassist-primary">{config.name}</span>?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Choose the partnership model that best fits your business goals and capabilities
+              We provide everything you need to succeed as our partner
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                icon: Briefcase,
-                title: "Reseller Partner",
-                description: "Sell our services under your brand and earn commission on every sale",
-                benefits: ["40% commission", "Marketing support", "Dedicated portal"]
+                icon: TrendingUp,
+                title: "Growing Market",
+                description: "Tech support industry is expanding rapidly with increasing demand for professional services"
               },
               {
-                icon: Users,
-                title: "Referral Partner",
-                description: "Refer clients to us and earn rewards for successful conversions",
-                benefits: ["25% referral fee", "Easy tracking", "Monthly payouts"]
-              },
-              {
-                icon: Globe,
-                title: "Technology Partner",
-                description: "Integrate our services into your platform or solution",
-                benefits: ["API access", "Technical support", "Revenue sharing"]
+                icon: DollarSign,
+                title: "Competitive Revenue",
+                description: "Attractive commission structure with performance bonuses and recurring revenue opportunities"
               },
               {
                 icon: Award,
-                title: "Service Partner",
-                description: "Provide OnAssist services directly to customers in your area",
-                benefits: ["50% revenue share", "Training included", "Ongoing support"]
-              },
-              {
-                icon: TrendingUp,
-                title: "Growth Partner",
-                description: "Help us expand into new markets and customer segments",
-                benefits: ["Equity options", "Strategic planning", "Market development"]
-              },
-              {
-                icon: Shield,
-                title: "Enterprise Partner",
-                description: "Deliver enterprise-level solutions to large organizations",
-                benefits: ["Premium rates", "Dedicated support", "Custom solutions"]
-              }
-            ].map((type, index) => {
-              const TypeIcon = type.icon;
-              return (
-                <Card key={index} className="shadow-xl hover:shadow-2xl transition-all duration-300 border-0 bg-white hover:-translate-y-2">
-                  <CardContent className="p-8">
-                    <div className="bg-gradient-to-br from-onassist-primary to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
-                      <TypeIcon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="font-bold text-xl mb-4">{type.title}</h3>
-                    <p className="text-gray-600 mb-6">{type.description}</p>
-                    <div className="space-y-2">
-                      {type.benefits.map((benefit, benefitIndex) => (
-                        <div key={benefitIndex} className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-sm text-gray-700">{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Why Partner With <span className="text-onassist-primary">Us?</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join a winning partnership that drives mutual success and growth
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: DollarSign,
-                title: "Lucrative Returns",
-                description: "Competitive commission rates and revenue sharing models"
-              },
-              {
-                icon: Star,
-                title: "Proven Success",
-                description: "Track record of helping partners achieve their goals"
-              },
-              {
-                icon: Zap,
-                title: "Fast Onboarding",
-                description: "Quick setup process to get you earning faster"
+                title: "Brand Recognition",
+                description: `Leverage the trusted ${config.name} brand to attract more customers and build credibility`
               },
               {
                 icon: Users,
-                title: "Dedicated Support",
-                description: "Personal account manager for all your partnership needs"
+                title: "Training & Support",
+                description: "Comprehensive training programs and ongoing support to ensure your success"
+              },
+              {
+                icon: Shield,
+                title: "Marketing Resources",
+                description: "Access to professional marketing materials, campaigns, and lead generation tools"
+              },
+              {
+                icon: Clock,
+                title: "Flexible Partnership",
+                description: "Multiple partnership models to fit your business needs and growth objectives"
               }
             ].map((benefit, index) => {
               const BenefitIcon = benefit.icon;
               return (
-                <Card key={index} className="shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-gray-50 to-white">
-                  <CardContent className="p-6 text-center">
-                    <div className="bg-gradient-to-br from-onassist-primary to-blue-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      <BenefitIcon className="w-6 h-6 text-white" />
+                <Card key={index} className="shadow-lg hover:shadow-2xl transition-all duration-300 border-0 bg-white hover:-translate-y-2">
+                  <CardContent className="p-8 text-center">
+                    <div className="bg-gradient-to-br from-onassist-primary to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <BenefitIcon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="font-bold text-lg mb-2">{benefit.title}</h3>
-                    <p className="text-gray-600 text-sm">{benefit.description}</p>
+                    <h3 className="font-bold text-xl mb-4">{benefit.title}</h3>
+                    <p className="text-gray-600">{benefit.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -315,55 +128,97 @@ ${data.message}
         </div>
       </section>
 
-      {/* Success Stories Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      {/* Partnership Types */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Partner <span className="text-onassist-primary">Success Stories</span>
-            </h2>
+            <h2 className="text-4xl font-bold mb-6">Partnership Programs</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              See how our partners are thriving with OnAssist
+              Choose the partnership model that best fits your business
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
-                company: "TechFlow Solutions",
-                revenue: "$250K+",
-                growth: "300%",
-                testimonial: "Partnering with OnAssist has transformed our business. We've tripled our revenue in just 12 months."
+                title: "Referral Partner",
+                subtitle: "Earn commissions",
+                features: [
+                  "Earn up to 15% commission",
+                  "No upfront investment",
+                  "Marketing support included",
+                  "Online tracking dashboard",
+                  "Quick approval process"
+                ],
+                popular: false,
+                color: "from-blue-500 to-blue-600"
               },
               {
-                company: "Digital Bridge Inc",
-                revenue: "$180K+",
-                growth: "250%",
-                testimonial: "The support and training provided by OnAssist made our transition seamless and profitable."
+                title: "Authorized Reseller",
+                subtitle: "Sell our services",
+                features: [
+                  "Up to 25% profit margins",
+                  "Exclusive territory rights",
+                  "Complete training program",
+                  "Technical support included",
+                  "Co-branded materials",
+                  "Lead generation support"
+                ],
+                popular: true,
+                color: "from-purple-600 to-purple-700"
               },
               {
-                company: "Metro IT Services",
-                revenue: "$320K+",
-                growth: "400%",
-                testimonial: "Best partnership decision we've made. Our clients love the quality of service OnAssist provides."
+                title: "Franchise Partner",
+                subtitle: "Own your market",
+                features: [
+                  "Protected territory",
+                  "Full business model",
+                  "Ongoing operational support",
+                  "National advertising benefits",
+                  "Established brand recognition",
+                  "Comprehensive training"
+                ],
+                popular: false,
+                color: "from-green-500 to-green-600"
               }
-            ].map((story, index) => (
-              <Card key={index} className="shadow-xl border-0 bg-white">
-                <CardContent className="p-8">
-                  <div className="text-center mb-6">
-                    <h3 className="font-bold text-xl mb-2">{story.company}</h3>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <div className="text-2xl font-bold text-onassist-primary">{story.revenue}</div>
-                        <div className="text-sm text-gray-600">Annual Revenue</div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-green-600">{story.growth}</div>
-                        <div className="text-sm text-gray-600">Growth Rate</div>
-                      </div>
-                    </div>
+            ].map((program, index) => (
+              <Card key={index} className={`relative overflow-hidden shadow-2xl border-0 ${program.popular ? 'transform scale-105' : ''} hover:shadow-3xl transition-all duration-300`}>
+                {program.popular && (
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-400 text-center py-3">
+                    <span className="text-yellow-900 font-bold text-sm uppercase tracking-wide">
+                      Most Popular
+                    </span>
                   </div>
-                  <p className="text-gray-600 italic">"{story.testimonial}"</p>
+                )}
+                
+                <CardHeader className={`bg-gradient-to-br ${program.color} text-white ${program.popular ? 'pt-16' : 'pt-8'} pb-8`}>
+                  <div className="text-center">
+                    <CardTitle className="text-3xl font-bold mb-2">{program.title}</CardTitle>
+                    <p className="text-white/90 text-lg">{program.subtitle}</p>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-8">
+                  <div className="space-y-4 mb-8">
+                    {program.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center gap-3">
+                        <div className={`bg-gradient-to-br ${program.color} w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0`}>
+                          <CheckCircle className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button 
+                    className={`w-full py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 ${
+                      program.popular 
+                        ? 'bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-yellow-900' 
+                        : `bg-gradient-to-br ${program.color} hover:opacity-90 text-white`
+                    }`}
+                  >
+                    {program.popular ? 'Get Started' : 'Learn More'}
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -371,232 +226,58 @@ ${data.message}
         </div>
       </section>
 
-      {/* Application Form Section */}
-      <section className="py-20 bg-white">
+      {/* Testimonials */}
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Ready to <span className="text-onassist-primary">Get Started?</span>
-              </h2>
-              <p className="text-xl text-gray-600">
-                Fill out the application form below and we'll get back to you within 24 hours
-              </p>
-            </div>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">What Our Partners Say</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Hear from successful partners who've grown their business with us
+            </p>
+          </div>
 
-            <Card className="shadow-2xl border-0">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-center">Partnership Application</CardTitle>
-              </CardHeader>
-              <CardContent className="p-8">
-                {showThankYou ? (
-                  <div className="text-center py-12">
-                    <div className="bg-green-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle className="w-12 h-12 text-green-600" />
-                    </div>
-                    <h3 className="text-3xl font-bold text-green-800 mb-4">Application Submitted!</h3>
-                    <p className="text-gray-600 mb-2 text-lg">
-                      Thank you for your interest in partnering with OnAssist!
-                    </p>
-                    <p className="text-gray-600 mb-8">
-                      Our partnership team will review your application and get back to you within 48 hours with next steps.
-                    </p>
-                    <div className="bg-blue-50 rounded-lg p-6 mb-8">
-                      <h4 className="font-semibold text-blue-800 mb-2">What happens next?</h4>
-                      <ul className="text-blue-700 text-sm space-y-1">
-                        <li>• Partnership team review (24-48 hours)</li>
-                        <li>• Initial consultation call</li>
-                        <li>• Partnership agreement setup</li>
-                        <li>• Training and onboarding</li>
-                      </ul>
-                    </div>
-                    <Button
-                      onClick={() => setShowThankYou(false)}
-                      className="bg-onassist-primary hover:bg-onassist-dark text-white px-8 py-3"
-                    >
-                      Submit Another Application
-                    </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Mike Johnson",
+                role: "Authorized Reseller",
+                company: "Tech Solutions Pro",
+                content: `Partnering with ${config.name} has been the best business decision I've made. The support and training they provide is exceptional.`,
+                rating: 5
+              },
+              {
+                name: "Sarah Williams",
+                role: "Franchise Partner",
+                company: "Bay Area Tech Support",
+                content: "The franchise model gave me everything I needed to start and grow my business. Revenue has increased 300% in just 18 months.",
+                rating: 5
+              },
+              {
+                name: "David Chen",
+                role: "Referral Partner",
+                company: "Digital Marketing Agency",
+                content: "The referral program is fantastic. Easy to implement and the commissions are paid on time, every time.",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <Card key={index} className="shadow-lg hover:shadow-xl transition-all duration-300 border-0 bg-white">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-1 mb-4">
+                    {Array.from({ length: testimonial.rating }, (_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                ) : (
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="companyName">Company Name *</Label>
-                        <Input
-                          id="companyName"
-                          {...register('companyName', { required: 'Company name is required' })}
-                          className="mt-2"
-                        />
-                        {errors.companyName && (
-                          <p className="text-red-500 text-sm mt-1">{errors.companyName.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="contactName">Contact Name *</Label>
-                        <Input
-                          id="contactName"
-                          {...register('contactName', { required: 'Contact name is required' })}
-                          className="mt-2"
-                        />
-                        {errors.contactName && (
-                          <p className="text-red-500 text-sm mt-1">{errors.contactName.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          {...register('email', { 
-                            required: 'Email is required',
-                            pattern: {
-                              value: /^\S+@\S+$/i,
-                              message: 'Invalid email address'
-                            }
-                          })}
-                          className="mt-2"
-                        />
-                        {errors.email && (
-                          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="phone">Phone *</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          {...register('phone', { required: 'Phone is required' })}
-                          className="mt-2"
-                        />
-                        {errors.phone && (
-                          <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="website">Website</Label>
-                      <Input
-                        id="website"
-                        type="url"
-                        {...register('website')}
-                        className="mt-2"
-                        placeholder="https://yourcompany.com"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="partnershipType">Partnership Type *</Label>
-                        <Controller
-                          name="partnershipType"
-                          control={control}
-                          rules={{ required: 'Partnership type is required' }}
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value || ''}>
-                              <SelectTrigger className="mt-2">
-                                <SelectValue placeholder="Select partnership type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="reseller">Reseller Partner</SelectItem>
-                                <SelectItem value="referral">Referral Partner</SelectItem>
-                                <SelectItem value="technology">Technology Partner</SelectItem>
-                                <SelectItem value="service">Service Partner</SelectItem>
-                                <SelectItem value="growth">Growth Partner</SelectItem>
-                                <SelectItem value="enterprise">Enterprise Partner</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        {errors.partnershipType && (
-                          <p className="text-red-500 text-sm mt-1">{errors.partnershipType.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="companySize">Company Size *</Label>
-                        <Controller
-                          name="companySize"
-                          control={control}
-                          rules={{ required: 'Company size is required' }}
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value || ''}>
-                              <SelectTrigger className="mt-2">
-                                <SelectValue placeholder="Select company size" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="1-10">1-10 employees</SelectItem>
-                                <SelectItem value="11-50">11-50 employees</SelectItem>
-                                <SelectItem value="51-200">51-200 employees</SelectItem>
-                                <SelectItem value="201-500">201-500 employees</SelectItem>
-                                <SelectItem value="500+">500+ employees</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        {errors.companySize && (
-                          <p className="text-red-500 text-sm mt-1">{errors.companySize.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="experience">Experience in Tech Industry *</Label>
-                      <Controller
-                        name="experience"
-                        control={control}
-                        rules={{ required: 'Experience is required' }}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value || ''}>
-                            <SelectTrigger className="mt-2">
-                              <SelectValue placeholder="Select your experience level" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="0-2">0-2 years</SelectItem>
-                              <SelectItem value="3-5">3-5 years</SelectItem>
-                              <SelectItem value="6-10">6-10 years</SelectItem>
-                              <SelectItem value="10+">10+ years</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      {errors.experience && (
-                        <p className="text-red-500 text-sm mt-1">{errors.experience.message}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="message">Tell us about your business and partnership goals *</Label>
-                      <Textarea
-                        id="message"
-                        rows={5}
-                        {...register('message', { required: 'Message is required' })}
-                        className="mt-2"
-                        placeholder="Describe your business, current services, target market, and how you envision our partnership..."
-                      />
-                      {errors.message && (
-                        <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
-                      )}
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-onassist-primary hover:bg-onassist-dark text-white py-4 text-lg font-bold"
-                    >
-                      {isSubmitting ? 'Submitting...' : (
-                        <>
-                          <Send className="w-5 h-5 mr-2" />
-                          Submit Partnership Application
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
+                  <blockquote className="text-gray-700 mb-6 italic">
+                    "{testimonial.content}"
+                  </blockquote>
+                  <div>
+                    <div className="font-bold text-lg">{testimonial.name}</div>
+                    <div className="text-onassist-primary font-medium">{testimonial.role}</div>
+                    <div className="text-gray-500 text-sm">{testimonial.company}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -610,56 +291,47 @@ ${data.message}
         </div>
         
         <div className="relative container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Questions About <span className="text-yellow-300">Partnership?</span>
-              </h2>
-              <p className="text-xl opacity-90 mb-8">
-                Our partnership team is ready to discuss opportunities and answer any questions you may have.
-              </p>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Ready to <span className="text-yellow-300">Partner</span> with Us?
+            </h2>
+            <p className="text-xl md:text-2xl opacity-90 mb-12 leading-relaxed">
+              Let's discuss how we can grow together and create a successful partnership.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                  <Phone className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Call Us</h3>
+                <p className="opacity-90">{config.contactPhone}</p>
+              </div>
               
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-white/20 p-3 rounded-xl">
-                    <Phone className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg">Call Us</h4>
-                    <p className="opacity-90">{siteConfig.contactPhone}</p>
-                  </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                  <Mail className="w-8 h-8 text-white" />
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-white/20 p-3 rounded-xl">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg">Email Us</h4>
-                    <p className="opacity-90">partnerships@onassist.com</p>
-                  </div>
+                <h3 className="text-xl font-bold mb-2">Email Us</h3>
+                <p className="opacity-90">{config.email}</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm">
+                  <MapPin className="w-8 h-8 text-white" />
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-white/20 p-3 rounded-xl">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg">Visit Us</h4>
-                    <p className="opacity-90">123 Business Ave, Tech City, TC 12345</p>
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold mb-2">Visit Us</h3>
+                <p className="opacity-90">{config.address}</p>
               </div>
             </div>
             
-            <div className="text-center">
-              <Button 
-                size="lg" 
-                className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-10 py-5 rounded-full shadow-2xl text-lg"
-                onClick={() => window.open(`tel:${siteConfig.contactPhone}`, '_self')}
-              >
-                <Phone className="w-6 h-6 mr-3" />
-                Schedule Partnership Call
-              </Button>
-            </div>
+            <Button 
+              size="lg" 
+              className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-12 py-6 rounded-full shadow-2xl text-xl"
+            >
+              <Handshake className="w-6 h-6 mr-3" />
+              Start Your Partnership Journey
+            </Button>
           </div>
         </div>
       </section>

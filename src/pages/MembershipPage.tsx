@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -6,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Helmet } from 'react-helmet-async';
-import { siteConfig } from '@/config/site';
+import { useDynamicSiteConfig } from '@/hooks/useDynamicSiteConfig';
 import { Check, Star, Zap, Shield, Phone, Clock, Users, Award, Crown, Sparkles } from 'lucide-react';
 
 const MembershipPage = () => {
   const [isYearly, setIsYearly] = useState(false);
+  const { config } = useDynamicSiteConfig();
 
   const plans = [
     {
@@ -22,7 +22,7 @@ const MembershipPage = () => {
       description: "Perfect for individuals and small businesses",
       features: [
         "24/7 Tech Support",
-        "Remote Assistance",
+        "Remote Assistance", 
         "Software Installation",
         "Virus Removal",
         "Basic Troubleshooting",
@@ -68,7 +68,7 @@ const MembershipPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>Membership Plans | {siteConfig.name}</title>
+        <title>Membership Plans | {config.name}</title>
         <meta name="description" content="Choose the perfect tech support plan for your needs. Get 24/7 support, priority service, and exclusive benefits." />
       </Helmet>
 
@@ -88,7 +88,7 @@ const MembershipPage = () => {
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Tech Support <span className="text-yellow-300">Memberships</span>
+              {config.name} <span className="text-yellow-300">Memberships</span>
             </h1>
             <p className="text-2xl opacity-90 mb-12 leading-relaxed">
               Get unlimited tech support with our premium membership plans. Save money and get priority service.
@@ -271,10 +271,10 @@ const MembershipPage = () => {
               <Button 
                 size="lg" 
                 className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-10 py-5 rounded-full shadow-2xl text-lg"
-                onClick={() => window.open(`tel:${siteConfig.contactPhone}`, '_self')}
+                onClick={() => window.open(`tel:${config.contactPhone}`, '_self')}
               >
                 <Phone className="w-6 h-6 mr-3" />
-                Call Now: {siteConfig.contactPhone}
+                Call Now: {config.contactPhone}
               </Button>
               <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-bold px-10 py-5 rounded-full backdrop-blur-sm text-lg">
                 <Zap className="w-6 h-6 mr-3" />

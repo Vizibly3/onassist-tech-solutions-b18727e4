@@ -2,14 +2,16 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Layout from '@/components/layout/Layout';
-import { siteConfig } from '@/config/site';
+import { useDynamicSiteConfig } from '@/hooks/useDynamicSiteConfig';
 
 const PrivacyPolicyPage = () => {
+  const { config } = useDynamicSiteConfig();
+
   return (
     <Layout>
       <Helmet>
-        <title>Privacy Policy | {siteConfig.name}</title>
-        <meta name="description" content="OnAssist Privacy Policy - How we collect, use, and protect your personal information" />
+        <title>Privacy Policy | {config.name}</title>
+        <meta name="description" content={`${config.name} Privacy Policy - How we collect, use, and protect your personal information`} />
       </Helmet>
       
       <div className="container mx-auto px-4 py-16">
@@ -61,8 +63,8 @@ const PrivacyPolicyPage = () => {
               <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
               <p className="text-gray-700 leading-relaxed">
                 If you have any questions about this Privacy Policy, please contact us at{' '}
-                <a href={`mailto:${siteConfig.email}`} className="text-onassist-primary hover:underline">
-                  {siteConfig.email}
+                <a href={`mailto:${config.email}`} className="text-onassist-primary hover:underline">
+                  {config.email}
                 </a>
               </p>
             </section>

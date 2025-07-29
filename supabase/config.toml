@@ -1,57 +1,308 @@
 
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
 project_id = "qsqgzsvsvgquqqevscpv"
 
 [api]
 enabled = true
+# Port to use for the API URL.
 port = 54321
-schemas = ["public", "graphql_public"]
+# Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
+# endpoints. public and storage are always included.
+schemas = ["public", "storage", "graphql_public"]
+# Extra schemas to add to the search_path of every request. public is always included.
 extra_search_path = ["public", "extensions"]
+# The maximum number of rows returns from a table, view, materialized view, or function.
+# Limits payload size for accidental or malicious requests.
 max_rows = 1000
 
+[auth]
+enabled = true
+# Port to use for the GoTrue URL.
+port = 54324
+# Determines which external providers are enabled.
+external_email_providers = ["gmail"]
+external_phone_providers = []
+external_sms_providers = []
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
+# in emails.
+site_url = "http://127.0.0.1:3000"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604800 (1 week).
+jwt_expiry = 3600
+# If disabled, the refresh token will never expire.
+enable_refresh_token_rotation = true
+# Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
+# Requires enable_refresh_token_rotation = true.
+refresh_token_reuse_interval = 10
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# Allow/disallow new user signups via anonymous sign-ins to your project.
+enable_anonymous_sign_ins = false
+# Allow/disallow testing manual linking of accounts
+enable_manual_linking = false
+
+[auth.email]
+# Allow/disallow new user signups via email to your project.
+enable_signup = true
+# If enabled, a user will be required to confirm any email change on both the old, and new email
+# addresses. If disabled, only the new email is required to confirm.
+double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
+enable_confirmations = false
+
+# Use pre-defined map of claims
+[auth.jwt]
+default_group_name = ""
+admin_group_name = ""
+aud = "authenticated"
+exp = 3600
+
+# Use an external OAuth provider. The full list of providers are:
+# `apple`, `azure`, `bitbucket`, `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`, `twitter`, `slack`, `spotify`, `workos`, `zoom`.
+[auth.external.apple]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[auth.external.azure]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[auth.external.bitbucket]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[auth.external.discord]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.facebook]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.github]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.gitlab]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.keycloak]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+
+[auth.external.linkedin_oidc]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.notion]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.twitch]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.twitter]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.slack]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.spotify]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.workos]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.external.zoom]
+enabled = false
+client_id = ""
+secret = ""
+# Overrides the default auth redirectUrl.
+redirect_uri = ""
+
+[auth.hooks]
+# A URL to send requests to whenever a user signs up. Similar to a webhook.
+# Overrides the GOTRUE_HOOK_SEND_SMS_SECRETS. You can use this to define multiple providers.
+send_sms_secrets = ["v1,whsec_,427503e9e54ce577bdff5ce5efe28ea4dc2e3aee3de2e8b52a3e03b1c03dcf43b"]
+# Overrides GOTRUE_HOOK_MFA_VERIFICATION_ATTEMPT_SECRETS. You can use this to define multiple providers.
+mfa_verification_attempt_secrets = ["v1,whsec_,427503e9e54ce577bdff5ce5efe28ea4dc2e3aee3de2e8b52a3e03b1c03dcf43b"]
+# Overrides GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_SECRETS. You can use this to define multiple providers.
+password_verification_attempt_secrets = ["v1,whsec_,427503e9e54ce577bdff5ce5efe28ea4dc2e3aee3de2e8b52a3e03b1c03dcf43b"]
+
+# Custom signup message template
+[[auth.email.template]]
+subject = "Welcome to {{ .SiteURL }}"
+content_path = "./supabase/templates/signup.html"
+[auth.email.template.data]
+Title = "Welcome to Smart Doorstep"
+Preheader = "Complete your signup to Smart Doorstep"
+SiteName = "Smart Doorstep"
+ActionUrl = "{{ .ConfirmationURL }}"
+
+# Custom password reset template
+[[auth.email.template]]
+subject = "Reset Your Smart Doorstep Password"
+content_path = "./supabase/templates/recovery.html"
+[auth.email.template.data]
+Title = "Reset Your Password"
+Preheader = "Reset your Smart Doorstep account password"
+SiteName = "Smart Doorstep"
+ActionUrl = "{{ .ConfirmationURL }}"
+
+# Custom email change template
+[[auth.email.template]]
+subject = "Smart Doorstep Email Change Confirmation"
+content_path = "./supabase/templates/email_change.html"
+[auth.email.template.data]
+Title = "Confirm Email Change"
+Preheader = "Confirm your new email address for Smart Doorstep"
+SiteName = "Smart Doorstep"
+ActionUrl = "{{ .ConfirmationURL }}"
+
+[storage]
+enabled = true
+# The maximum file size allowed (e.g. "5MB", "500KB").
+file_size_limit = "50MB"
+# Use an S3-compatible object storage server instead of the local file system.
+# NOTE: To configure S3, you must also set the AWS_REGION either as an argument or environment variable.
+
+[edge_functions]
+enabled = true
+
+[functions.send-order-confirmation]
+verify_jwt = false
+
+[analytics]
+enabled = false
+port = 54327
+vector_port = 54328
+# Configure one of the supported backends: `postgres`, `clickhouse`.
+backend = "postgres"
+
+# Configures Postgres storage backend, the default backend.
+[analytics.postgres]
+# The database major version to use.
+major_version = 15
+
+# Configures ClickHouse storage backend.
+[analytics.clickhouse]
+# The database major version to use.
+major_version = 23
+
+[inbucket]
+enabled = true
+port = 54325
+# Uncomment to expose additional ports for testing user applications that send emails.
+# smtp_port = 54326
+# pop3_port = 54327
+
 [db]
+# Port to use for the local database URL.
 port = 54322
+# Port used by db diff command to initialise the shadow database.
+shadow_port = 54320
+# The database major version to use.
+major_version = 15
+# The auth schema version to use for the auth tables.
+auth_schema_version = 20240924133948
 
 [db.pooler]
 enabled = false
+# Port to use for the local connection pooler.
 port = 54329
+# Specifies when a server connection can be reused by other clients.
+# Configure one of the supported pooler modes: `transaction`, `session`.
 pool_mode = "transaction"
+# How many server connections to allow per user/database pair.
 default_pool_size = 20
+# Maximum number of client connections allowed.
 max_client_conn = 100
 
 [realtime]
 enabled = true
-ip_version = "ipv4"
-port = 54324
-max_header_length = 4096
+# Bind realtime via either IPv4 or IPv6. (default: IPv6)
+# ip_version = "IPv6"
 
 [studio]
 enabled = true
+# Port to use for Supabase Studio.
 port = 54323
+# External URL of the API server that frontend connects to.
 api_url = "http://127.0.0.1:54321"
-
-[inbucket]
-enabled = true
-port = 54324
-api_port = 54325
-smtp_port = 54326
-
-[storage]
-enabled = true
-port = 54327
-file_size_limit = "50MiB"
-feature_image_transformation = true
-
-[auth]
-enabled = true
-port = 54328
-site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["https://qsqgzsvsvgquqqevscpv.supabase.co"]
-jwt_expiry = 3600
-enable_signup = true
-enable_confirmations = false
-
-[functions.create-payment]
-verify_jwt = true
-
-[functions.verify-payment]
-verify_jwt = false
+# Manage API keys via the Supabase Studio.
+api_keys = true
