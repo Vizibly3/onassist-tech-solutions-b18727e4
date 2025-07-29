@@ -125,11 +125,11 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // Send email regardless of payment status (for testing mode)
+    // Send email with Smart Doorstep branding
     const mailOptions = {
       from: 'Smart Doorstep <vizibly3@gmail.com>',
       to: orderData.email,
-      subject: `Order Confirmation - ${orderData.id}`,
+      subject: `Order Confirmation - Smart Doorstep`,
       html: htmlContent
     };
 
