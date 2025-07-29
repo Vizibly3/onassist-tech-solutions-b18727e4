@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import {
   Users,
   ShoppingBag,
@@ -332,10 +332,10 @@ const AdminDashboard = () => {
             asChild
             className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-onassist-primary/90 hover:to-blue-600/90 shadow-lg"
           >
-            <a href="/admin/analytics">
+            <Link to="/admin/analytics">
               <BarChart3 className="w-4 h-4 mr-2" />
               View Analytics
-            </a>
+            </Link>
           </Button>
         </div>
 
@@ -433,7 +433,7 @@ const AdminDashboard = () => {
                 className={`hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-gradient-to-br ${action.gradient} ${action.shadowColor} shadow-lg hover:scale-105`}
               >
                 <CardContent className="p-6">
-                  <a href={action.href} className="block">
+                  <Link to={action.href} className="block">
                     <div
                       className={`w-14 h-14 ${action.iconBg} rounded-xl flex items-center justify-center mb-4 mx-auto`}
                     >
@@ -445,7 +445,7 @@ const AdminDashboard = () => {
                     <p className="text-sm text-white/80 text-center">
                       {action.description}
                     </p>
-                  </a>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -465,7 +465,7 @@ const AdminDashboard = () => {
                 className={`hover:shadow-xl transition-all duration-300 cursor-pointer bg-gradient-to-br ${link.gradient} border border-gray-200 hover:scale-105`}
               >
                 <CardContent className="p-6">
-                  <a href={link.href} className="block">
+                  <Link to={link.href} className="block">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div
@@ -488,7 +488,7 @@ const AdminDashboard = () => {
                         </div>
                       )}
                     </div>
-                  </a>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
