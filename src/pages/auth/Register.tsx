@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { siteConfig } from '@/config/site';
 
 const registerFormSchema = z
   .object({
@@ -85,7 +86,7 @@ const Register = () => {
   return (
     <Layout>
       <Helmet>
-        <title>Create Account | OnAssist</title>
+        <title>Create Account | {siteConfig.name}</title>
         <meta
           name="description"
           content="Create your account to access our Smart Doorstep support services"

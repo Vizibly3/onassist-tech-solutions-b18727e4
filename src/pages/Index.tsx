@@ -1,4 +1,3 @@
-
 import React from "react";
 import DynamicHeader from "@/components/layout/DynamicHeader";
 import Footer from "@/components/layout/Footer";
@@ -18,10 +17,10 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Smart Doorstep | Professional Tech Support Services</title>
+        <title>Smart Doorstep | Your Smart Doorstep Support </title>
         <meta
           name="description"
-          content="Professional tech support services for smart homes, computers, networks, and more. Fast, reliable solutions from certified technicians."
+          content="Professional Smart Doorstep support services for smart homes, computers, networks, and more. Fast, reliable solutions from certified technicians."
         />
       </Helmet>
 

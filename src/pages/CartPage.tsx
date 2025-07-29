@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { siteConfig } from '@/config/site';
 
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, totalItems, totalPrice, isLoading } = useCart();
@@ -32,7 +33,7 @@ const CartPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>Your Cart | OnAssist</title>
+        <title>Your Cart | {siteConfig.name}</title>
       </Helmet>
       
       <div className="container mx-auto py-12 px-4">

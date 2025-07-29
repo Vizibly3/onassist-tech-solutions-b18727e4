@@ -15,6 +15,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { siteConfig } from '@/config/site';
 
 const checkoutFormSchema = z.object({
   first_name: z.string().min(1, { message: "First name is required" }),
@@ -251,7 +252,7 @@ const CheckoutPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>Checkout | OnAssist</title>
+        <title>Checkout | {siteConfig.name}</title>
       </Helmet>
       
       <div className="container mx-auto px-4 py-16">

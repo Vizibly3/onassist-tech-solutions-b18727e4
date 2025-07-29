@@ -1,7 +1,7 @@
 import { countries, usStates } from "@/data/locations";
 import { serviceCategories, getAllServices } from "@/config/services";
 
-const BASE_URL = "https://onassist.lovable.app";
+const BASE_URL = "https://smartdoorstep.com";
 const URLS_PER_CHUNK = 10000; // Split into chunks of 10k URLs for better performance
 
 interface SitemapUrl {
