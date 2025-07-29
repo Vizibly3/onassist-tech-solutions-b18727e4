@@ -1,16 +1,17 @@
+
 export const siteConfig = {
-  name: "OnAssist",
+  name: "Smart Doorstep",
   description: "Professional tech support services for your home and business",
-  url: "https://onassist.com", // Replace with your actual domain when live
-  ogImage: "https://onassist.com/og-image.jpg", // Replace with actual OG image path
+  url: "https://smartdoorstep.com", // Replace with your actual domain when live
+  ogImage: "https://smartdoorstep.com/og-image.jpg", // Replace with actual OG image path
   contactPhone: "+1 (888) 970-1698",
-  email: "support@onassist.com",
+  email: "support@smartdoorstep.com",
   address: "123 Tech Avenue, Suite 100, San Francisco, CA 94107",
   social: {
-    twitter: "https://twitter.com/onassist",
-    facebook: "https://facebook.com/onassist",
-    instagram: "https://instagram.com/onassist",
-    linkedin: "https://linkedin.com/company/onassist",
+    twitter: "https://twitter.com/smartdoorstep",
+    facebook: "https://facebook.com/smartdoorstep",
+    instagram: "https://instagram.com/smartdoorstep",
+    linkedin: "https://linkedin.com/company/smartdoorstep",
   },
   support: {
     hours: "24/7 Support Available",

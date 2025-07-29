@@ -43,10 +43,10 @@ export const fetchSiteSettings = async (): Promise<SiteSettings> => {
     if (!data) {
       const defaultSettings: SiteSettings = {
         id: 1,
-        name: "OnAssist",
+        name: "Smart Doorstep",
         description:
           "Professional tech support services for your home and business",
-        email: "support@onassist.com",
+        email: "support@smartdoorstep.com",
         contactphone: "+1 (888) 970-1698",
         address: "123 Tech Avenue, Suite 100, San Francisco, CA 94107",
         response_time_stat: "15 Min",

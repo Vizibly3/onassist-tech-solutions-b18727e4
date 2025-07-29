@@ -116,8 +116,8 @@ const handler = async (req: Request): Promise<Response> => {
             <p>If you have any questions or need to make changes to your order, please don't hesitate to contact us.</p>
             
             <div class="footer">
-              <p>Thank you for choosing OnAssist!</p>
-              <p>Best regards,<br>The OnAssist Team</p>
+              <p>Thank you for choosing Smart Doorstep!</p>
+              <p>Best regards,<br>The Smart Doorstep Team</p>
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email regardless of payment status (for testing mode)
     const mailOptions = {
-      from: 'OnAssist <vizibly3@gmail.com>',
+      from: 'Smart Doorstep <vizibly3@gmail.com>',
       to: orderData.email,
       subject: `Order Confirmation - ${orderData.id}`,
       html: htmlContent

@@ -7,7 +7,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Helmet } from 'react-helmet-async';
-import { siteConfig } from '@/config/site';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 
@@ -69,7 +68,7 @@ const MyOrdersPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>My Orders | {siteConfig.name}</title>
+        <title>My Orders | Smart Doorstep</title>
         <meta name="description" content="View your order history and track your tech support services" />
       </Helmet>
       

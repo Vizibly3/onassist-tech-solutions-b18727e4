@@ -86,7 +86,7 @@ const PaymentSuccessPage = () => {
   return (
     <Layout>
       <Helmet>
-        <title>{verificationStatus === 'success' ? 'Payment Successful' : 'Payment Failed'} | OnAssist</title>
+        <title>{verificationStatus === 'success' ? 'Payment Successful' : 'Payment Failed'} | Smart Doorstep</title>
       </Helmet>
       
       <div className="container mx-auto px-4 py-16">
