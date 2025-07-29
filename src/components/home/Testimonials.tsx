@@ -31,7 +31,7 @@ const Testimonials = () => {
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Don't just take our word for it. Here's what real customers say
-            about their OnAssist experience.
+            about their Smart Doorstep experience.
           </p>
         </div>
 

@@ -16,7 +16,7 @@ export const testimonialsData: Testimonial[] = [
     image:
       "https://images.unsplash.com/photo-1494790108755-2616b332c2b2?w=150&h=150&fit=crop&crop=face",
     rating: 5,
-    text: "OnAssist saved my day! My WiFi went down during an important video call, and their technician had it up and running in 30 minutes. Professional, fast, and affordable.",
+    text: "Smart Doorstep saved my day! My WiFi went down during an important video call, and their technician had it up and running in 30 minutes. Professional, fast, and affordable.",
     service: "WiFi Setup & Configuration",
   },
   {
@@ -26,7 +26,7 @@ export const testimonialsData: Testimonial[] = [
     image:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     rating: 5,
-    text: "I was struggling with my smart home setup for weeks. The OnAssist team came in and had everything connected and working perfectly. Highly recommend!",
+    text: "I was struggling with my smart home setup for weeks. The Smart Doorstep team came in and had everything connected and working perfectly. Highly recommend!",
     service: "Smart Home Installation",
   },
   {
@@ -56,7 +56,7 @@ export const testimonialsData: Testimonial[] = [
     image:
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
     rating: 5,
-    text: "OnAssist helped me set up my home office perfectly. From printer installation to network security, they covered everything professionally.",
+    text: "Smart Doorstep helped me set up my home office perfectly. From printer installation to network security, they covered everything professionally.",
     service: "Home Office Setup",
   },
   {
@@ -76,7 +76,7 @@ export const testimonialsData: Testimonial[] = [
     location: "Dallas, TX",
     image: "https://randomuser.me/api/portraits/women/7.jpg",
     rating: 5,
-    text: "The technician was very knowledgeable and fixed my network issues quickly. Highly recommend OnAssist!",
+    text: "The technician was very knowledgeable and fixed my network issues quickly. Highly recommend Smart Doorstep!",
     service: "Network Troubleshooting",
   },
   {
@@ -103,7 +103,7 @@ export const testimonialsData: Testimonial[] = [
     location: "Denver, CO",
     image: "https://randomuser.me/api/portraits/men/10.jpg",
     rating: 5,
-    text: "OnAssist made my home office setup a breeze. Thank you for the excellent service!",
+    text: "Smart Doorstep made my home office setup a breeze. Thank you for the excellent service!",
     service: "Home Office Setup",
   },
   {
@@ -193,7 +193,7 @@ export const testimonialsData: Testimonial[] = [
     location: "Fort Worth, TX",
     image: "https://randomuser.me/api/portraits/men/20.jpg",
     rating: 5,
-    text: "OnAssist is my go-to for all tech problems. Highly recommend.",
+    text: "Smart Doorstep is my go-to for all tech problems. Highly recommend.",
     service: "General Tech Support",
   },
   {
@@ -247,7 +247,7 @@ export const testimonialsData: Testimonial[] = [
     location: "Detroit, MI",
     image: "https://randomuser.me/api/portraits/men/26.jpg",
     rating: 5,
-    text: "Great experience with OnAssist. Will use again for sure.",
+    text: "Great experience with Smart Doorstep. Will use again for sure.",
     service: "General Tech Support",
   },
   {
@@ -274,7 +274,7 @@ export const testimonialsData: Testimonial[] = [
     location: "Louisville, KY",
     image: "https://randomuser.me/api/portraits/women/29.jpg",
     rating: 5,
-    text: "OnAssist made my smart home setup easy and stress-free.",
+    text: "Smart Doorstep made my smart home setup easy and stress-free.",
     service: "Smart Home Setup",
   },
   {
