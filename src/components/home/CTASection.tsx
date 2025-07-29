@@ -21,7 +21,7 @@ const CTASection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            Need Tech Support
+            Need Smart Doorstep Support
             <span className="block text-transparent bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text">
               Right Now?
             </span>

@@ -79,7 +79,7 @@ const App = () => (
                 />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/faq" element={<FAQPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/returns" element={<ReturnsPage />} />
                 <Route path="/partner" element={<PartnerPage />} />
