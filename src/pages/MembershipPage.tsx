@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Helmet } from "react-helmet-async";
 import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
+import { useCart } from "@/contexts/CartContext";
+import { useServices, Service } from "@/hooks/useServices";
+import { toast } from "sonner";
 import {
   Check,
   Star,
@@ -17,64 +20,177 @@ import {
   Award,
   Crown,
   Sparkles,
+  ShoppingCart,
 } from "lucide-react";
+
+interface Plan {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  popular: boolean;
+  price: number;
+  service: Service | undefined;
+  description: string;
+  features: string[];
+  color: string;
+}
 
 const MembershipPage = () => {
   const [isYearly, setIsYearly] = useState(false);
   const { config } = useDynamicSiteConfig();
+  const { addToCart } = useCart();
+  const { data: allServices, isLoading: servicesLoading } = useServices();
 
-  const plans = [
-    {
-      name: "Premium Support",
-      icon: Star,
-      popular: false,
-      monthlyPrice: 29,
-      yearlyPrice: 290,
-      description: "Perfect for individuals and small businesses",
-      features: [
-        "24/7 Smart Doorstep Support",
-        "Remote Assistance",
-        "Software Installation",
-        "Virus Removal",
-        "Basic Troubleshooting",
-        "Email Support",
-        "Phone Support",
-        "1 Device Coverage",
-      ],
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      name: "Enterprise Plus",
-      icon: Crown,
-      popular: true,
-      monthlyPrice: 79,
-      yearlyPrice: 790,
-      description: "Comprehensive solution for businesses",
-      features: [
-        "Everything in Premium",
-        "Priority Support",
-        "On-site Visits",
-        "Network Setup & Management",
-        "Data Backup & Recovery",
-        "Security Audits",
-        "Hardware Diagnostics",
-        "Up to 10 Devices",
-        "Dedicated Account Manager",
-        "Monthly Health Reports",
-      ],
-      color: "from-purple-600 to-purple-700",
-    },
-  ];
+  // Filter membership services from the database
+  const membershipServices = useMemo(() => {
+    if (!allServices) return [];
+    return allServices.filter(
+      (service) =>
+        service.title.includes("Premium Support") ||
+        service.title.includes("Enterprise Plus")
+    );
+  }, [allServices]);
 
-  const getPrice = (plan: (typeof plans)[0]) => {
-    return isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+  // Group services by type (Premium/Enterprise) and billing (Monthly/Yearly)
+  const groupedServices = useMemo(() => {
+    const premium = membershipServices.filter((s) =>
+      s.title.includes("Premium Support")
+    );
+    const enterprise = membershipServices.filter((s) =>
+      s.title.includes("Enterprise Plus")
+    );
+
+    return {
+      premium: {
+        monthly: premium.find((s) => s.title.includes("Monthly")),
+        yearly: premium.find((s) => s.title.includes("Yearly")),
+      },
+      enterprise: {
+        monthly: enterprise.find((s) => s.title.includes("Monthly")),
+        yearly: enterprise.find((s) => s.title.includes("Yearly")),
+      },
+    };
+  }, [membershipServices]);
+
+  const handleAddToCart = (service: Service | undefined) => {
+    if (service) {
+      addToCart(service);
+      toast.success(`${service.title} has been added to your cart!`);
+    }
   };
 
-  const getSavings = (plan: (typeof plans)[0]) => {
-    const monthlyTotal = plan.monthlyPrice * 12;
-    const savings = monthlyTotal - plan.yearlyPrice;
-    return Math.round((savings / monthlyTotal) * 100);
+  const getCurrentServices = (): Plan[] => {
+    if (isYearly) {
+      return [
+        {
+          name: "Premium Support",
+          icon: Star,
+          popular: false,
+          price: groupedServices.premium.yearly?.price || 290,
+          service: groupedServices.premium.yearly,
+          description: "Perfect for individuals and small businesses",
+          features: [
+            "24/7 Smart Doorstep Support",
+            "Remote Assistance",
+            "Software Installation",
+            "Virus Removal",
+            "Basic Troubleshooting",
+            "Email Support",
+            "Phone Support",
+            "1 Device Coverage",
+          ],
+          color: "from-blue-500 to-blue-600",
+        },
+        {
+          name: "Enterprise Plus",
+          icon: Crown,
+          popular: true,
+          price: groupedServices.enterprise.yearly?.price || 790,
+          service: groupedServices.enterprise.yearly,
+          description: "Comprehensive solution for businesses",
+          features: [
+            "Everything in Premium",
+            "Priority Support",
+            "On-site Visits",
+            "Network Setup & Management",
+            "Data Backup & Recovery",
+            "Security Audits",
+            "Hardware Diagnostics",
+            "Up to 10 Devices",
+            "Dedicated Account Manager",
+            "Monthly Health Reports",
+          ],
+          color: "from-purple-600 to-purple-700",
+        },
+      ];
+    } else {
+      return [
+        {
+          name: "Premium Support",
+          icon: Star,
+          popular: false,
+          price: groupedServices.premium.monthly?.price || 29,
+          service: groupedServices.premium.monthly,
+          description: "Perfect for individuals and small businesses",
+          features: [
+            "24/7 Smart Doorstep Support",
+            "Remote Assistance",
+            "Software Installation",
+            "Virus Removal",
+            "Basic Troubleshooting",
+            "Email Support",
+            "Phone Support",
+            "1 Device Coverage",
+          ],
+          color: "from-blue-500 to-blue-600",
+        },
+        {
+          name: "Enterprise Plus",
+          icon: Crown,
+          popular: true,
+          price: groupedServices.enterprise.monthly?.price || 79,
+          service: groupedServices.enterprise.monthly,
+          description: "Comprehensive solution for businesses",
+          features: [
+            "Everything in Premium",
+            "Priority Support",
+            "On-site Visits",
+            "Network Setup & Management",
+            "Data Backup & Recovery",
+            "Security Audits",
+            "Hardware Diagnostics",
+            "Up to 10 Devices",
+            "Dedicated Account Manager",
+            "Monthly Health Reports",
+          ],
+          color: "from-purple-600 to-purple-700",
+        },
+      ];
+    }
   };
+
+  const plans = getCurrentServices();
+
+  const getSavings = (plan: Plan) => {
+    if (isYearly) {
+      const monthlyTotal = (plan.price / 12) * 12;
+      const savings = monthlyTotal - plan.price;
+      return Math.round((savings / monthlyTotal) * 100);
+    }
+    return 0;
+  };
+
+  if (servicesLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-onassist-primary mx-auto"></div>
+            <p className="mt-4 text-lg">Loading membership plans...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -109,8 +225,8 @@ const MembershipPage = () => {
               {config.name} <span className="text-yellow-300">Memberships</span>
             </h1>
             <p className="text-2xl opacity-90 mb-12 leading-relaxed">
-              Get unlimited Smart Doorstep support with our premium membership plans. Save
-              money and get priority service.
+              Get unlimited Smart Doorstep support with our premium membership
+              plans. Save money and get priority service.
             </p>
 
             {/* Billing Toggle */}
@@ -189,7 +305,7 @@ const MembershipPage = () => {
                     <div className="text-center mb-8">
                       <div className="flex items-baseline justify-center gap-2 mb-4">
                         <span className="text-5xl font-bold text-gray-900">
-                          ${getPrice(plan)}
+                          ${plan.price}
                         </span>
                         <span className="text-xl text-gray-600">
                           /{isYearly ? "year" : "month"}
@@ -202,7 +318,7 @@ const MembershipPage = () => {
                             Save {getSavings(plan)}% annually
                           </span>
                           <p className="text-sm text-gray-500">
-                            Billed ${plan.yearlyPrice} yearly
+                            Billed ${plan.price} yearly
                           </p>
                         </div>
                       )}
@@ -225,13 +341,16 @@ const MembershipPage = () => {
                     </div>
 
                     <Button
+                      onClick={() => handleAddToCart(plan.service)}
+                      disabled={!plan.service}
                       className={`w-full py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300 ${
                         plan.popular
                           ? "bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-yellow-900"
                           : `bg-gradient-to-br ${plan.color} hover:opacity-90 text-white`
                       }`}
                     >
-                      {plan.popular ? "Get Started" : "Choose Plan"}
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Add to Cart
                     </Button>
 
                     <p className="text-center text-sm text-gray-500 mt-4">
