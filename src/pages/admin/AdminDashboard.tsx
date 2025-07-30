@@ -25,6 +25,7 @@ import {
   ClipboardList,
   FileText,
   Mail,
+  Handshake,
 } from "lucide-react";
 
 interface Order {
@@ -54,6 +55,7 @@ const AdminDashboard = () => {
           servicesRes,
           categoryLeadsRes,
           serviceLeadsRes,
+          partnerApplicationsRes,
         ] = await Promise.allSettled([
           supabase.from("profiles").select("id", { count: "exact" }),
           supabase
@@ -65,6 +67,9 @@ const AdminDashboard = () => {
             .from("category_service_leads")
             .select("id", { count: "exact" }),
           supabase.from("service_leads").select("id", { count: "exact" }),
+          supabase
+            .from("partner_applications")
+            .select("id", { count: "exact" }),
         ]);
 
         console.log("Stats results:", {
@@ -102,6 +107,11 @@ const AdminDashboard = () => {
           serviceLeadsRes.status === "fulfilled" && !serviceLeadsRes.value.error
             ? serviceLeadsRes.value
             : { count: 0, data: [] };
+        const partnerApplications =
+          partnerApplicationsRes.status === "fulfilled" &&
+          !partnerApplicationsRes.value.error
+            ? partnerApplicationsRes.value
+            : { count: 0, data: [] };
 
         // Fix the totalRevenue calculation
         let totalRevenue = 0;
@@ -122,6 +132,7 @@ const AdminDashboard = () => {
           totalServices: services.count || 0,
           totalCategoryLeads: categoryLeads.count || 0,
           totalServiceLeads: serviceLeads.count || 0,
+          totalPartnerApplications: partnerApplications.count || 0,
         };
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -134,6 +145,7 @@ const AdminDashboard = () => {
           totalServices: 0,
           totalCategoryLeads: 0,
           totalServiceLeads: 0,
+          totalPartnerApplications: 0,
         };
       }
     },
@@ -218,6 +230,15 @@ const AdminDashboard = () => {
       shadowColor: "shadow-cyan-200",
       iconBg: "bg-white/20",
     },
+    {
+      title: "Partner Applications",
+      description: "Review partnership applications",
+      icon: Handshake,
+      href: "/admin/partner-applications",
+      gradient: "from-emerald-500 to-emerald-600",
+      shadowColor: "shadow-emerald-200",
+      iconBg: "bg-white/20",
+    },
   ];
 
   const managementLinks = [
@@ -290,6 +311,16 @@ const AdminDashboard = () => {
       gradient: "from-cyan-50 to-cyan-100",
       iconColor: "text-cyan-600",
       iconBg: "bg-cyan-100",
+    },
+    {
+      title: "Partner Applications",
+      description: "Review partnership applications",
+      icon: Handshake,
+      href: "/admin/partner-applications",
+      count: stats?.totalPartnerApplications,
+      gradient: "from-emerald-50 to-emerald-100",
+      iconColor: "text-emerald-600",
+      iconBg: "bg-emerald-100",
     },
   ];
 

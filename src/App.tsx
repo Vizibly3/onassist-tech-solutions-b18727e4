@@ -51,6 +51,7 @@ import AddCategory from "./pages/admin/AddCategory";
 import CategoryLeadsPage from "./pages/admin/CategoryLeadsPage";
 import ServiceLeadsPage from "./pages/admin/ServiceLeadsPage";
 import NewsletterSubscribersPage from "@/pages/admin/NewsletterSubscribersPage";
+import PartnerApplications from "./pages/admin/PartnerApplications";
 
 // Sitemap Pages
 import SitemapPage from "./pages/SitemapPage";
@@ -154,6 +155,10 @@ const App = () => (
                 <Route
                   path="/admin/newsletter-subscribers"
                   element={<NewsletterSubscribersPage />}
+                />
+                <Route
+                  path="/admin/partner-applications"
+                  element={<PartnerApplications />}
                 />
 
                 {/* Sitemap Routes */}

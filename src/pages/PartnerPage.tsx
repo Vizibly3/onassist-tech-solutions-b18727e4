@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Handshake,
   TrendingUp,
@@ -16,10 +21,153 @@ import {
   Building,
   Lightbulb,
   Target,
+  Send,
+  User,
+  Mail,
+  Phone,
+  MessageSquare,
 } from "lucide-react";
+
+interface PartnerFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  subject: string;
+  message: string;
+}
+
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  subject?: string;
+  message?: string;
+}
 
 const PartnerPage = () => {
   const { config } = useDynamicSiteConfig();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<PartnerFormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    subject: "",
+    message: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (
+      !/^[+]?[1-9][\d]{0,15}$/.test(
+        formData.phoneNumber.replace(/[\s\-()]/g, "")
+      )
+    ) {
+      newErrors.phoneNumber = "Please enter a valid phone number";
+    }
+
+    if (!formData.subject.trim()) {
+      newErrors.subject = "Subject is required";
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    } else if (formData.message.length < 10) {
+      newErrors.message = "Message must be at least 10 characters long";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleInputChange = (field: keyof PartnerFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Insert partner application into database
+      const { data, error } = await supabase
+        .from("partner_applications")
+        .insert([
+          {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email: formData.email,
+            phone_number: formData.phoneNumber,
+            subject: formData.subject,
+            message: formData.message,
+          },
+        ])
+        .select();
+
+      if (error) {
+        console.error("Error submitting application:", error);
+        toast.error("Failed to submit application. Please try again.");
+        return;
+      }
+
+      toast.success(
+        "Partner application submitted successfully! We'll get back to you within 24 hours."
+      );
+
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        subject: "",
+        message: "",
+      });
+      setErrors({});
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      toast.error("Failed to submit application. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const scrollToForm = () => {
+    const formSection = document.getElementById("partner-form");
+    if (formSection) {
+      formSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <Layout>
@@ -62,14 +210,17 @@ const PartnerPage = () => {
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button
                 size="lg"
+                onClick={scrollToForm}
                 className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-8 py-4 rounded-full shadow-2xl"
               >
                 <Users className="w-5 h-5 mr-2" />
                 Become a Partner
               </Button>
+
               <Button
                 size="lg"
                 variant="outline"
+                onClick={scrollToForm}
                 className="border-2 border-white  hover:bg-white text-onassist-primary font-bold px-8 py-4 rounded-full backdrop-blur-sm"
               >
                 <Lightbulb className="w-5 h-5 mr-2" />
@@ -225,10 +376,216 @@ const PartnerPage = () => {
           </p>
           <Button
             size="lg"
+            onClick={scrollToForm}
             className="bg-yellow-400 text-blue-800 hover:bg-yellow-500 font-bold px-8 py-4 rounded-full shadow-2xl"
           >
             Get Started Now <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
+        </div>
+      </section>
+
+      {/* Partner Application Form Section */}
+      <section id="partner-form" className="py-24 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4">
+                <span className="text-onassist-primary">Become a Partner</span>
+              </h2>
+              <p className="text-xl text-gray-600">
+                Fill out the form below and we'll get back to you within 24
+                hours
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-medium">
+                      First Name *
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="Enter your first name"
+                        value={formData.firstName}
+                        onChange={(e) =>
+                          handleInputChange("firstName", e.target.value)
+                        }
+                        className={`pl-10 ${
+                          errors.firstName
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.firstName && (
+                      <p className="text-red-500 text-sm">{errors.firstName}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium">
+                      Last Name *
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Enter your last name"
+                        value={formData.lastName}
+                        onChange={(e) =>
+                          handleInputChange("lastName", e.target.value)
+                        }
+                        className={`pl-10 ${
+                          errors.lastName
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.lastName && (
+                      <p className="text-red-500 text-sm">{errors.lastName}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email Address *
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={formData.email}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
+                        className={`pl-10 ${
+                          errors.email
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.email && (
+                      <p className="text-red-500 text-sm">{errors.email}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="phoneNumber"
+                      className="text-sm font-medium"
+                    >
+                      Phone Number *
+                    </Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        id="phoneNumber"
+                        type="tel"
+                        placeholder="Enter your phone number"
+                        value={formData.phoneNumber}
+                        onChange={(e) =>
+                          handleInputChange("phoneNumber", e.target.value)
+                        }
+                        className={`pl-10 ${
+                          errors.phoneNumber
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                    {errors.phoneNumber && (
+                      <p className="text-red-500 text-sm">
+                        {errors.phoneNumber}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="subject" className="text-sm font-medium">
+                    Subject *
+                  </Label>
+                  <Input
+                    id="subject"
+                    type="text"
+                    placeholder="Enter subject (e.g., Partnership Inquiry)"
+                    value={formData.subject}
+                    onChange={(e) =>
+                      handleInputChange("subject", e.target.value)
+                    }
+                    className={
+                      errors.subject
+                        ? "border-red-500 focus:border-red-500"
+                        : ""
+                    }
+                  />
+                  {errors.subject && (
+                    <p className="text-red-500 text-sm">{errors.subject}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message" className="text-sm font-medium">
+                    Message *
+                  </Label>
+                  <div className="relative">
+                    <MessageSquare className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+                    <Textarea
+                      id="message"
+                      placeholder="Tell us about your business and partnership goals..."
+                      value={formData.message}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
+                      className={`pl-10 min-h-[120px] resize-none ${
+                        errors.message
+                          ? "border-red-500 focus:border-red-500"
+                          : ""
+                      }`}
+                    />
+                  </div>
+                  {errors.message && (
+                    <p className="text-red-500 text-sm">{errors.message}</p>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Minimum 10 characters required
+                  </p>
+                </div>
+
+                <div className="pt-6">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-onassist-primary/90 hover:to-blue-600/90 text-white font-bold py-4 rounded-xl shadow-lg transition-all duration-300"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Submit Application
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </section>
     </Layout>
