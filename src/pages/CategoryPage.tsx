@@ -10,6 +10,7 @@ import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import ReCAPTCHA from "react-google-recaptcha";
 import {
   ArrowLeft,
   Phone,
@@ -58,6 +59,7 @@ const CategoryPage = () => {
     message: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [recaptchaToken, setRecaptchaToken] = useState("");
   const {
     data: services,
     isLoading,
@@ -152,6 +154,14 @@ const CategoryPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!recaptchaToken) {
+      setErrors((prev) => ({
+        ...prev,
+        recaptcha: "Please complete the captcha",
+      }));
+      return;
+    }
+
     if (!validateForm()) {
       toast.error("Please fix the errors in the form");
       return;
@@ -198,6 +208,7 @@ const CategoryPage = () => {
         message: "",
       });
       setErrors({});
+      setRecaptchaToken("");
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("An unexpected error occurred. Please try again later.");
@@ -531,6 +542,20 @@ const CategoryPage = () => {
                       purposes.
                     </span>
                   </label>
+
+                  {/* ReCAPTCHA */}
+                  <div className="md:col-span-2">
+                    <ReCAPTCHA
+                      sitekey="6LdruW4rAAAAAC3sFRlPA4oMsKQi8CQB2ObSPzZa"
+                      onChange={(token) => setRecaptchaToken(token || "")}
+                    />
+                    {errors.recaptcha && (
+                      <p className="text-red-500 text-sm flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.recaptcha}
+                      </p>
+                    )}
+                  </div>
 
                   <Button
                     type="submit"
