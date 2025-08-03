@@ -346,7 +346,7 @@ const CityServicePage = () => {
                       {category.services.slice(0, 3).map((service) => (
                         <Link
                           key={service.id}
-                          to={`/${country}/${state}/${city}/${slugify(
+                          to={`/${country}/${state}/${city}/service/${slugify(
                             service.title
                           )}`}
                           className="block text-gray-700 hover:text-onassist-primary transition-colors p-2 rounded hover:bg-gray-50"
