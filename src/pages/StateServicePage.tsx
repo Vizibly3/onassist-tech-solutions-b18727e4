@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Helmet } from "react-helmet-async";
 import { siteConfig } from "@/config/site";
+import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 import {
   useServiceCategories,
   useCategoriesWithServices,
@@ -62,6 +63,7 @@ function getRandomItems<T>(arr: T[], n: number): T[] {
 
 const StateServicePage = () => {
   const { country, state } = useParams();
+  const { config } = useDynamicSiteConfig();
   const { data: categories } = useServiceCategories();
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
@@ -102,6 +104,14 @@ const StateServicePage = () => {
   React.useEffect(() => {
     setCityPage(1);
   }, [citySearch]);
+
+  // Scroll to top services section
+  const scrollToTopServices = () => {
+    const element = document.getElementById("top-services");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   if (!stateData) {
     return (
@@ -245,16 +255,17 @@ const StateServicePage = () => {
                 size="lg"
                 className="bg-white text-onassist-primary hover:bg-gray-100 font-semibold px-8 py-4 rounded-full shadow-xl"
                 onClick={() =>
-                  window.open(`tel:${siteConfig.contactPhone}`, "_self")
+                  window.open(`tel:${config.contactPhone}`, "_self")
                 }
               >
                 <Phone className="w-5 h-5 mr-2" />
-                Call {siteConfig.contactPhone}
+                Call {config.contactPhone}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-onassist-primary font-semibold px-8 py-4 rounded-full backdrop-blur-sm"
+                className="border-2 border-white  hover:bg-white text-onassist-primary font-semibold px-8 py-4 rounded-full backdrop-blur-sm"
+                onClick={scrollToTopServices}
               >
                 <Search className="w-5 h-5 mr-2" />
                 <span className="text-blue-600">Find Local Service</span>
@@ -373,7 +384,7 @@ const StateServicePage = () => {
       </section>
 
       {/* Popular Services */}
-      <section className="py-20 bg-white">
+      <section id="top-services" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-6 py-2 mb-4">
@@ -586,12 +597,12 @@ const StateServicePage = () => {
                   className="bg-gradient-to-r from-onassist-primary to-blue-600 hover:from-blue-600 hover:to-onassist-primary text-white font-bold px-8 py-5 rounded-full shadow-xl text-lg flex-1 max-w-xs w-full whitespace-normal break-words"
                   style={{ minWidth: "0" }}
                   onClick={() =>
-                    window.open(`tel:${siteConfig.contactPhone}`, "_self")
+                    window.open(`tel:${config.contactPhone}`, "_self")
                   }
                 >
                   <Phone className="w-6 h-6 mr-3 shrink-0" />
                   <span className="truncate">
-                    Call Now: {siteConfig.contactPhone}
+                    Call Now: {config.contactPhone}
                   </span>
                 </Button>
                 <Button

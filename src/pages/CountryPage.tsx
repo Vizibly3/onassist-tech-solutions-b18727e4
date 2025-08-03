@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Helmet } from "react-helmet-async";
 import { siteConfig } from "@/config/site";
+import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 import {
   useServiceCategories,
   useCategoriesWithServices,
@@ -49,6 +50,7 @@ import {
 
 const CountryPage = () => {
   const { country } = useParams();
+  const { config } = useDynamicSiteConfig();
   const { data: categories } = useServiceCategories();
   const { data: categoriesWithServices } = useCategoriesWithServices();
 
@@ -151,6 +153,14 @@ const CountryPage = () => {
     if (title.includes("phone") || title.includes("mobile")) return Smartphone;
     if (title.includes("network") || title.includes("wifi")) return Wifi;
     return Wrench;
+  };
+
+  // Scroll to states section
+  const scrollToStates = () => {
+    const element = document.getElementById("states-we-serve");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
@@ -261,16 +271,17 @@ const CountryPage = () => {
                 size="lg"
                 className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-10 py-6 rounded-full shadow-2xl text-xl"
                 onClick={() =>
-                  window.open(`tel:${siteConfig.contactPhone}`, "_self")
+                  window.open(`tel:${config.contactPhone}`, "_self")
                 }
               >
                 <Phone className="w-6 h-6 mr-3" />
-                Call {siteConfig.contactPhone}
+                Call {config.contactPhone}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="border-3 border-white hover:bg-white text-onassist-primary font-bold px-10 py-6 rounded-full backdrop-blur-sm text-xl"
+                onClick={scrollToStates}
               >
                 <Globe className="w-6 h-6 mr-3" />
                 Find Your State
@@ -381,7 +392,7 @@ const CountryPage = () => {
       </section>
 
       {/* States We Serve */}
-      <section className="py-24 bg-white">
+      <section id="states-we-serve" className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 rounded-full px-8 py-3 mb-6">
@@ -656,11 +667,11 @@ const CountryPage = () => {
                 size="lg"
                 className="bg-white text-onassist-primary hover:bg-gray-100 font-bold px-12 py-6 rounded-full shadow-2xl text-xl"
                 onClick={() =>
-                  window.open(`tel:${siteConfig.contactPhone}`, "_self")
+                  window.open(`tel:${config.contactPhone}`, "_self")
                 }
               >
                 <Phone className="w-6 h-6 mr-3" />
-                Call Now: {siteConfig.contactPhone}
+                Call Now: {config.contactPhone}
               </Button>
               <Button
                 size="lg"
