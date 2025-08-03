@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useServiceBySlug } from "@/hooks/useServices";
 import { Helmet } from "react-helmet-async";
 import { siteConfig } from "@/config/site";
+import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 import {
   Clock,
   Star,
@@ -70,6 +71,7 @@ const LocationServiceDetailPage = () => {
   const { country, state, city, serviceSlug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { config } = useDynamicSiteConfig();
   const {
     data: service,
     isLoading,
@@ -758,7 +760,7 @@ const LocationServiceDetailPage = () => {
                         Call our {cityData.name} support team
                       </p>
                       <p className="font-bold text-lg text-onassist-primary">
-                        1-800-TECH-NOW
+                        {config.contactPhone}
                       </p>
                     </div>
                   </div>
@@ -961,7 +963,7 @@ const LocationServiceDetailPage = () => {
               </Button>
               <div className="flex items-center gap-2 text-lg">
                 <Phone className="w-5 h-5" />
-                <span>or call 1-800-TECH-NOW</span>
+                <span>or call {config.contactPhone}</span>
               </div>
             </div>
           </div>
