@@ -497,7 +497,7 @@ const CategoryPage = () => {
                       id="preferredTime"
                       value={formData.preferredTime}
                       onChange={handleInputChange}
-                      className={`p-3 rounded-xl border ${
+                      className={`p-3 rounded-xl border text-gray-900 bg-white ${
                         errors.preferredTime
                           ? "border-red-500"
                           : "border-gray-300"

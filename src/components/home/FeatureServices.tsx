@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useServiceCategories } from "@/hooks/useServices";
+import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
 import { ArrowRight, Star } from "lucide-react";
 
 const FeatureServices = () => {
   const { data: categories, isLoading } = useServiceCategories();
+  const { config } = useDynamicSiteConfig();
 
   if (isLoading) {
     return (
@@ -15,7 +17,7 @@ const FeatureServices = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Your Smart Doorstep{" "}
+              Your {config.name}{" "}
               <span className="text-onassist-primary">Services</span>
             </h2>
           </div>
@@ -40,7 +42,7 @@ const FeatureServices = () => {
             <span className="font-medium">Featured Services</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Your Smart Doorstep{" "}
+            Your {config.name}{" "}
             <span className="text-onassist-primary">Services</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">

@@ -62,7 +62,7 @@ const DynamicHeader = () => {
             >
               <div className="w-8 h-8 bg-onassist-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">
-                  {config.name ? config.name.charAt(0).toUpperCase() : "O"}
+                  {config.name.charAt(0).toUpperCase()}
                 </span>
               </div>
               <span className="text-xl font-bold text-gray-900">

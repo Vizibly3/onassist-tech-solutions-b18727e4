@@ -1,6 +1,5 @@
-
 export const siteConfig = {
-  name: "Smart Doorstep",
+  name: "Smart Door Step",
   description: "Professional tech support services for your home and business",
   url: "https://smartdoorstep.com", // Replace with your actual domain when live
   ogImage: "https://smartdoorstep.com/og-image.jpg", // Replace with actual OG image path

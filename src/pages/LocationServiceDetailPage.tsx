@@ -12,6 +12,7 @@ import { useServiceBySlug } from "@/hooks/useServices";
 import { Helmet } from "react-helmet-async";
 import { siteConfig } from "@/config/site";
 import { useDynamicSiteConfig } from "@/hooks/useDynamicSiteConfig";
+import { toast } from "sonner";
 import {
   Clock,
   Star,
@@ -153,8 +154,9 @@ const LocationServiceDetailPage = () => {
   }, [cityData, stateData]);
 
   const handleAddToCart = () => {
-    if (service && zipCode.trim()) {
+    if (service) {
       addToCart(service);
+      toast.success(`${service.title} has been added to your cart.`);
     }
   };
 
@@ -961,10 +963,17 @@ const LocationServiceDetailPage = () => {
                 <Calendar className="w-6 h-6 mr-3" />
                 Book {service.title} Now
               </Button>
-              <div className="flex items-center gap-2 text-lg">
-                <Phone className="w-5 h-5" />
-                <span>or call {config.contactPhone}</span>
-              </div>
+              <Button
+                onClick={() =>
+                  window.open(`tel:${config.contactPhone}`, "_self")
+                }
+                size="lg"
+                variant="outline"
+                className="border-2 border-white  hover:bg-white text-onassist-primary text-lg px-8 py-6 rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105"
+              >
+                <Phone className="w-6 h-6 mr-3" />
+                Call {config.contactPhone}
+              </Button>
             </div>
           </div>
         </div>

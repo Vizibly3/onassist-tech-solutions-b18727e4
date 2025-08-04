@@ -21,7 +21,7 @@ const CTASection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            Need Smart Doorstep Support
+            Need {config.name} Support
             <span className="block text-transparent bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text">
               Right Now?
             </span>
@@ -77,7 +77,7 @@ const CTASection = () => {
         <div className="text-center space-y-6">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href={`tel:${siteConfig.contactPhone.replace(/[^\d+]/g, "")}`}
+              href={`tel:${config.contactPhone.replace(/[^\d+]/g, "")}`}
               className="group"
             >
               <Button
@@ -85,7 +85,7 @@ const CTASection = () => {
                 className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-green-300/30"
               >
                 <Phone className="mr-3 h-5 w-5 animate-pulse" />
-                Call Now: {siteConfig.contactPhone}
+                Call Now: {config.contactPhone}
                 <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </a>
