@@ -13,7 +13,7 @@ import { serviceCategories, getAllServices } from "../src/config/services.ts";
 // "generate-sitemap": "ts-node scripts/generate-sitemap.ts",
 // "generate-sitemap": "tsx scripts/generate-sitemap.ts",
 
-const BASE_URL = "https://www.smartdoorstep.com/sitemap.xml";
+const BASE_URL = "https://www.smartdoorstep.com";
 const URLS_PER_CHUNK = 10000;
 
 interface SitemapUrl {
@@ -296,7 +296,7 @@ export const generateSitemapIndex = async (): Promise<string> => {
   for (let i = 0; i < totalChunks; i++) {
     sitemapIndex += `
   <sitemap>
-    <loc>${BASE_URL}/sitemap_${i + 1}.xml</loc>
+    <loc>${BASE_URL}/sitetree_${i + 1}.xml</loc>
     <lastmod>${currentDate}</lastmod>
   </sitemap>`;
   }
@@ -330,16 +330,19 @@ async function generate() {
   if (totalChunks <= 1) {
     // Single file
     const xml = generateSitemapFromUrls(allUrls);
-    fs.writeFileSync(path.join(publicPath, "sitemap.xml"), xml);
+    fs.writeFileSync(path.join(publicPath, "sitetree.xml"), xml);
   } else {
     // Index file
     const indexXml = await generateSitemapIndex();
-    fs.writeFileSync(path.join(publicPath, "sitemap.xml"), indexXml);
+    fs.writeFileSync(path.join(publicPath, "sitetree.xml"), indexXml);
 
     // Chunked sitemaps
     for (let i = 0; i < totalChunks; i++) {
       const chunkXml = await generateSitemapChunk(i);
-      fs.writeFileSync(path.join(publicPath, `sitemap_${i + 1}.xml`), chunkXml);
+      fs.writeFileSync(
+        path.join(publicPath, `sitetree_${i + 1}.xml`),
+        chunkXml
+      );
     }
   }
 

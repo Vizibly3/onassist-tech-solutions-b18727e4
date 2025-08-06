@@ -162,7 +162,7 @@ const App = () => (
                 />
 
                 {/* Sitemap Routes */}
-                <Route path="/sitemap.xml" element={<SitemapPage />} />
+                <Route path="/sitetree.xml" element={<SitemapPage />} />
                 <Route
                   path="/sitemap_index.xml"
                   element={<SitemapMainPage />}
