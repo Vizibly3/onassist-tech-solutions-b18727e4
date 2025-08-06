@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -156,10 +155,10 @@ const AdminSitemap = () => {
   };
 
   const handleDownloadSitemap = () => {
-    // Programmatically download sitemap.xml
+    // Programmatically download sitetree.xml
     const link = document.createElement("a");
-    link.href = "/sitemap.xml";
-    link.download = "sitemap.xml";
+    link.href = "/sitetree.xml";
+    link.download = "sitetree.xml";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -194,7 +193,7 @@ const AdminSitemap = () => {
                     className="w-full"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Download sitemap.xml
+                    Download sitetree.xml
                   </Button>
                 </div>
               </CardContent>
@@ -288,8 +287,8 @@ const AdminSitemap = () => {
                             title="Download XML"
                             onClick={() => {
                               const link = document.createElement("a");
-                              link.href = `/sitemap_${i + 1}.xml`;
-                              link.download = `sitemap_${i + 1}.xml`;
+                              link.href = `/sitetree_${i + 1}.xml`;
+                              link.download = `sitetree_${i + 1}.xml`;
                               document.body.appendChild(link);
                               link.click();
                               document.body.removeChild(link);
@@ -303,7 +302,7 @@ const AdminSitemap = () => {
                             className="hover:bg-onassist-primary/10"
                             title="Open XML in new tab"
                             onClick={() =>
-                              window.open(`/sitemap_${i + 1}.xml`, "_blank")
+                              window.open(`/sitetree_${i + 1}.xml`, "_blank")
                             }
                           >
                             <FileText className="w-4 h-4" />
@@ -312,7 +311,7 @@ const AdminSitemap = () => {
                       </div>
                       <div className="border-t mt-2 pt-2">
                         <p className="text-xs text-gray-500 truncate">
-                          sitemap_{i + 1}.xml
+                          sitetree_{i + 1}.xml
                         </p>
                       </div>
                     </div>
