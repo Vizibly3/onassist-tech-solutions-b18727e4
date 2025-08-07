@@ -935,7 +935,7 @@ const LocationServiceDetailPage = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="py-16 bg-gradient-to-r from-onassist-primary via-blue-600 to-purple-700 text-white relative overflow-hidden">
+        <div className="py-8 md:py-12 lg:py-16 bg-gradient-to-r from-onassist-primary via-blue-600 to-purple-700 text-white relative overflow-hidden">
           <div className="absolute inset-0 opacity-20">
             <div
               className="absolute inset-0"
@@ -946,21 +946,21 @@ const LocationServiceDetailPage = () => {
           </div>
 
           <div className="container mx-auto px-4 text-center relative">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
               Ready to Get Started?
             </h2>
-            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+            <p className="text-sm md:text-base lg:text-lg xl:text-xl mb-6 md:mb-8 opacity-90 max-w-2xl mx-auto px-2">
               Join hundreds of satisfied customers in {cityData.name} who trust
               us with their tech needs. Book your service today and experience
               the difference.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
               <Button
                 onClick={handleAddToCart}
                 size="lg"
-                className="bg-white text-onassist-primary hover:bg-gray-100 text-lg px-8 py-6 rounded-xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
+                className="bg-white text-onassist-primary hover:bg-gray-100 text-sm md:text-base lg:text-lg px-4 md:px-6 lg:px-8 py-3 md:py-4 lg:py-6 rounded-lg md:rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
-                <Calendar className="w-6 h-6 mr-3" />
+                <Calendar className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 mr-2 md:mr-3" />
                 Book {service.title} Now
               </Button>
               <Button
@@ -969,9 +969,9 @@ const LocationServiceDetailPage = () => {
                 }
                 size="lg"
                 variant="outline"
-                className="border-2 border-white  hover:bg-white text-onassist-primary text-lg px-8 py-6 rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                className="border-2 border-white hover:bg-white text-onassist-primary text-sm md:text-base lg:text-lg px-4 md:px-6 lg:px-8 py-3 md:py-4 lg:py-6 rounded-lg md:rounded-xl backdrop-blur-sm transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
-                <Phone className="w-6 h-6 mr-3" />
+                <Phone className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 mr-2 md:mr-3" />
                 Call {config.contactPhone}
               </Button>
             </div>
