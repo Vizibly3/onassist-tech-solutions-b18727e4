@@ -31,8 +31,9 @@
   <script>
     (function () {
       // TrackWiser configuration
-      var trackingCode = 'TW_1753636643460_ymmdlaj3c';
+      var trackingCode = 'r40i6qk7bigaxpwywfqgwp';
       var apiUrl = 'https://ltluebewuhheisbbjcss.supabase.co/functions/v1/track-event';
+      var heatmapApiUrl = 'https://ltluebewuhheisbbjcss.supabase.co/functions/v1/track-heatmap';
 
       // Generate or get visitor ID
       function getVisitorId() {
@@ -68,6 +69,8 @@
           data: eventData || {}
         };
 
+        console.log('TrackWiser: Sending event', eventType, data);
+
         // Use fetch to send data
         fetch(apiUrl, {
           method: 'POST',
@@ -76,10 +79,12 @@
           },
           body: JSON.stringify(data)
         }).then(function (response) {
-          if (response.ok) {
-            console.log('TrackWiser: Event sent successfully');
+          return response.json();
+        }).then(function (result) {
+          if (result.success) {
+            console.log('TrackWiser: Event sent successfully', result);
           } else {
-            console.error('TrackWiser: Failed to send event');
+            console.error('TrackWiser: Failed to send event', result);
           }
         }).catch(function (error) {
           console.error('TrackWiser: Error sending event:', error);
@@ -95,6 +100,66 @@
         sendEvent('page_view');
       }
 
+      // Send heatmap event
+      function sendHeatmapEvent(eventType, element, x, y) {
+        // Get better element information
+        var elementInfo = '';
+        var elementText = '';
+
+        if (element) {
+          // Get readable text (prefer text content over inner text)
+          elementText = element.textContent?.trim().substring(0, 100) || element.innerText?.trim().substring(0, 100) || '';
+
+          // Create a cleaner selector
+          var selector = element.tagName.toLowerCase();
+
+          // Add ID if available
+          if (element.id) {
+            selector += '#' + element.id;
+          }
+          // Add a few key classes (max 3) instead of all classes
+          else if (element.className) {
+            var classes = element.className.split(' ').filter(function (c) {
+              return c.length > 0 && !c.includes('bg-') && !c.includes('text-') && !c.includes('border-') && !c.includes('rounded-');
+            });
+            if (classes.length > 0) {
+              selector += '.' + classes.slice(0, 3).join('.');
+            }
+          }
+
+          // If we have readable text, use it as the main identifier
+          if (elementText.length > 0 && elementText.length < 50) {
+            elementInfo = elementText;
+          } else {
+            elementInfo = selector;
+          }
+        }
+
+        var data = {
+          tracking_code: trackingCode,
+          event_type: eventType,
+          page_url: window.location.href,
+          x_position: x,
+          y_position: y,
+          element_selector: elementInfo,
+          element_text: elementText,
+          session_id: getSessionId(),
+          visitor_id: getVisitorId()
+        };
+
+        console.log('TrackWiser: Sending heatmap event', eventType, data);
+
+        fetch(heatmapApiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        }).catch(function (error) {
+          console.error('TrackWiser: Error sending heatmap event', error);
+        });
+      }
+
       // Track clicks on important elements
       document.addEventListener('click', function (e) {
         var target = e.target;
@@ -106,6 +171,9 @@
             class: target.className || ''
           });
         }
+
+        // Send heatmap click event
+        sendHeatmapEvent('click', target, e.clientX, e.clientY);
       });
 
       // Track form submissions
@@ -117,17 +185,37 @@
             form_name: form.name || '',
             action: form.action || ''
           });
+
+          // Send heatmap form event
+          sendHeatmapEvent('form_submit', form, 0, 0);
         }
       });
 
       // Track scroll depth
       var maxScroll = 0;
+      var lastScrollTime = 0;
       window.addEventListener('scroll', function () {
         var scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
         if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
           maxScroll = scrollPercent;
           sendEvent('scroll', { depth: scrollPercent });
         }
+
+        // Send heatmap scroll event (throttled)
+        var now = Date.now();
+        if (now - lastScrollTime > 1000) {
+          sendHeatmapEvent('scroll', null, 0, window.scrollY);
+          lastScrollTime = now;
+        }
+      });
+
+      // Track hover events (throttled)
+      var hoverTimeout;
+      document.addEventListener('mouseover', function (e) {
+        clearTimeout(hoverTimeout);
+        hoverTimeout = setTimeout(function () {
+          sendHeatmapEvent('hover', e.target, e.clientX, e.clientY);
+        }, 500);
       });
 
       // Track time on page
