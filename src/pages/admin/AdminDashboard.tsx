@@ -56,20 +56,29 @@ const AdminDashboard = () => {
           categoryLeadsRes,
           serviceLeadsRes,
           partnerApplicationsRes,
+          newsletterSubscribersRes,
         ] = await Promise.allSettled([
-          supabase.from("profiles").select("id", { count: "exact" }),
+          supabase
+            .from("profiles")
+            .select("id", { count: "exact" })
+            .eq("active", true),
           supabase
             .from("orders")
             .select("id, total_amount", { count: "exact" }),
-          supabase.from("contact_inquiries").select("id", { count: "exact" }),
-          supabase.from("services").select("id", { count: "exact" }),
+          supabase.from("contact_inquiries").select("id", { count: "exact" }).eq("active", true),
+          supabase.from("services").select("id", { count: "exact" }).eq("active", true),
           supabase
             .from("category_service_leads")
-            .select("id", { count: "exact" }),
-          supabase.from("service_leads").select("id", { count: "exact" }),
+            .select("id", { count: "exact" })
+            .eq("active", true),
+          supabase.from("service_leads").select("id", { count: "exact" }).eq("active", true),
           supabase
             .from("partner_applications")
             .select("id", { count: "exact" }),
+          supabase
+            .from("newsletter_subscribers")
+            .select("id", { count: "exact" })
+            .eq("active", true),
         ]);
 
         console.log("Stats results:", {
@@ -112,6 +121,11 @@ const AdminDashboard = () => {
           !partnerApplicationsRes.value.error
             ? partnerApplicationsRes.value
             : { count: 0, data: [] };
+        const newsletterSubscribers =
+          newsletterSubscribersRes.status === "fulfilled" &&
+          !newsletterSubscribersRes.value.error
+            ? newsletterSubscribersRes.value
+            : { count: 0, data: [] };
 
         // Fix the totalRevenue calculation
         let totalRevenue = 0;
@@ -133,6 +147,7 @@ const AdminDashboard = () => {
           totalCategoryLeads: categoryLeads.count || 0,
           totalServiceLeads: serviceLeads.count || 0,
           totalPartnerApplications: partnerApplications.count || 0,
+          totalNewsletterSubscribers: newsletterSubscribers.count || 0,
         };
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -307,7 +322,7 @@ const AdminDashboard = () => {
       description: "Manage newsletter signups",
       icon: Mail,
       href: "/admin/newsletter-subscribers",
-      count: undefined,
+      count: stats?.totalNewsletterSubscribers,
       gradient: "from-cyan-50 to-cyan-100",
       iconColor: "text-cyan-600",
       iconBg: "bg-cyan-100",

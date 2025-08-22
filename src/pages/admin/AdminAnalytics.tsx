@@ -71,7 +71,8 @@ const AdminAnalytics = () => {
       // Fetch total users
       const { count: usersCount } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('active', true);
 
       // Fetch orders data
       const { data: ordersData } = await supabase
@@ -91,14 +92,14 @@ const AdminAnalytics = () => {
         .limit(5);
 
       // Calculate analytics
-      const totalRevenue = ordersData?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      const totalRevenue = ordersData ? ordersData.reduce((sum, order) => sum + Number(order.total_amount), 0) : 0;
       
       const ordersByStatus = [
-        { name: 'Pending', value: ordersData?.filter(o => o.status === 'pending').length || 0 },
-        { name: 'Confirmed', value: ordersData?.filter(o => o.status === 'confirmed').length || 0 },
-        { name: 'In Progress', value: ordersData?.filter(o => o.status === 'in_progress').length || 0 },
-        { name: 'Completed', value: ordersData?.filter(o => o.status === 'completed').length || 0 },
-        { name: 'Cancelled', value: ordersData?.filter(o => o.status === 'cancelled').length || 0 }
+        { name: 'Pending', value: ordersData ? ordersData.filter(o => o.status === 'pending').length : 0 },
+        { name: 'Confirmed', value: ordersData ? ordersData.filter(o => o.status === 'confirmed').length : 0 },
+        { name: 'In Progress', value: ordersData ? ordersData.filter(o => o.status === 'in_progress').length : 0 },
+        { name: 'Completed', value: ordersData ? ordersData.filter(o => o.status === 'completed').length : 0 },
+        { name: 'Cancelled', value: ordersData ? ordersData.filter(o => o.status === 'cancelled').length : 0 }
       ];
 
       // Calculate monthly revenue from actual data
@@ -114,7 +115,7 @@ const AdminAnalytics = () => {
       }
 
       // Aggregate data by month
-      ordersData?.forEach(order => {
+      (ordersData || []).forEach(order => {
         const orderDate = new Date(order.created_at);
         const monthKey = months[orderDate.getMonth()];
         if (monthlyData[monthKey]) {
